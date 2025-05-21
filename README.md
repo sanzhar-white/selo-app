@@ -1,16 +1,37 @@
-# selo
+# 🏡 Selo
 
-A new Flutter project.
+**Selo** is a mobile application built with **Flutter** and **Dart**. The app is designed to [Online advertising platform. In the app, users can find, buy, and sell agricultural products by creating or browsing listings.].
 
-## Getting Started
+![Flutter](https://img.shields.io/badge/Framework-Flutter-blue)
+![Dart](https://img.shields.io/badge/Language-Dart-0175C2)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## ✨ Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 🗺️ Interactive village map
+- 💬 Real-time messaging
+- 📍 Location-based filters
+- 🔔 Event notifications
+- 📷 Camera and gallery integration
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🚀 Getting Started
+
+To run the project locally:
+
+```bash
+# 1. Clone this repository
+git clone https://github.com/your-username/selo.git
+
+# 2. Change directory
+cd selo
+
+# 3. Install dependencies
+flutter pub get
+
+# 4. Run the app
+flutter run
