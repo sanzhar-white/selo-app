@@ -11,7 +11,6 @@ import 'package:selo/features/profile/presentation/features.dart';
 // Ключ для root-навигации
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
-// GoRouter с StatefulShellRoute
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: Routes.homePage,
@@ -26,8 +25,13 @@ final router = GoRouter(
             GoRoute(
               path: Routes.homePage,
               pageBuilder:
-                  (context, state) =>
-                      const NoTransitionPage(child: const HomeFeature()),
+                  (context, state) => CustomTransitionPage(
+                    key: state.pageKey,
+                    child: const HomeFeature(),
+                    transitionsBuilder:
+                        (context, animation, _, child) =>
+                            FadeTransition(opacity: animation, child: child),
+                  ),
             ),
           ],
         ),
@@ -36,8 +40,13 @@ final router = GoRouter(
             GoRoute(
               path: Routes.favouritesPage,
               pageBuilder:
-                  (context, state) =>
-                      const NoTransitionPage(child: const FavouritesFeature()),
+                  (context, state) => CustomTransitionPage(
+                    key: state.pageKey,
+                    child: const FavouritesFeature(),
+                    transitionsBuilder:
+                        (context, animation, _, child) =>
+                            FadeTransition(opacity: animation, child: child),
+                  ),
             ),
           ],
         ),
@@ -46,8 +55,13 @@ final router = GoRouter(
             GoRoute(
               path: Routes.addPage,
               pageBuilder:
-                  (context, state) =>
-                      const NoTransitionPage(child: const AddFeature()),
+                  (context, state) => CustomTransitionPage(
+                    key: state.pageKey,
+                    child: const AddFeature(),
+                    transitionsBuilder:
+                        (context, animation, _, child) =>
+                            FadeTransition(opacity: animation, child: child),
+                  ),
             ),
           ],
         ),
@@ -56,8 +70,13 @@ final router = GoRouter(
             GoRoute(
               path: Routes.profilePage,
               pageBuilder:
-                  (context, state) =>
-                      const NoTransitionPage(child: const ProfileFeature()),
+                  (context, state) => CustomTransitionPage(
+                    key: state.pageKey,
+                    child: const ProfileFeature(),
+                    transitionsBuilder:
+                        (context, animation, _, child) =>
+                            FadeTransition(opacity: animation, child: child),
+                  ),
             ),
           ],
         ),

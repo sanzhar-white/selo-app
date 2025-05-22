@@ -9,8 +9,10 @@ ThemeData lightTheme = ThemeData(
     primary: Color(0xff2B654D),
     onPrimary: Color(0xffFFFFFF),
 
-    surface: Color(0xffF2F2F7),
-    onSurface: Color(0xff8A8A8E),
+    inversePrimary: Color(0xff000000),
+
+    onSurface: Color(0xffF2F2F7),
+    secondary: Color(0xff636363),
   ),
 );
 
@@ -23,7 +25,9 @@ ThemeData darkTheme = ThemeData(
     primary: Color(0xff4CAF8C),
     onPrimary: Color(0xff000000),
 
-    surface: Color(0xff1C1C1E),
-    onSurface: Color(0xffA2A2A7),
+    inversePrimary: Color(0xffFFFFFF),
+
+    onSurface: Color(0xff1C1C1E),
+    secondary: Color(0xff636363),
   ),
 );
