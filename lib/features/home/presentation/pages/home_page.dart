@@ -26,21 +26,19 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SearchAppBarWidget(
-            theme: theme,
-            mediaQuery: mediaQuery,
-            searchQuery: searchQuery,
-          ),
+          SearchAppBarWidget(searchQuery: searchQuery),
 
           // BannersBodyWidget(
-          //   theme: theme,
-          //   mediaQuery: mediaQuery,
           //   searchQuery: searchQuery,
           //   banners: banners,
           // ),
           SliverAppBar(
             flexibleSpace: FlexibleSpaceBar(
-              background: Expanded(child: )
+              background: Expanded(
+                child: Row(
+                  children: [Column(children: []), Column(children: [])],
+                ),
+              ),
             ),
           ),
           SliverFillRemaining(),

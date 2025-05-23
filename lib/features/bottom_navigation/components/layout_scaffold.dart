@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../models/destination.dart';
+import '../models/destination_model.dart';
 
 class LayoutScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;

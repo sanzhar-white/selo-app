@@ -3,20 +3,19 @@ import 'package:selo/shared/widgets/customtextfield.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:flutter/cupertino.dart';
 
-class SearchAppBarWidget extends StatelessWidget {
-  const SearchAppBarWidget({
-    super.key,
-    required this.theme,
-    required this.mediaQuery,
-    required this.searchQuery,
-  });
-
-  final ColorScheme theme;
-  final MediaQueryData mediaQuery;
+class SearchAppBarWidget extends StatefulWidget {
+  const SearchAppBarWidget({super.key, required this.searchQuery});
   final TextEditingController searchQuery;
 
   @override
+  State<SearchAppBarWidget> createState() => _SearchAppBarWidgetState();
+}
+
+class _SearchAppBarWidgetState extends State<SearchAppBarWidget> {
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+    final mediaQuery = MediaQuery.of(context);
     return SliverAppBar(
       flexibleSpace: FlexibleSpaceBar(
         background: Align(
@@ -45,7 +44,7 @@ class SearchAppBarWidget extends StatelessWidget {
                     ),
                     Expanded(
                       child: CustomTextField(
-                        controller: searchQuery,
+                        controller: widget.searchQuery,
                         theme: theme,
                         style: GreenM(context),
                         hintText: 'Поиск по Казахстану',
