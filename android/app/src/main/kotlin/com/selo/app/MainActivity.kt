@@ -1,4 +1,4 @@
-package com.example.selo
+package com.selo.app
 
 import io.flutter.embedding.android.FlutterActivity
 

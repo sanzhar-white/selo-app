@@ -18,10 +18,8 @@ class S {
   static S? _current;
 
   static S get current {
-    assert(
-      _current != null,
-      'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.',
-    );
+    assert(_current != null,
+        'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.');
     return _current!;
   }
 
@@ -43,10 +41,8 @@ class S {
 
   static S of(BuildContext context) {
     final instance = S.maybeOf(context);
-    assert(
-      instance != null,
-      'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?',
-    );
+    assert(instance != null,
+        'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?');
     return instance!;
   }
 
@@ -54,29 +50,134 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Hello`
-  String get hello {
-    return Intl.message('Hello', name: 'hello', desc: '', args: []);
+  /// `English`
+  String get language {
+    return Intl.message(
+      'English',
+      name: 'language',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `en`
+  String get language_code {
+    return Intl.message(
+      'en',
+      name: 'language_code',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Home`
-  String get home {
-    return Intl.message('Home', name: 'home', desc: '', args: []);
-  }
-
-  /// `Favourites`
-  String get favourites {
-    return Intl.message('Favourites', name: 'favourites', desc: '', args: []);
+  String get nav_home {
+    return Intl.message(
+      'Home',
+      name: 'nav_home',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Add`
-  String get add {
-    return Intl.message('Add', name: 'add', desc: '', args: []);
+  String get nav_add {
+    return Intl.message(
+      'Add',
+      name: 'nav_add',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Favourites`
+  String get nav_favourites {
+    return Intl.message(
+      'Favourites',
+      name: 'nav_favourites',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Profile`
-  String get profile {
-    return Intl.message('Profile', name: 'profile', desc: '', args: []);
+  String get nav_profile {
+    return Intl.message(
+      'Profile',
+      name: 'nav_profile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profile Settings`
+  String get profile_settings {
+    return Intl.message(
+      'Profile Settings',
+      name: 'profile_settings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log out`
+  String get profile_logout {
+    return Intl.message(
+      'Log out',
+      name: 'profile_logout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create Ad`
+  String get add_form_title {
+    return Intl.message(
+      'Create Ad',
+      name: 'add_form_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Submit`
+  String get add_form_submit {
+    return Intl.message(
+      'Submit',
+      name: 'add_form_submit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hello {userName}!`
+  String greeting_user(Object userName) {
+    return Intl.message(
+      'Hello $userName!',
+      name: 'greeting_user',
+      desc: '',
+      args: [userName],
+    );
+  }
+
+  /// `Kg`
+  String get label_kg {
+    return Intl.message(
+      'Kg',
+      name: 'label_kg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ton`
+  String get label_ton {
+    return Intl.message(
+      'Ton',
+      name: 'label_ton',
+      desc: '',
+      args: [],
+    );
   }
 }
 
@@ -84,7 +185,9 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
-    return const <Locale>[Locale.fromSubtags(languageCode: 'en')];
+    return const <Locale>[
+      Locale.fromSubtags(languageCode: 'en'),
+    ];
   }
 
   @override

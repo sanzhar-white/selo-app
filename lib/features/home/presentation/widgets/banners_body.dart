@@ -26,7 +26,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     final theme = Theme.of(context).colorScheme;
-//     final mediaQuery = MediaQuery.of(context);
+//     final screenSize = screenSize;
 //     return SliverAppBar(
 //       flexibleSpace: FlexibleSpaceBar(
 //         background: Column(
@@ -49,7 +49,7 @@
 //           ],
 //         ),
 //       ),
-//       expandedHeight: mediaQuery.size.height * 0.08,
+//       expandedHeight: screenSize.height * 0.08,
 //     );
 //   }
 // }

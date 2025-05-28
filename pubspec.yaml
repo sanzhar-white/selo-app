@@ -49,11 +49,15 @@ dependencies:
   firebase_app_check: ^0.3.2+6
   firebase_storage: ^12.4.6
   firebase_database: ^11.3.6
+  get_it: ^8.0.3
+  image_picker: ^1.1.2
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_native_splash: ^2.4.6
+  intl_utils: ^2.8.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -70,6 +74,7 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
+  generate: true
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:

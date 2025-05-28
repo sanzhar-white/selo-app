@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:selo/shared/widgets/customtextfield.dart';
+import 'package:selo/shared/widgets/custom_text_field.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -15,7 +15,7 @@ class _SearchAppBarWidgetState extends State<SearchAppBarWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
-    final mediaQuery = MediaQuery.of(context);
+    final screenSize = MediaQuery.of(context).size;
     return SliverAppBar(
       flexibleSpace: FlexibleSpaceBar(
         background: Align(
@@ -30,23 +30,23 @@ class _SearchAppBarWidgetState extends State<SearchAppBarWidget> {
                 color: theme.onSurface,
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              height: mediaQuery.size.height * 0.06,
+              height: screenSize.height * 0.06,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: mediaQuery.size.width * 0.03,
+                  horizontal: screenSize.width * 0.03,
                 ),
                 child: Row(
                   children: [
                     Icon(
                       CupertinoIcons.search,
-                      size: mediaQuery.size.height * 0.03,
+                      size: screenSize.height * 0.03,
                       color: theme.secondary,
                     ),
                     Expanded(
                       child: CustomTextField(
                         controller: widget.searchQuery,
                         theme: theme,
-                        style: GreenM(context),
+                        style: greenM(context),
                         hintText: 'Поиск по Казахстану',
                         border: false,
                       ),
@@ -55,7 +55,7 @@ class _SearchAppBarWidgetState extends State<SearchAppBarWidget> {
                       onPressed: () {},
                       icon: Icon(
                         CupertinoIcons.slider_horizontal_3,
-                        size: mediaQuery.size.height * 0.036,
+                        size: screenSize.height * 0.036,
                         color: theme.secondary,
                       ),
                     ),
@@ -66,7 +66,7 @@ class _SearchAppBarWidgetState extends State<SearchAppBarWidget> {
           ),
         ),
       ),
-      expandedHeight: mediaQuery.size.height * 0.08,
+      expandedHeight: screenSize.height * 0.08,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/destination_model.dart';
+import 'package:selo/generated/l10n.dart';
 
 class LayoutScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -16,13 +17,22 @@ class LayoutScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
 
-    final mediaQuery = MediaQuery.of(context);
+    final screenSize = MediaQuery.of(context).size;
 
     final destinations = [
-      Destination(label: 'Главная', icon: CupertinoIcons.home),
-      Destination(label: 'Избранное', icon: CupertinoIcons.heart),
-      Destination(label: 'Добавить', icon: CupertinoIcons.add_circled),
-      Destination(label: 'Профиль', icon: CupertinoIcons.person_crop_circle),
+      Destination(label: S.of(context).nav_home, icon: CupertinoIcons.home),
+      Destination(
+        label: S.of(context).nav_favourites,
+        icon: CupertinoIcons.heart,
+      ),
+      Destination(
+        label: S.of(context).nav_add,
+        icon: CupertinoIcons.add_circled,
+      ),
+      Destination(
+        label: S.of(context).nav_profile,
+        icon: CupertinoIcons.person_crop_circle,
+      ),
     ];
 
     return Scaffold(
@@ -30,7 +40,7 @@ class LayoutScaffold extends StatelessWidget {
       bottomNavigationBar: BottomAppBar(
         elevation: 0,
         color: Colors.white,
-        height: mediaQuery.size.height * 0.07,
+        height: screenSize.height * 0.07,
         padding: EdgeInsets.zero,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -54,10 +64,10 @@ class LayoutScaffold extends StatelessWidget {
                           key: ValueKey<bool>(isSelected),
                           color:
                               isSelected ? theme.primary : theme.inversePrimary,
-                          size: mediaQuery.size.width * 0.06,
+                          size: screenSize.width * 0.06,
                         ),
                       ),
-                      SizedBox(height: mediaQuery.size.height * 0.005),
+                      SizedBox(height: screenSize.height * 0.005),
                       AnimatedDefaultTextStyle(
                         duration: Duration(milliseconds: 200),
                         style: TextStyle(
@@ -65,7 +75,7 @@ class LayoutScaffold extends StatelessWidget {
                               isSelected ? theme.primary : theme.inversePrimary,
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.normal,
-                          fontSize: mediaQuery.size.width * 0.03,
+                          fontSize: screenSize.width * 0.03,
                         ),
                         child: Text(destination.label),
                       ),

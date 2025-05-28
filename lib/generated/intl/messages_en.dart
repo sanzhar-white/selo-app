@@ -20,12 +20,23 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String m0(userName) => "Hello ${userName}!";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-    "add": MessageLookupByLibrary.simpleMessage("Add"),
-    "favourites": MessageLookupByLibrary.simpleMessage("Favourites"),
-    "hello": MessageLookupByLibrary.simpleMessage("Hello"),
-    "home": MessageLookupByLibrary.simpleMessage("Home"),
-    "profile": MessageLookupByLibrary.simpleMessage("Profile"),
-  };
+        "add_form_submit": MessageLookupByLibrary.simpleMessage("Submit"),
+        "add_form_title": MessageLookupByLibrary.simpleMessage("Create Ad"),
+        "greeting_user": m0,
+        "label_kg": MessageLookupByLibrary.simpleMessage("Kg"),
+        "label_ton": MessageLookupByLibrary.simpleMessage("Ton"),
+        "language": MessageLookupByLibrary.simpleMessage("English"),
+        "language_code": MessageLookupByLibrary.simpleMessage("en"),
+        "nav_add": MessageLookupByLibrary.simpleMessage("Add"),
+        "nav_favourites": MessageLookupByLibrary.simpleMessage("Favourites"),
+        "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
+        "nav_profile": MessageLookupByLibrary.simpleMessage("Profile"),
+        "profile_logout": MessageLookupByLibrary.simpleMessage("Log out"),
+        "profile_settings":
+            MessageLookupByLibrary.simpleMessage("Profile Settings")
+      };
 }

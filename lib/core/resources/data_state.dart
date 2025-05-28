@@ -1,8 +1,9 @@
 abstract class DataState<T> {
   final T? data;
   final Exception? error;
+  final StackTrace? stackTrace;
 
-  const DataState({this.data, this.error});
+  const DataState({this.data, this.error, this.stackTrace});
 }
 
 class DataSuccess<T> extends DataState<T> {
@@ -10,9 +11,10 @@ class DataSuccess<T> extends DataState<T> {
 }
 
 class DataFailed<T> extends DataState<T> {
-  const DataFailed(Exception error) : super(error: error);
+  const DataFailed(Exception error, StackTrace stackTrace)
+    : super(error: error, stackTrace: stackTrace);
 }
 
-class DataInitial<T> extends DataState<T> {
-  const DataInitial();
+class DataLoading<T> extends DataState<T> {
+  const DataLoading();
 }

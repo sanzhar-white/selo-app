@@ -4,9 +4,11 @@ import 'package:selo/features/bottom_navigation/components/layout_scaffold.dart'
 import 'package:selo/core/constants/routes.dart';
 import 'package:selo/features/add/presentation/features.dart';
 import 'package:selo/features/authentication/presentation/features.dart';
+import 'package:selo/core/models/category.dart';
 import 'package:selo/features/favourites/presentation/features.dart';
 import 'package:selo/features/home/presentation/features.dart';
 import 'package:selo/features/profile/presentation/features.dart';
+import 'package:selo/features/add/presentation/pages/create_advert_page.dart';
 
 // Ключ для root-навигации
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -62,6 +64,23 @@ final router = GoRouter(
                         (context, animation, _, child) =>
                             FadeTransition(opacity: animation, child: child),
                   ),
+              routes: [
+                GoRoute(
+                  path: Routes.createAdvertPage,
+                  pageBuilder:
+                      (context, state) => CustomTransitionPage(
+                        key: state.pageKey,
+                        child: CreateAdvertPage(
+                          category: state.extra as AdCategory,
+                        ),
+                        transitionsBuilder:
+                            (context, animation, _, child) => FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            ),
+                      ),
+                ),
+              ],
             ),
           ],
         ),

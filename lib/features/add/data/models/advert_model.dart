@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../domain/entities/advert_entity.dart';
 
 class AdvertModel extends AdvertEntity {
@@ -37,8 +40,8 @@ class AdvertModel extends AdvertEntity {
       active: map['active'] ?? true,
       views: map['views'] ?? 0,
       likes: map['likes'] ?? 0,
-      createdDate: map['createdDate'] ?? '',
-      updatedDate: map['updatedDate'] ?? '',
+      createdDate: map['createdDate'] ?? Timestamp.now(),
+      updatedDate: map['updatedDate'] ?? Timestamp.now(),
       title: map['title'] ?? '',
       price: map['price'] ?? 0,
       phoneNumber: map['phoneNumber'] ?? '',
@@ -67,8 +70,8 @@ class AdvertModel extends AdvertEntity {
       'active': active,
       'views': views,
       'likes': likes,
-      'createdDate': createdDate,
-      'updatedDate': updatedDate,
+      'createdDate': createdDate as Object,
+      'updatedDate': updatedDate as Object,
       'title': title,
       'price': price,
       'phoneNumber': phoneNumber,
@@ -104,8 +107,8 @@ class AdvertModel extends AdvertEntity {
     bool? active,
     int? views,
     int? likes,
-    String? createdDate,
-    String? updatedDate,
+    Timestamp? createdDate,
+    Timestamp? updatedDate,
     String? title,
     int? price,
     String? phoneNumber,

@@ -1,7 +1,21 @@
 {
-  "hello": "Hello",
-  "home": "Home",
-  "favourites": "Favourites",
-  "add": "Add",
-  "profile": "Profile"
+  "@@locale": "en",
+  "language": "English",
+  "language_code": "en",
+
+  "nav_home": "Home",
+  "nav_add": "Add",
+  "nav_favourites": "Favourites",
+  "nav_profile": "Profile",
+
+  "profile_settings": "Profile Settings",
+  "profile_logout": "Log out",
+
+  "add_form_title": "Create Ad",
+  "add_form_submit": "Submit",
+
+  "greeting_user": "Hello {userName}!",
+
+  "label_kg": "Kg",
+  "label_ton": "Ton"
 }

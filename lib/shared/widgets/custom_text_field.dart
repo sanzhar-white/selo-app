@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:selo/core/theme/text_styles.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
@@ -8,6 +9,9 @@ class CustomTextField extends StatelessWidget {
     required this.style,
     required this.hintText,
     this.border = true,
+    this.minLines,
+    this.maxLines = 1,
+    this.textAlign = TextAlign.start,
   });
 
   final TextEditingController controller;
@@ -15,18 +19,25 @@ class CustomTextField extends StatelessWidget {
   final TextStyle style;
   final String hintText;
   final bool border;
+  final int? minLines;
+  final int maxLines;
+  final TextAlign textAlign;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       style: style,
-      textAlignVertical: TextAlignVertical.center,
+      minLines: minLines,
+      maxLines: maxLines,
+      textAlign: textAlign,
+      textAlignVertical: TextAlignVertical.top,
       decoration: InputDecoration(
         isDense: true,
         fillColor: theme.onSurface,
         filled: true,
         hintText: hintText,
+        hintStyle: grayM(context),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
