@@ -14,10 +14,10 @@ class AdvertEntity extends Equatable {
   final String title;
   final int price;
   final String phoneNumber;
-  final String category;
+  final int category;
   final bool tradeable;
-  final String region;
-  final String district;
+  final int region;
+  final int district;
   final List<String> images;
   final String description;
 
@@ -26,7 +26,7 @@ class AdvertEntity extends Equatable {
   final int? maxQuantity;
   final String? companyName;
   final String? contactPerson;
-  final String? condition;
+  final int? condition;
   final int? year;
   final String? unit;
   final String? unitPer;
@@ -70,10 +70,10 @@ class AdvertEntity extends Equatable {
     String? title,
     int? price,
     String? phoneNumber,
-    String? category,
+    int? category,
     bool? tradeable,
-    String? region,
-    String? district,
+    int? region,
+    int? district,
     List<String>? images,
     String? description,
     int? maxPrice,
@@ -81,7 +81,7 @@ class AdvertEntity extends Equatable {
     int? maxQuantity,
     String? companyName,
     String? contactPerson,
-    String? condition,
+    int? condition,
     int? year,
     String? unit,
     String? unitPer,
@@ -160,10 +160,10 @@ class AdvertEntity extends Equatable {
       title: map['title'] ?? '',
       price: map['price'] ?? 0,
       phoneNumber: map['phoneNumber'] ?? '',
-      category: map['category'] ?? '',
+      category: map['category'] ?? 0,
       tradeable: map['tradeable'] ?? false,
-      region: map['region'] ?? '',
-      district: map['district'] ?? '',
+      region: map['region'] ?? null,
+      district: map['district'] ?? null,
       images: List<String>.from(map['images'] ?? []),
       description: map['description'] ?? '',
       maxPrice: map['maxPrice'],
@@ -171,7 +171,7 @@ class AdvertEntity extends Equatable {
       maxQuantity: map['maxQuantity'],
       companyName: map['companyName'],
       contactPerson: map['contactPerson'],
-      condition: map['condition'],
+      condition: map['condition'] ?? 0,
       year: map['year'],
       unit: map['unit'],
       unitPer: map['unitPer'],

@@ -1,18 +1,27 @@
 // lib/features/add/presentation/pages/choose_page.dart
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/theme/phone_custom_formatter.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
-import 'package:selo/core/utils/utils.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
-import 'package:selo/features/add/presentation/providers/categories_provider.dart';
 import 'package:selo/core/models/category.dart';
 import 'package:selo/generated/l10n.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/shared/widgets/show_bottom_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:selo/features/add/presentation/widgets/form_section.dart';
+import 'package:selo/features/add/presentation/widgets/custom_toggle_buttons.dart';
+import 'package:selo/features/add/presentation/widgets/price_section.dart';
+import 'package:selo/features/add/presentation/widgets/quantity_section.dart';
+import 'package:selo/features/add/presentation/widgets/location_section.dart';
+import 'package:selo/features/add/presentation/widgets/image_section.dart';
+import 'package:selo/features/add/presentation/providers/advert_provider.dart';
+import 'package:selo/features/add/domain/entities/advert_entity.dart';
+import 'package:selo/features/add/data/models/advert_model.dart';
+import 'package:selo/core/utils/utils.dart';
+import 'package:selo/core/constants/regions_districts.dart';
 import 'dart:io';
 
 class CreateAdvertPage extends ConsumerStatefulWidget {
@@ -33,6 +42,16 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   String _region = '';
   String _district = '';
 
+  Map<String, bool> _validationState = {
+    'title': true,
+    'price': true,
+    'region': true,
+    'district': true,
+    'description': true,
+    'phoneNumber': true,
+    'images': true,
+  };
+
   final TextEditingController titleController = TextEditingController();
   final TextEditingController phoneController = TextEditingController(
     text: '+77010122670',
@@ -42,7 +61,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController maxQuantityController = TextEditingController();
-  late final List<TextEditingController> settingsControllers;
+  late final Map<String, TextEditingController> settingsControllers;
 
   final ImagePicker _picker = ImagePicker();
   List<XFile?> _images = [];
@@ -50,10 +69,28 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   @override
   void initState() {
     super.initState();
-    settingsControllers =
-        widget.category.settings.keys
-            .map((e) => TextEditingController())
-            .toList();
+
+    settingsControllers = {
+      for (final key in widget.category.settings.keys)
+        key: TextEditingController(),
+    };
+
+    // Initialize validation state based on category settings
+    _validationState = {
+      'title': true,
+      'price': true,
+      'region': true,
+      'district': true,
+      'description': true,
+      'phoneNumber': true,
+      'images': true,
+    };
+
+    // Only add validation for fields that are required by the category
+    for (final entry in widget.category.settings.entries) {
+      _validationState[entry.key] =
+          !entry.value; // Initialize as false only if the setting is true
+    }
   }
 
   @override
@@ -72,136 +109,295 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     descriptionController.dispose();
     quantityController.dispose();
     maxQuantityController.dispose();
-    settingsControllers.forEach((controller) => controller.dispose());
+    settingsControllers.forEach((_, controller) => controller.dispose());
     super.dispose();
   }
 
   Future<void> _pickImage() async {
-    if (_images.length >= 10) return;
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _images.add(image);
-      });
+    if (_images.length >= 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Maximum 10 images allowed'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80, // Compress image to reduce size
+      );
+
+      if (image != null) {
+        // Check if file exists
+        final file = File(image.path);
+        if (!await file.exists()) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Selected image file not found'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Check file size (max 5MB)
+        final fileSize = await file.length();
+        if (fileSize > 5 * 1024 * 1024) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Image size should be less than 5MB'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        setState(() {
+          _images.add(image);
+          // Update validation state for images if needed
+          if (_validationState.containsKey('images')) {
+            _validationState['images'] = true;
+          }
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error selecting image: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   void _removeImage(int index) {
     setState(() {
       _images.removeAt(index);
+      // Update validation state for images if needed
+      if (_validationState.containsKey('images') && _images.isEmpty) {
+        _validationState['images'] = false;
+      }
     });
+  }
+
+  void _validateFields() {
+    setState(() {
+      // Always validate required fields
+      _validationState['title'] = titleController.text.trim().isNotEmpty;
+      _validationState['price'] =
+          _isPriceFixed ? priceController.text.trim().isNotEmpty : true;
+      _validationState['region'] = _region.isNotEmpty;
+      _validationState['district'] = _district.isNotEmpty;
+      _validationState['description'] =
+          descriptionController.text.trim().isNotEmpty;
+      _validationState['phoneNumber'] = phoneController.text.trim().isNotEmpty;
+      _validationState['images'] = _images.isNotEmpty;
+
+      // Only validate fields that are required by the category
+      for (final entry in widget.category.settings.entries) {
+        if (!entry.value) continue; // Skip if the setting is false
+
+        switch (entry.key) {
+          case 'maxPrice':
+            _validationState['maxPrice'] =
+                !_isPriceFixed || maxPriceController.text.trim().isNotEmpty;
+            break;
+          case 'maxQuantity':
+            _validationState['maxQuantity'] =
+                !_isQuantityFixed ||
+                maxQuantityController.text.trim().isNotEmpty;
+            break;
+          case 'quantity':
+            _validationState['quantity'] =
+                !_isQuantityFixed || quantityController.text.trim().isNotEmpty;
+            break;
+          case 'condition':
+            _validationState['condition'] =
+                true; // Always valid as it's a toggle
+            break;
+          case 'year':
+            _validationState['year'] = _year > 1900;
+            break;
+          case 'companyName':
+            _validationState['companyName'] =
+                settingsControllers['companyName']?.text.trim().isNotEmpty ??
+                false;
+            break;
+          case 'contactPerson':
+            _validationState['contactPerson'] =
+                settingsControllers['contactPerson']?.text.trim().isNotEmpty ??
+                false;
+            break;
+          default:
+            // For any other settings, if they exist in the validation state, mark them as valid
+            if (_validationState.containsKey(entry.key)) {
+              _validationState[entry.key] = true;
+            }
+        }
+      }
+
+      print('Validation state: $_validationState');
+    });
+  }
+
+  bool get _isFormValid {
+    // Check if all required fields are valid
+    bool isValid =
+        _validationState['title'] == true &&
+        _validationState['price'] == true &&
+        _validationState['region'] == true &&
+        _validationState['district'] == true &&
+        _validationState['description'] == true &&
+        _validationState['phoneNumber'] == true &&
+        _validationState['images'] == true;
+
+    // Check category-specific fields
+    for (final entry in widget.category.settings.entries) {
+      if (entry.value && _validationState.containsKey(entry.key)) {
+        isValid = isValid && _validationState[entry.key]!;
+      }
+    }
+
+    return isValid;
+  }
+
+  void _handleCreateAdvert() async {
+    _validateFields();
+    print('Validation state: $_validationState');
+
+    if (!_isFormValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all required fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      // Clean up the price string by removing spaces and other non-digit characters
+      final cleanPrice = priceController.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+      final success = await ref
+          .read(advertNotifierProvider.notifier)
+          .createAdvert(
+            AdvertModel(
+              uid: '',
+              ownerUid: '',
+              active: true,
+              views: 0,
+              likes: 0,
+              createdDate: Timestamp.now(),
+              updatedDate: Timestamp.now(),
+              title: titleController.text,
+              price: int.parse(cleanPrice),
+              region: getRegionID(_region),
+              district: getDistrictID(_district, getRegionID(_region), regions),
+              description: descriptionController.text,
+              phoneNumber: phoneController.text,
+              category: widget.category.id,
+              images: _images.map((e) => e?.path ?? '').toList(),
+              tradeable:
+                  _isPriceFixed ? priceController.text.trim().isNotEmpty : true,
+              condition: _isNew ? 0 : 1,
+              year: _year,
+            ),
+          );
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Advertisement created successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Navigate back or to the advert details page
+        Navigator.of(context).pop();
+      } else {
+        final error = ref.read(advertNotifierProvider).error;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error ?? 'Failed to create advertisement'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error creating advert: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error creating advert: Invalid price format'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final advertState = ref.watch(advertNotifierProvider);
     final List<String> units = [
       S.of(context).label_kg,
       S.of(context).label_ton,
     ];
 
-    final crossAxisCount = 1;
-    final crossAxisSpacing = screenSize.width * 0.03;
-    final mainAxisSpacing = screenSize.height * 0.03;
-    final childAspectRatio = 4.0;
-
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            title: Text('Creating a new advert', style: contrastL(context)),
-            iconTheme: IconThemeData(color: colorScheme.inversePrimary),
-            backgroundColor: colorScheme.surface,
-            expandedHeight: screenSize.height * 0.1,
-            toolbarHeight: screenSize.height * 0.1,
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.05,
-                vertical: screenSize.height * 0.015,
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                title: Text('Creating a new advert', style: contrastL(context)),
+                iconTheme: IconThemeData(color: colorScheme.inversePrimary),
+                backgroundColor: colorScheme.surface,
+                expandedHeight: screenSize.height * 0.1,
+                toolbarHeight: screenSize.height * 0.1,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Title of advert', style: contrastBoldM(context)),
-                  SizedBox(height: screenSize.height * 0.015),
-                  CustomTextField(
+              SliverToBoxAdapter(
+                child: FormSection(
+                  title: 'Title of advert',
+                  titleStyle: contrastBoldM(context),
+                  child: CustomTextField(
                     controller: titleController,
                     theme: colorScheme,
                     style: greenM(context),
                     hintText: 'Enter title of advert',
                     border: true,
+                    error: !_validationState['title']!,
+                    errorText: 'Title is required',
                   ),
-                ],
-              ),
-            ),
-          ),
-          if (widget.category.settings['condition'] == true) ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.width * 0.05,
-                  vertical: screenSize.height * 0.015,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Condition', style: contrastBoldM(context)),
-                    SizedBox(height: screenSize.height * 0.015),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: colorScheme.onSurface,
-                        borderRadius: ResponsiveRadius.screenBased(context),
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final buttonWidth =
-                              (constraints.maxWidth -
-                                  screenSize.width * 0.015) /
-                              2;
-
-                          return ToggleButtons(
-                            borderRadius: ResponsiveRadius.screenBased(context),
-                            fillColor: colorScheme.primary,
-                            selectedColor: colorScheme.onPrimary,
-                            color: colorScheme.primary,
-                            textStyle: contrastM(context),
-                            constraints: BoxConstraints(
-                              minHeight: screenSize.height * 0.05,
-                              minWidth: buttonWidth,
-                            ),
-                            isSelected: [_isNew, !_isNew],
-                            onPressed: (index) {
-                              setState(() {
-                                _isNew = index == 0;
-                              });
-                            },
-                            children: const [Text('New'), Text('Used')],
-                          );
-                        },
-                      ),
+              ),
+              if (widget.category.settings['condition'] == true)
+                SliverToBoxAdapter(
+                  child: FormSection(
+                    title: 'Condition',
+                    titleStyle: contrastBoldM(context),
+                    child: CustomToggleButtons(
+                      options: const ['New', 'Used'],
+                      selectedIndex: _isNew ? 0 : 1,
+                      onChanged: (index) => setState(() => _isNew = index == 0),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
-          if (widget.category.settings['year'] == true) ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.width * 0.05,
-                  vertical: screenSize.height * 0.015,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Year of release', style: contrastBoldM(context)),
-                    SizedBox(height: screenSize.height * 0.015),
-                    ElevatedButton(
+              if (widget.category.settings['year'] == true)
+                SliverToBoxAdapter(
+                  child: FormSection(
+                    title: 'Year of release',
+                    titleStyle: contrastBoldM(context),
+                    child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(
                           screenSize.width,
@@ -219,12 +415,9 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                           context: context,
                           items:
                               List.generate(
-                                    currentYear -
-                                        1900 +
-                                        1, // включая текущий год
-                                    (index) => 1900 + index,
-                                  ).reversed
-                                  .toList(), // чтобы сверху был самый новый
+                                currentYear - 1900 + 1,
+                                (index) => 1900 + index,
+                              ).reversed.toList(),
                           itemBuilder: (context, item) => Text(item.toString()),
                           itemAlignment: TextAlign.center,
                           onItemSelected: (item) {
@@ -235,679 +428,81 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                         );
                       },
                     ),
-                  ],
+                  ),
+                ),
+              SliverToBoxAdapter(
+                child: FormSection(
+                  child: PriceSection(
+                    isPriceFixed: _isPriceFixed,
+                    hasMaxPrice: widget.category.settings['maxPrice'] == true,
+                    hasPricePer: widget.category.settings['pricePer'] == true,
+                    isSalary: widget.category.settings['salary'] == true,
+                    pricePerUnit: _pricePerUnit,
+                    units: units,
+                    priceController: priceController,
+                    maxPriceController: maxPriceController,
+                    onPriceTypeChanged:
+                        (value) => setState(() => _isPriceFixed = value),
+                    onUnitChanged:
+                        (value) => setState(() => _pricePerUnit = value),
+                    priceError: !_validationState['price']!,
+                    maxPriceError:
+                        !_validationState['maxPrice']! &&
+                        _isPriceFixed &&
+                        widget.category.settings['maxPrice'] == true,
+                  ),
                 ),
               ),
-            ),
-          ],
-
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.05,
-                vertical: screenSize.height * 0.015,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.category.settings['salary'] == true) ...[
-                    Text('Salary', style: contrastBoldM(context)),
-                  ] else if (widget.category.settings['pricePer'] == true) ...[
-                    Text('Price per unit', style: contrastBoldM(context)),
-                  ] else ...[
-                    Text('Price', style: contrastBoldM(context)),
-                  ],
-                  SizedBox(height: screenSize.height * 0.015),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: colorScheme.onSurface,
-                      borderRadius: ResponsiveRadius.screenBased(context),
-                    ),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final buttonWidth =
-                            (constraints.maxWidth - screenSize.width * 0.015) /
-                            2;
-
-                        return ToggleButtons(
-                          borderRadius: ResponsiveRadius.screenBased(context),
-                          fillColor: colorScheme.primary,
-                          selectedColor: colorScheme.onPrimary,
-                          color: colorScheme.primary,
-                          textStyle: contrastM(context),
-                          constraints: BoxConstraints(
-                            minHeight: screenSize.height * 0.05,
-                            minWidth: buttonWidth,
-                          ),
-                          isSelected: [_isPriceFixed, !_isPriceFixed],
-                          onPressed: (index) {
-                            setState(() {
-                              _isPriceFixed = index == 0;
-                            });
-                          },
-                          children: const [Text('Fixed'), Text('Negotiable')],
-                        );
-                      },
+              if (widget.category.settings['quantity'] == true)
+                SliverToBoxAdapter(
+                  child: FormSection(
+                    titleStyle: contrastBoldM(context),
+                    child: QuantitySection(
+                      isQuantityFixed: _isQuantityFixed,
+                      hasMaxQuantity:
+                          widget.category.settings['maxQuantity'] == true,
+                      quantityUnit: _quantityUnit,
+                      units: units,
+                      quantityController: quantityController,
+                      maxQuantityController: maxQuantityController,
+                      onQuantityTypeChanged:
+                          (value) => setState(() => _isQuantityFixed = value),
+                      onUnitChanged:
+                          (value) => setState(() => _quantityUnit = value),
+                      quantityError: !_validationState['quantity']!,
+                      quantityErrorText: 'Quantity is required',
+                      maxQuantityError:
+                          !_validationState['maxQuantity']! &&
+                          _isQuantityFixed &&
+                          widget.category.settings['maxQuantity'] == true,
+                      maxQuantityErrorText: 'Max quantity is required',
                     ),
                   ),
-                  if (_isPriceFixed) ...[
-                    SizedBox(height: screenSize.height * 0.02),
-                    if (widget.category.settings['maxPrice'] == true) ...[
-                      if (widget.category.settings['pricePer'] == true) ...[
-                        SizedBox(
-                          height: screenSize.height * 0.06,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: priceController,
-                                  theme: colorScheme,
-                                  style: contrastM(context),
-                                  hintText: 'From',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Container(
-                                width: screenSize.width * 0.15,
-                                decoration: BoxDecoration(
-                                  color: colorScheme.onSurface,
-                                  borderRadius: BorderRadius.only(
-                                    topRight:
-                                        ResponsiveRadius.screenBased(
-                                          context,
-                                        ).topRight,
-                                    bottomRight:
-                                        ResponsiveRadius.screenBased(
-                                          context,
-                                        ).bottomRight,
-                                  ),
-                                  border: Border(
-                                    left: BorderSide(
-                                      color: colorScheme.secondary,
-                                    ),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text('₸', style: contrastM(context)),
-                                ),
-                              ),
-                              SizedBox(width: screenSize.width * 0.04),
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: maxPriceController,
-                                  theme: colorScheme,
-                                  style: contrastM(context),
-                                  hintText: 'To',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Container(
-                                width: screenSize.width * 0.15,
-                                decoration: BoxDecoration(
-                                  color: colorScheme.onSurface,
-                                  borderRadius: BorderRadius.only(
-                                    topRight:
-                                        ResponsiveRadius.screenBased(
-                                          context,
-                                        ).topRight,
-                                    bottomRight:
-                                        ResponsiveRadius.screenBased(
-                                          context,
-                                        ).bottomRight,
-                                  ),
-                                  border: Border(
-                                    left: BorderSide(
-                                      color: colorScheme.secondary,
-                                    ),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text('₸', style: contrastM(context)),
-                                ),
-                              ),
-                              SizedBox(width: screenSize.width * 0.04),
-                              GestureDetector(
-                                onTap: () {
-                                  showBottomPicker<String>(
-                                    context: context,
-                                    items: units,
-                                    itemAlignment: TextAlign.center,
-                                    itemBuilder: (context, item) => Text(item),
-                                    onItemSelected: (item) {
-                                      setState(() {
-                                        _pricePerUnit = item;
-                                      });
-                                    },
-                                  );
-                                },
-                                child: Container(
-                                  width: screenSize.width * 0.15,
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      _pricePerUnit,
-                                      style: overGreenBoldM(context),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ] else ...[
-                        SizedBox(
-                          height: screenSize.height * 0.06,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Container(
-                                width:
-                                    screenSize.width *
-                                    0.42, // немного уменьшено
-                                decoration: BoxDecoration(
-                                  color: colorScheme.onSurface,
-                                  borderRadius: ResponsiveRadius.screenBased(
-                                    context,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: CustomTextField(
-                                        controller: priceController,
-                                        theme: colorScheme,
-                                        style: contrastM(context),
-                                        hintText: 'From',
-                                      ),
-                                    ),
-                                    Container(
-                                      width: screenSize.width * 0.15,
-                                      decoration: BoxDecoration(
-                                        color: colorScheme.onSurface,
-                                        borderRadius: BorderRadius.only(
-                                          topRight:
-                                              ResponsiveRadius.screenBased(
-                                                context,
-                                              ).topRight,
-                                          bottomRight:
-                                              ResponsiveRadius.screenBased(
-                                                context,
-                                              ).bottomRight,
-                                        ),
-                                        border: Border(
-                                          left: BorderSide(
-                                            color: colorScheme.secondary,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          '₸',
-                                          style: contrastM(context),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // <--- Разделитель
-                              SizedBox(width: screenSize.width * 0.04),
-
-                              Container(
-                                width:
-                                    screenSize.width *
-                                    0.42, // немного уменьшено
-                                decoration: BoxDecoration(
-                                  color: colorScheme.onSurface,
-                                  borderRadius: ResponsiveRadius.screenBased(
-                                    context,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: CustomTextField(
-                                        controller: maxPriceController,
-                                        theme: colorScheme,
-                                        style: contrastM(context),
-                                        hintText: 'To',
-                                      ),
-                                    ),
-                                    Container(
-                                      width:
-                                          screenSize.width *
-                                          0.15, // немного уменьшено
-                                      decoration: BoxDecoration(
-                                        color: colorScheme.onSurface,
-                                        borderRadius: BorderRadius.only(
-                                          topRight:
-                                              ResponsiveRadius.screenBased(
-                                                context,
-                                              ).topRight,
-                                          bottomRight:
-                                              ResponsiveRadius.screenBased(
-                                                context,
-                                              ).bottomRight,
-                                        ),
-                                        border: Border(
-                                          left: BorderSide(
-                                            color: colorScheme.secondary,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          '₸',
-                                          style: contrastM(context),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ] else ...[
-                      if (widget.category.settings['pricePer'] == true) ...[
-                        SizedBox(
-                          height: screenSize.height * 0.06,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: priceController,
-                                  theme: colorScheme,
-                                  style: contrastM(context),
-                                  hintText: 'Enter price per unit',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Container(
-                                width: screenSize.width * 0.15,
-                                decoration: BoxDecoration(
-                                  color: colorScheme.onSurface,
-                                  borderRadius: BorderRadius.only(
-                                    topRight:
-                                        ResponsiveRadius.screenBased(
-                                          context,
-                                        ).topRight,
-                                    bottomRight:
-                                        ResponsiveRadius.screenBased(
-                                          context,
-                                        ).bottomRight,
-                                  ),
-                                  border: Border(
-                                    left: BorderSide(
-                                      color: colorScheme.secondary,
-                                    ),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text('₸', style: contrastM(context)),
-                                ),
-                              ),
-                              SizedBox(width: screenSize.width * 0.04),
-                              GestureDetector(
-                                onTap: () {
-                                  showBottomPicker<String>(
-                                    context: context,
-                                    items: units,
-                                    itemAlignment: TextAlign.center,
-                                    itemBuilder: (context, item) => Text(item),
-                                    onItemSelected: (item) {
-                                      setState(() {
-                                        _pricePerUnit = item;
-                                      });
-                                    },
-                                  );
-                                },
-                                child: Container(
-                                  width: screenSize.width * 0.15,
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      _pricePerUnit,
-                                      style: overGreenBoldM(context),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      CustomTextField(
-                        controller: priceController,
-                        theme: colorScheme,
-                        style: contrastM(context),
-                        hintText:
-                            widget.category.settings['salary'] == false
-                                ? 'Enter price of advert'
-                                : 'Enter salary',
-                        border: true,
-                      ),
-                    ],
-                  ],
-                ],
-              ),
-            ),
-          ),
-          if (widget.category.settings['quantity'] == true) ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.width * 0.05,
-                  vertical: screenSize.height * 0.015,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Volume / Quantity', style: contrastBoldM(context)),
-                    SizedBox(height: screenSize.height * 0.015),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: colorScheme.onSurface,
-                        borderRadius: ResponsiveRadius.screenBased(context),
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final buttonWidth =
-                              (constraints.maxWidth -
-                                  screenSize.width * 0.015) /
-                              2;
-
-                          return ToggleButtons(
-                            borderRadius: ResponsiveRadius.screenBased(context),
-                            fillColor: colorScheme.primary,
-                            selectedColor: colorScheme.onPrimary,
-                            color: colorScheme.primary,
-                            textStyle: contrastM(context),
-                            constraints: BoxConstraints(
-                              minHeight: screenSize.height * 0.05,
-                              minWidth: buttonWidth,
-                            ),
-                            isSelected: [_isQuantityFixed, !_isQuantityFixed],
-                            onPressed: (index) {
-                              setState(() {
-                                _isQuantityFixed = index == 0;
-                              });
-                            },
-                            children: const [Text('Fixed'), Text('Negotiable')],
-                          );
-                        },
-                      ),
-                    ),
-                    if (_isQuantityFixed) ...[
-                      SizedBox(height: screenSize.height * 0.02),
-                      if (widget.category.settings['maxQuantity'] == true) ...[
-                        SizedBox(
-                          height: screenSize.height * 0.06,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: quantityController,
-                                  theme: colorScheme,
-                                  style: contrastM(context),
-                                  hintText: 'From',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              SizedBox(width: screenSize.width * 0.04),
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: maxQuantityController,
-                                  theme: colorScheme,
-                                  style: contrastM(context),
-                                  hintText: 'To',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              SizedBox(width: screenSize.width * 0.04),
-                              GestureDetector(
-                                onTap: () {
-                                  showBottomPicker<String>(
-                                    context: context,
-                                    items: units,
-                                    itemAlignment: TextAlign.center,
-                                    itemBuilder: (context, item) => Text(item),
-                                    onItemSelected: (item) {
-                                      setState(() {
-                                        _quantityUnit = item;
-                                      });
-                                    },
-                                  );
-                                },
-                                child: Container(
-                                  width: screenSize.width * 0.15,
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      _quantityUnit,
-                                      style: overGreenBoldM(context),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ] else ...[
-                        SizedBox(
-                          height: screenSize.height * 0.06,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: quantityController,
-                                  theme: colorScheme,
-                                  style: contrastM(context),
-                                  hintText: 'Enter volume / quantity',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              SizedBox(width: screenSize.width * 0.04),
-                              GestureDetector(
-                                onTap: () {
-                                  showBottomPicker<String>(
-                                    context: context,
-                                    items: units,
-                                    itemAlignment: TextAlign.center,
-                                    itemBuilder: (context, item) => Text(item),
-                                    onItemSelected: (item) {
-                                      setState(() {
-                                        _quantityUnit = item;
-                                      });
-                                    },
-                                  );
-                                },
-                                child: Container(
-                                  width: screenSize.width * 0.15,
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      _quantityUnit,
-                                      style: overGreenBoldM(context),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ],
+              SliverToBoxAdapter(
+                child: FormSection(
+                  title: 'Location',
+                  titleStyle: contrastBoldM(context),
+                  child: LocationSection(
+                    region: _region,
+                    district: _district,
+                    onRegionChanged:
+                        (value) => setState(() {
+                          _region = value;
+                          _district = '';
+                        }),
+                    onDistrictChanged:
+                        (value) => setState(() => _district = value),
+                    regionError: !_validationState['region']!,
+                    districtError: !_validationState['district']!,
+                  ),
                 ),
               ),
-            ),
-          ],
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.05,
-                vertical: screenSize.height * 0.015,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Region', style: contrastBoldM(context)),
-                  SizedBox(height: screenSize.height * 0.015),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(
-                        screenSize.width,
-                        screenSize.height * 0.06,
-                      ),
-                      backgroundColor: colorScheme.onSurface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: ResponsiveRadius.screenBased(context),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _region.isEmpty ? 'Select region' : _region,
-                          style: contrastM(context),
-                        ),
-                        Icon(
-                          CupertinoIcons.chevron_down,
-                          color: colorScheme.inversePrimary,
-                        ),
-                      ],
-                    ),
-                    onPressed: () {
-                      showBottomPicker<String>(
-                        context: context,
-                        items: regions.map((e) => e.name).toList(),
-                        itemBuilder: (context, item) => Text(item),
-                        itemAlignment: TextAlign.center,
-                        onItemSelected: (item) {
-                          setState(() {
-                            _region = item;
-                            _district =
-                                ''; // Reset district when region changes
-                          });
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.05,
-                vertical: screenSize.height * 0.015,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('District', style: contrastBoldM(context)),
-                  SizedBox(height: screenSize.height * 0.015),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(
-                        screenSize.width,
-                        screenSize.height * 0.06,
-                      ),
-                      backgroundColor: colorScheme.onSurface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: ResponsiveRadius.screenBased(context),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _district.isEmpty ? 'Select district' : _district,
-                          style: contrastM(context),
-                        ),
-                        Icon(
-                          CupertinoIcons.chevron_down,
-                          color: colorScheme.inversePrimary,
-                        ),
-                      ],
-                    ),
-                    onPressed: () {
-                      if (_region.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Please select region first')),
-                        );
-                        return;
-                      }
-
-                      final selectedRegion = regions.firstWhere(
-                        (e) => e.name == _region,
-                      );
-                      if (selectedRegion.subcategories == null ||
-                          selectedRegion.subcategories!.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'No districts available for this region',
-                            ),
-                          ),
-                        );
-                        return;
-                      }
-
-                      showBottomPicker<String>(
-                        context: context,
-                        items:
-                            selectedRegion.subcategories!
-                                .map((e) => e.name)
-                                .toList(),
-                        itemBuilder: (context, item) => Text(item),
-                        itemAlignment: TextAlign.center,
-                        onItemSelected: (item) {
-                          setState(() {
-                            _district = item;
-                          });
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.05,
-                vertical: screenSize.height * 0.015,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Description', style: contrastBoldM(context)),
-                  SizedBox(height: screenSize.height * 0.015),
-                  CustomTextField(
+              SliverToBoxAdapter(
+                child: FormSection(
+                  title: 'Description',
+                  titleStyle: contrastBoldM(context),
+                  child: CustomTextField(
                     controller: descriptionController,
                     theme: colorScheme,
                     style: contrastM(context),
@@ -915,231 +510,97 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                     maxLines: 10,
                     hintText: 'Describe your advert',
                     border: true,
+                    error: !_validationState['description']!,
+                    errorText: 'Description is required',
                   ),
-                ],
-              ),
-            ),
-          ),
-          // SliverGrid(
-          //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          //     crossAxisCount: crossAxisCount,
-          //     crossAxisSpacing: crossAxisSpacing,
-          //     mainAxisSpacing: mainAxisSpacing,
-          //     childAspectRatio: childAspectRatio,
-          //   ),
-          //   delegate: SliverChildBuilderDelegate((context, index) {
-          //     if (index >= widget.category.settings.length) {
-          //       return null;
-          //     }
-          //     final setting = widget.category.settings.keys.toList()[index];
-          //     return Padding(
-          //       padding: EdgeInsets.symmetric(
-          //         horizontal: screenSize.width * 0.05,
-          //         vertical: screenSize.height * 0.01,
-          //       ),
-          //       child: Column(
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children: [
-          //           Text(setting, style: contrastBoldM(context)),
-          //           SizedBox(height: screenSize.height * 0.01),
-          //           CustomTextField(
-          //             controller: settingsControllers[index],
-          //             theme: colorScheme,
-          //             style: greenM(context),
-          //             hintText: setting,
-          //             border: true,
-          //           ),
-          //         ],
-          //       ),
-          //     );
-          //   }, childCount: widget.category.settings.length),
-          // ),
-          if (widget.category.settings['companyName'] == true) ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.width * 0.05,
-                  vertical: screenSize.height * 0.015,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Company', style: contrastBoldM(context)),
-                    SizedBox(height: screenSize.height * 0.015),
-                    CustomTextField(
-                      controller: descriptionController,
+              ),
+              if (widget.category.settings['companyName'] == true)
+                SliverToBoxAdapter(
+                  child: FormSection(
+                    title: 'Company',
+                    titleStyle: contrastBoldM(context),
+                    child: CustomTextField(
+                      controller: settingsControllers['companyName']!,
                       theme: colorScheme,
                       style: contrastM(context),
                       hintText: 'Example: Apple',
                       border: true,
+                      error: !_validationState['companyName']!,
+                      errorText: 'Company name is required',
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
-          if (widget.category.settings['contactPerson'] == true) ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.width * 0.05,
-                  vertical: screenSize.height * 0.015,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Contact person', style: contrastBoldM(context)),
-                    SizedBox(height: screenSize.height * 0.015),
-                    CustomTextField(
-                      controller: descriptionController,
+              if (widget.category.settings['contactPerson'] == true)
+                SliverToBoxAdapter(
+                  child: FormSection(
+                    title: 'Contact person',
+                    titleStyle: contrastBoldM(context),
+                    child: CustomTextField(
+                      controller: settingsControllers['contactPerson']!,
                       theme: colorScheme,
                       style: contrastM(context),
                       hintText: 'Example: John Doe',
                       border: true,
+                      error: !_validationState['contactPerson']!,
+                      errorText: 'Contact person is required',
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.05,
-                vertical: screenSize.height * 0.015,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Phone number', style: contrastBoldM(context)),
-                  SizedBox(height: screenSize.height * 0.015),
-                  CustomTextField(
+              SliverToBoxAdapter(
+                child: FormSection(
+                  title: 'Phone number',
+                  titleStyle: contrastBoldM(context),
+                  child: CustomTextField(
                     controller: phoneController,
                     theme: colorScheme,
                     style: contrastM(context),
                     hintText: 'Enter phone number',
                     border: true,
+                    formatters: [PhoneNumberFormatter()],
+                    keyboardType: TextInputType.phone,
+                    error: !_validationState['phoneNumber']!,
+                    errorText: 'Phone number is required',
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.05,
-                vertical: screenSize.height * 0.015,
+              SliverToBoxAdapter(
+                child: FormSection(
+                  child: ImageSection(
+                    images: _images,
+                    onPickImage: _pickImage,
+                    onRemoveImage: _removeImage,
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Images', style: contrastBoldM(context)),
-                  SizedBox(height: screenSize.height * 0.015),
-                  // Главная фотография
-                  GestureDetector(
-                    onTap: () => _pickImage(),
+              SliverToBoxAdapter(
+                child: FormSection(
+                  child: GestureDetector(
+                    onTap: _handleCreateAdvert,
                     child: Container(
-                      width: double.infinity,
-                      height: screenSize.height * 0.2,
+                      width: screenSize.width,
+                      height: screenSize.height * 0.07,
                       decoration: BoxDecoration(
-                        color: colorScheme.onSurface,
+                        color: colorScheme.primary,
                         borderRadius: ResponsiveRadius.screenBased(context),
                       ),
-                      child:
-                          _images.isEmpty
-                              ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.plus_square_fill,
-                                    size: 32,
-                                    color: colorScheme.primary,
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Добавить Главное Фото',
-                                    style: greenM(context),
-                                  ),
-                                ],
-                              )
-                              : ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.file(
-                                  File(_images.first!.path),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-                              ),
+                      child: Center(
+                        child: Text(
+                          'Create advert',
+                          style: overGreenBoldM(context),
+                        ),
+                      ),
                     ),
                   ),
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    crossAxisSpacing: screenSize.width * 0.01,
-                    mainAxisSpacing: screenSize.height * 0.01,
-                    physics: NeverScrollableScrollPhysics(),
-                    childAspectRatio: 1.3,
-                    children: List.generate(
-                      _images.length < 10 ? _images.length + 1 : 10,
-                      (index) {
-                        if (index < _images.length) {
-                          return Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.file(
-                                  File(_images[index]!.path),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-                              ),
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: GestureDetector(
-                                  onTap: () => _removeImage(index),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black54,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        } else {
-                          return GestureDetector(
-                            onTap: _pickImage,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: colorScheme.onSurface,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  CupertinoIcons.plus_square_fill,
-                                  size: 32,
-                                  color: colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
+          if (advertState.isLoading)
+            Container(
+              color: Colors.black54,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
         ],
       ),
     );

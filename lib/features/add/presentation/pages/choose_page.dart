@@ -34,9 +34,15 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
     final categoriesState = ref.watch(categoriesNotifierProvider);
     final screenSize = MediaQuery.of(context).size;
     final crossAxisCount = screenSize.width > 800 ? 2 : 1;
-    final crossAxisSpacing = screenSize.width * 0.03;
-    final mainAxisSpacing = screenSize.height * 0.03;
-    final childAspectRatio = 5.0;
+    final crossAxisSpacing =
+        screenSize.width > 800
+            ? screenSize.width * 0.005
+            : screenSize.width * 0.001;
+    final mainAxisSpacing =
+        screenSize.height > 800
+            ? screenSize.height * 0
+            : screenSize.height * 0.001;
+    final childAspectRatio = screenSize.width > 800 ? 6.0 : 5.0;
 
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -48,8 +54,14 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                 SliverAppBar(
                   pinned: true,
                   backgroundColor: colorScheme.surface,
-                  expandedHeight: screenSize.height * 0.1,
-                  toolbarHeight: screenSize.height * 0.1,
+                  expandedHeight:
+                      screenSize.height > 800
+                          ? screenSize.height * 0.1
+                          : screenSize.height * 0.2,
+                  toolbarHeight:
+                      screenSize.height > 800
+                          ? screenSize.height * 0.1
+                          : screenSize.height * 0.2,
                   title: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
