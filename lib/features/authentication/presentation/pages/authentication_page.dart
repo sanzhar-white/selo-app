@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/constants/routes.dart';
-import 'package:selo/features/authentication/data/models/user_model.dart';
 import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
 
 class AuthenticationPage extends ConsumerStatefulWidget {
@@ -83,9 +82,14 @@ class _AuthenticatioPageState extends ConsumerState<AuthenticationPage> {
                       ),
                       SizedBox(height: screenSize.height * 0.01),
                       GestureDetector(
-                        onTap: () {
-                          ref.read(anonymousLogInUseCaseProvider).call();
-                          context.push(Routes.homePage);
+                        onTap: () async {
+                          final result =
+                              await ref
+                                  .read(userNotifierProvider.notifier)
+                                  .anonymousLogIn();
+                          if (result && mounted) {
+                            context.push(Routes.homePage);
+                          }
                         },
                         child: Container(
                           width: double.infinity,

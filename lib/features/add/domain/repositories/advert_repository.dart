@@ -1,6 +1,6 @@
 import 'package:selo/core/resources/data_state.dart';
-import '../entities/advert_entity.dart';
+import '../../../../shared/models/advert_model.dart';
 
 abstract class AdvertRepository {
-  Future<DataState<AdvertEntity>> createAd(AdvertEntity advert);
+  Future<DataState<AdvertModel>> createAd(AdvertModel advert);
 }

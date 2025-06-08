@@ -11,6 +11,8 @@ import 'package:selo/features/add/presentation/providers/categories_provider.dar
 import 'package:selo/core/models/category.dart';
 import 'package:selo/generated/l10n.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:selo/shared/widgets/popup_window.dart';
+import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
 
 class ChoosePage extends ConsumerStatefulWidget {
   const ChoosePage({super.key});
@@ -65,10 +67,13 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                   title: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text('Creating a new advert', style: contrastL(context)),
+                      Text(
+                        S.of(context).add_appbar_title,
+                        style: contrastL(context),
+                      ),
                       SizedBox(height: screenSize.height * 0.001),
                       Text(
-                        'Choose category of your advert:',
+                        S.of(context).add_appbar_pick_category,
                         style: contrastM(context),
                       ),
                     ],
@@ -83,12 +88,27 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                   ),
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final category = categories[index];
+                    final user = ref.watch(userNotifierProvider).user;
                     return GestureDetector(
                       onTap: () {
-                        context.push(
-                          Routes.nestedCreateAdvertPage,
-                          extra: category,
-                        );
+                        if (user != null &&
+                            user.phoneNumber != '' &&
+                            user.phoneNumber != null &&
+                            user.phoneNumber.isNotEmpty) {
+                          context.push(
+                            Routes.nestedCreateAdvertPage,
+                            extra: category,
+                          );
+                        } else {
+                          PopupWindow(
+                            message: 'Please login to create an advert',
+                            buttonText: 'Login',
+                            onButtonPressed: () {
+                              ref.read(userNotifierProvider.notifier).logOut();
+                              context.push(Routes.authenticationPage);
+                            },
+                          ).show(context);
+                        }
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -116,9 +136,7 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                                 SizedBox(width: screenSize.width * 0.03),
                                 Text(
                                   getLocalizedCategory(category, context),
-                                  style: greenM(
-                                    context,
-                                  ).copyWith(color: colorScheme.inversePrimary),
+                                  style: contrastM(context),
                                 ),
                               ],
                             ),
@@ -156,7 +174,6 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                     );
                   }, childCount: categories.length),
                 ),
-                SliverFillRemaining(),
               ],
             ),
         loading: () => const Center(child: CupertinoActivityIndicator()),

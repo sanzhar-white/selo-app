@@ -5,6 +5,7 @@ import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/theme/thousands_separator_input_formatter.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
 import 'package:selo/shared/widgets/show_bottom_picker.dart';
+import 'package:selo/generated/l10n.dart';
 
 class QuantitySection extends StatelessWidget {
   final bool isQuantityFixed;
@@ -19,6 +20,7 @@ class QuantitySection extends StatelessWidget {
   final bool maxQuantityError;
   final String quantityErrorText;
   final String maxQuantityErrorText;
+  final bool showUnitSelector;
 
   const QuantitySection({
     super.key,
@@ -34,6 +36,7 @@ class QuantitySection extends StatelessWidget {
     this.maxQuantityError = false,
     this.quantityErrorText = 'Quantity is required',
     this.maxQuantityErrorText = 'Max quantity is required',
+    required this.showUnitSelector,
   });
 
   @override
@@ -44,7 +47,7 @@ class QuantitySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Volume / Quantity', style: contrastBoldM(context)),
+        Text(S.of(context).volume_quantity, style: contrastBoldM(context)),
         const SizedBox(height: 12),
         Container(
           width: double.infinity,
@@ -55,7 +58,6 @@ class QuantitySection extends StatelessWidget {
           child: LayoutBuilder(
             builder: (context, constraints) {
               final buttonWidth = (constraints.maxWidth - 12) / 2;
-
               return ToggleButtons(
                 borderRadius: ResponsiveRadius.screenBased(context),
                 fillColor: colorScheme.primary,
@@ -68,25 +70,51 @@ class QuantitySection extends StatelessWidget {
                 ),
                 isSelected: [isQuantityFixed, !isQuantityFixed],
                 onPressed: (index) => onQuantityTypeChanged(index == 0),
-                children: const [Text('Fixed'), Text('Negotiable')],
+                children: [
+                  Text(S.of(context).fixed),
+                  Text(S.of(context).negotiable),
+                ],
               );
             },
           ),
         ),
-        const SizedBox(height: 16),
-        if (isQuantityFixed)
-          hasMaxQuantity
-              ? _buildQuantityRange(context, colorScheme, screenSize)
-              : _buildSingleQuantity(context, colorScheme, screenSize),
+        SizedBox(height: screenSize.height * 0.015),
+        if (isQuantityFixed) ...[
+          if (hasMaxQuantity && showUnitSelector)
+            _buildQuantityRange(context)
+          else if (hasMaxQuantity)
+            _buildQuantityRange(context)
+          else if (showUnitSelector)
+            _buildSingleQuantity(context)
+          else
+            _buildSimpleQuantityField(context),
+        ],
       ],
     );
   }
 
-  Widget _buildQuantityRange(
-    BuildContext context,
-    ColorScheme colorScheme,
-    Size screenSize,
-  ) {
+  Widget _buildSimpleQuantityField(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return CustomTextField(
+      controller: quantityController,
+      theme: colorScheme,
+      style: contrastM(context),
+      hintText: S.of(context).volume_quantity,
+      formatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        ThousandsSeparatorInputFormatter(),
+      ],
+      keyboardType: TextInputType.number,
+      error: quantityError,
+      errorText: quantityErrorText,
+    );
+  }
+
+  Widget _buildQuantityRange(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final screenSize = MediaQuery.of(context).size;
+
     return SizedBox(
       height: screenSize.height * 0.06,
       child: Row(
@@ -97,7 +125,7 @@ class QuantitySection extends StatelessWidget {
               controller: quantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: 'From',
+              hintText: S.of(context).from,
               textAlign: TextAlign.center,
               error: quantityError,
               errorText: quantityErrorText,
@@ -114,7 +142,7 @@ class QuantitySection extends StatelessWidget {
               controller: maxQuantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: 'To',
+              hintText: S.of(context).to,
               textAlign: TextAlign.center,
               error: maxQuantityError,
               errorText: maxQuantityErrorText,
@@ -125,18 +153,19 @@ class QuantitySection extends StatelessWidget {
               keyboardType: TextInputType.number,
             ),
           ),
-          SizedBox(width: 16),
-          _buildUnitSelector(context, colorScheme, screenSize),
+          if (showUnitSelector) ...[
+            SizedBox(width: 16),
+            _buildUnitSelector(context, colorScheme, screenSize),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildSingleQuantity(
-    BuildContext context,
-    ColorScheme colorScheme,
-    Size screenSize,
-  ) {
+  Widget _buildSingleQuantity(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final screenSize = MediaQuery.of(context).size;
+
     return SizedBox(
       height: screenSize.height * 0.06,
       child: Row(
@@ -147,7 +176,7 @@ class QuantitySection extends StatelessWidget {
               controller: quantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: 'Enter volume / quantity',
+              hintText: S.of(context).volume_quantity,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 ThousandsSeparatorInputFormatter(),
@@ -184,7 +213,7 @@ class QuantitySection extends StatelessWidget {
         width: screenSize.width * 0.15,
         decoration: BoxDecoration(
           color: colorScheme.primary,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: ResponsiveRadius.screenBased(context),
         ),
         child: Center(
           child: Text(quantityUnit, style: overGreenBoldM(context)),

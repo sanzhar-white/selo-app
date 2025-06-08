@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:selo/generated/l10n.dart';
 
 class BaseCategory extends Equatable {
   final int id;
@@ -38,6 +40,18 @@ class AdCategory extends BaseCategory {
     required this.nameKk,
     required this.settings,
   }) : super(id: id);
+
+  String getLocalizedCategory(BuildContext context) {
+    final s = S.of(context);
+    if (s.language_code == 'en') {
+      return nameEn;
+    } else if (s.language_code == 'ru') {
+      return nameRu;
+    } else if (s.language_code == 'kk') {
+      return nameKk;
+    }
+    throw Exception('Didn\'t add the localisation correctly');
+  }
 
   @override
   List<Object?> get props =>

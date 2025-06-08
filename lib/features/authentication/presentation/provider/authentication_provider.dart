@@ -11,7 +11,6 @@ import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/features/authentication/domain/usecases/sign_up_usecase.dart';
 import 'package:selo/features/authentication/data/models/user_model.dart';
 import 'package:selo/features/authentication/domain/repositories/user_repository.dart';
-import 'package:selo/features/authentication/domain/entities/user_entity.dart';
 import 'package:selo/features/authentication/domain/usecases/sign_up_usecase.dart';
 import 'package:selo/features/authentication/domain/usecases/sign_in_with_credential_usecase.dart';
 import 'package:selo/features/authentication/domain/usecases/log_out_usecase.dart';
@@ -19,13 +18,11 @@ import 'package:selo/features/authentication/domain/usecases/log_in_usecase.dart
 import 'package:selo/features/authentication/domain/usecases/check_user_usecase.dart';
 import 'package:selo/features/authentication/domain/usecases/anonymous_logIn_usecase.dart';
 import 'package:selo/features/authentication/domain/repositories/user_repository.dart';
+import 'package:selo/core/services/local_storage_service.dart';
 
 // Provider for FirebaseDatasource
 final firebaseDatasourceProvider = Provider<UserInterface>((ref) {
-  return FirebaseDatasource(
-    FirebaseFirestore.instance,
-    FirebaseAuth.instance,
-  );
+  return FirebaseDatasource(FirebaseFirestore.instance, FirebaseAuth.instance);
 });
 
 // Provider for repository
@@ -42,9 +39,9 @@ final signUpUseCaseProvider = Provider<SignUpUseCase>((ref) {
 
 final signInWithCredentialUseCaseProvider =
     Provider<SignInWithCredentialUseCase>((ref) {
-  final repository = ref.watch(userRepositoryProvider);
-  return SignInWithCredentialUseCase(repository);
-});
+      final repository = ref.watch(userRepositoryProvider);
+      return SignInWithCredentialUseCase(repository);
+    });
 
 final logOutUseCaseProvider = Provider<LogOutUseCase>((ref) {
   final repository = ref.watch(userRepositoryProvider);
@@ -94,7 +91,13 @@ final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>((
 class UserNotifier extends StateNotifier<UserState> {
   final Ref ref;
 
-  UserNotifier(this.ref) : super(const UserState());
+  UserNotifier(this.ref) : super(const UserState()) {
+    // Initialize state from Hive
+    final localUser = LocalStorageService.getUser();
+    if (localUser != null) {
+      state = state.copyWith(user: localUser.user);
+    }
+  }
 
   Future<bool> signUp(SignUpModel signUp) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -184,7 +187,8 @@ class UserNotifier extends StateNotifier<UserState> {
   }
 
   Future<bool> signInWithCredential(
-      SignInWithCredentialModel signInWithCredential) async {
+    SignInWithCredentialModel signInWithCredential,
+  ) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -192,11 +196,17 @@ class UserNotifier extends StateNotifier<UserState> {
       final result = await useCase.call(params: signInWithCredential);
 
       if (result is DataSuccess && result.data is bool) {
-        state = state.copyWith(isLoading: false, error: null);
+        state = state.copyWith(
+          user: signInWithCredential.user,
+          isLoading: false,
+          error: null,
+        );
         return result.data as bool;
       } else if (result is DataFailed) {
-        state =
-            state.copyWith(isLoading: false, error: result.error.toString());
+        state = state.copyWith(
+          isLoading: false,
+          error: result.error.toString(),
+        );
         return false;
       }
 
@@ -218,8 +228,10 @@ class UserNotifier extends StateNotifier<UserState> {
         state = state.copyWith(isLoading: false, error: null);
         return result.data as bool;
       } else if (result is DataFailed) {
-        state =
-            state.copyWith(isLoading: false, error: result.error.toString());
+        state = state.copyWith(
+          isLoading: false,
+          error: result.error.toString(),
+        );
         return false;
       }
 
@@ -234,22 +246,76 @@ class UserNotifier extends StateNotifier<UserState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      // Check if we already have a user in local storage
+      final localUser = LocalStorageService.getUser();
+      if (localUser != null) {
+        final useCase = ref.read(anonymousLogInUseCaseProvider);
+        final result = await useCase.call(params: null);
+
+        if (result is DataSuccess && result.data is bool) {
+          state = state.copyWith(
+            user: localUser.user,
+            isLoading: false,
+            error: null,
+          );
+          return true;
+        }
+      }
+
+      // If no local user or failed to reuse, try anonymous login
       final useCase = ref.read(anonymousLogInUseCaseProvider);
       final result = await useCase.call(params: null);
 
       if (result is DataSuccess && result.data is bool) {
-        state = state.copyWith(isLoading: false, error: null);
-        return result.data as bool;
+        // Get the user from local storage after anonymous login
+        final newLocalUser = LocalStorageService.getUser();
+        if (newLocalUser != null) {
+          state = state.copyWith(
+            user: newLocalUser.user,
+            isLoading: false,
+            error: null,
+          );
+          return true;
+        } else {
+          state = state.copyWith(
+            isLoading: false,
+            error: 'Failed to get user data after anonymous login',
+          );
+          return false;
+        }
       } else if (result is DataFailed) {
-        state =
-            state.copyWith(isLoading: false, error: result.error.toString());
+        state = state.copyWith(
+          isLoading: false,
+          error: result.error.toString(),
+        );
         return false;
       }
 
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Unknown error during anonymous login',
+      );
       return false;
     } catch (e) {
+      print('❌ Error in UserNotifier.anonymousLogIn: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
     }
   }
+
+  Future<bool> isAnonymous() async {
+    final user = LocalStorageService.getUser();
+    if (user != null) {
+      if (user.user.phoneNumber == null || user.user.phoneNumber == '') {
+        return true;
+      }
+    }
+    return false;
+  }
 }
+
+// Add this near the top with other providers
+final getUserProvider = Provider<UserModel?>((ref) {
+  final userState = ref.watch(userNotifierProvider);
+  return userState.user;
+});

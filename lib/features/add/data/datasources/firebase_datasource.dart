@@ -5,7 +5,7 @@ import 'package:selo/core/models/category.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/features/add/data/datasources/advert_interface.dart';
 import 'package:selo/features/add/data/datasources/categories_interface.dart';
-import 'package:selo/features/add/data/models/advert_model.dart';
+import 'package:selo/shared/models/advert_model.dart';
 import 'dart:io';
 
 class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
@@ -127,8 +127,8 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       final newAdvert = advert.copyWith(
         uid: docRef.id,
         images: imageUrls,
-        createdDate: now,
-        updatedDate: now,
+        createdAt: now,
+        updatedAt: now,
       );
 
       await docRef.set(newAdvert.toMap());

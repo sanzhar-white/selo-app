@@ -4,6 +4,7 @@ import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:selo/generated/l10n.dart';
 
 class ImageSection extends StatelessWidget {
   final List<XFile?> images;
@@ -47,9 +48,9 @@ class ImageSection extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Text('Images', style: contrastBoldM(context)),
+        Text(S.of(context).images, style: contrastBoldM(context)),
         const SizedBox(width: 8),
-        Text('(optional)', style: grayM(context)),
+        Text('(${S.of(context).images_optional})', style: grayM(context)),
       ],
     );
   }
@@ -67,7 +68,7 @@ class ImageSection extends StatelessWidget {
           images.isEmpty
               ? _AddImagePlaceholder(onTap: onPickImage, withText: true)
               : ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: ResponsiveRadius.screenBased(context),
                 child: Image.file(
                   File(images.first!.path),
                   fit: BoxFit.cover,
@@ -101,7 +102,7 @@ class ImageSection extends StatelessWidget {
             return Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: ResponsiveRadius.screenBased(context),
                   child: Image.file(
                     File(images[index]!.path),
                     fit: BoxFit.cover,
@@ -135,7 +136,7 @@ class ImageSection extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: colorScheme.onSurface,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: ResponsiveRadius.screenBased(context),
                 ),
                 child: Center(
                   child: Icon(
@@ -168,7 +169,7 @@ class _AddImagePlaceholder extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: colorScheme.onSurface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: ResponsiveRadius.screenBased(context),
         ),
         child: Center(
           child: Column(
@@ -181,7 +182,7 @@ class _AddImagePlaceholder extends StatelessWidget {
               ),
               if (withText) ...[
                 const SizedBox(height: 8),
-                Text('Add Photo', style: greenM(context)),
+                Text(S.of(context).add_photo, style: greenM(context)),
               ],
             ],
           ),

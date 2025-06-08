@@ -6,6 +6,7 @@ import 'package:selo/core/theme/thousands_separator_input_formatter.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
 import 'package:selo/shared/widgets/show_bottom_picker.dart';
 import 'package:selo/features/add/presentation/widgets/custom_toggle_buttons.dart';
+import 'package:selo/generated/l10n.dart';
 
 class PriceSection extends StatelessWidget {
   final bool isPriceFixed;
@@ -20,6 +21,7 @@ class PriceSection extends StatelessWidget {
   final ValueChanged<String> onUnitChanged;
   final bool priceError;
   final bool maxPriceError;
+  final bool showPricePerSelector;
 
   const PriceSection({
     super.key,
@@ -35,6 +37,7 @@ class PriceSection extends StatelessWidget {
     required this.onUnitChanged,
     this.priceError = false,
     this.maxPriceError = false,
+    required this.showPricePerSelector,
   });
 
   @override
@@ -51,35 +54,41 @@ class PriceSection extends StatelessWidget {
         ),
         SizedBox(height: screenSize.height * 0.015),
         CustomToggleButtons(
-          options: const ['Fixed', 'Negotiable'],
+          options: [S.of(context).fixed, S.of(context).negotiable],
           selectedIndex: isPriceFixed ? 0 : 1,
           onChanged: (index) => onPriceTypeChanged(index == 0),
         ),
+        SizedBox(height: screenSize.height * 0.015),
         if (isPriceFixed) ...[
-          SizedBox(height: screenSize.height * 0.02),
-          if (hasMaxPrice && hasPricePer)
+          if (hasMaxPrice && showPricePerSelector)
             _buildPriceRangeWithUnit(context)
           else if (hasMaxPrice)
             _buildPriceRange(context)
-          else if (hasPricePer)
+          else if (showPricePerSelector)
             _buildSinglePriceWithUnit(context)
           else
-            CustomTextField(
-              controller: priceController,
-              theme: colorScheme,
-              style: contrastM(context),
-              hintText: isSalary ? 'Enter salary' : 'Enter price of advert',
-              formatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                ThousandsSeparatorInputFormatter(),
-              ],
-              keyboardType: TextInputType.number,
-              border: true,
-              error: priceError,
-              errorText: 'Price is required',
-            ),
+            _buildSimplePriceField(context),
         ],
       ],
+    );
+  }
+
+  Widget _buildSimplePriceField(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return CustomTextField(
+      controller: priceController,
+      theme: colorScheme,
+      style: contrastM(context),
+      hintText: S.of(context).price_hint,
+      formatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        ThousandsSeparatorInputFormatter(),
+      ],
+      keyboardType: TextInputType.number,
+      border: true,
+      error: priceError,
+      errorText: S.of(context).price_required,
     );
   }
 
@@ -97,15 +106,18 @@ class PriceSection extends StatelessWidget {
               controller: priceController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: 'From',
+              hintText: S.of(context).from,
               textAlign: TextAlign.center,
               error: priceError,
-              errorText: 'Price is required',
+              errorText: S.of(context).price_required,
+              formatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                ThousandsSeparatorInputFormatter(),
+              ],
+              keyboardType: TextInputType.number,
               borderRadius: BorderRadius.only(
                 topLeft: ResponsiveRadius.screenBased(context).topLeft,
                 bottomLeft: ResponsiveRadius.screenBased(context).bottomLeft,
-                topRight: Radius.zero,
-                bottomRight: Radius.zero,
               ),
             ),
           ),
@@ -116,9 +128,9 @@ class PriceSection extends StatelessWidget {
               controller: maxPriceController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: 'To',
+              hintText: S.of(context).to,
               error: maxPriceError,
-              errorText: 'Max price is required',
+              errorText: S.of(context).max_price_required,
               textAlign: TextAlign.center,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -128,8 +140,6 @@ class PriceSection extends StatelessWidget {
               borderRadius: BorderRadius.only(
                 topLeft: ResponsiveRadius.screenBased(context).topLeft,
                 bottomLeft: ResponsiveRadius.screenBased(context).bottomLeft,
-                topRight: Radius.zero,
-                bottomRight: Radius.zero,
               ),
             ),
           ),
@@ -142,7 +152,6 @@ class PriceSection extends StatelessWidget {
   }
 
   Widget _buildPriceRange(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
 
     return SizedBox(
@@ -150,9 +159,19 @@ class PriceSection extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildPriceField(context, priceController, 'From', priceError),
+          _buildPriceField(
+            context,
+            priceController,
+            S.of(context).from,
+            priceError,
+          ),
           SizedBox(width: screenSize.width * 0.04),
-          _buildPriceField(context, maxPriceController, 'To', maxPriceError),
+          _buildPriceField(
+            context,
+            maxPriceController,
+            S.of(context).to,
+            maxPriceError,
+          ),
         ],
       ),
     );
@@ -172,10 +191,10 @@ class PriceSection extends StatelessWidget {
               controller: priceController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: 'Enter price per unit',
+              hintText: S.of(context).price_hint,
               textAlign: TextAlign.center,
               error: priceError,
-              errorText: 'Price is required',
+              errorText: S.of(context).price_required,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 ThousandsSeparatorInputFormatter(),
@@ -215,7 +234,7 @@ class PriceSection extends StatelessWidget {
               style: contrastM(context),
               hintText: hint,
               error: error,
-              errorText: 'Price is required',
+              errorText: S.of(context).price_required,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 ThousandsSeparatorInputFormatter(),
@@ -267,7 +286,7 @@ class PriceSection extends StatelessWidget {
         width: screenSize.width * 0.15,
         decoration: BoxDecoration(
           color: colorScheme.primary,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: ResponsiveRadius.screenBased(context),
         ),
         child: Center(
           child: Text(pricePerUnit, style: overGreenBoldM(context)),

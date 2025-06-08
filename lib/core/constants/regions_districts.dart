@@ -1,6 +1,6 @@
 import 'package:selo/core/models/category.dart';
 
-List<PlaceCategory> regions = [
+final List<PlaceCategory> regions = [
   PlaceCategory(
     id: 0,
     name: 'Актобе',

@@ -1,5 +1,3 @@
-// lib/features/add/presentation/pages/choose_page.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,10 +16,9 @@ import 'package:selo/features/add/presentation/widgets/quantity_section.dart';
 import 'package:selo/features/add/presentation/widgets/location_section.dart';
 import 'package:selo/features/add/presentation/widgets/image_section.dart';
 import 'package:selo/features/add/presentation/providers/advert_provider.dart';
-import 'package:selo/features/add/domain/entities/advert_entity.dart';
-import 'package:selo/features/add/data/models/advert_model.dart';
+import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/core/utils/utils.dart';
-import 'package:selo/core/constants/regions_districts.dart';
 import 'dart:io';
 
 class CreateAdvertPage extends ConsumerStatefulWidget {
@@ -41,16 +38,10 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   String _pricePerUnit = 'kg';
   String _region = '';
   String _district = '';
+  String _uid = '';
 
-  Map<String, bool> _validationState = {
-    'title': true,
-    'price': true,
-    'region': true,
-    'district': true,
-    'description': true,
-    'phoneNumber': true,
-    'images': true,
-  };
+  Map<String, bool> _validationState = {};
+  bool _showValidation = false;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController phoneController = TextEditingController(
@@ -69,35 +60,22 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   @override
   void initState() {
     super.initState();
-
-    settingsControllers = {
-      for (final key in widget.category.settings.keys)
-        key: TextEditingController(),
-    };
-
-    // Initialize validation state based on category settings
-    _validationState = {
-      'title': true,
-      'price': true,
-      'region': true,
-      'district': true,
-      'description': true,
-      'phoneNumber': true,
-      'images': true,
-    };
-
-    // Only add validation for fields that are required by the category
-    for (final entry in widget.category.settings.entries) {
-      _validationState[entry.key] =
-          !entry.value; // Initialize as false only if the setting is true
+    _uid = ref.read(userNotifierProvider).user?.uid ?? '';
+    settingsControllers = {};
+    for (final key in widget.category.settings.keys) {
+      if (widget.category.settings[key] == true) {
+        settingsControllers[key] = TextEditingController();
+      }
     }
+    _validationState = {};
+    print('🔍 Category settings: ${widget.category.settings}');
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _quantityUnit = S.of(context).label_kg;
-    _pricePerUnit = S.of(context).label_kg;
+    _quantityUnit = S.of(context).unit_kg;
+    _pricePerUnit = S.of(context).unit_kg;
   }
 
   @override
@@ -111,6 +89,210 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     maxQuantityController.dispose();
     settingsControllers.forEach((_, controller) => controller.dispose());
     super.dispose();
+  }
+
+  void _validateFields() {
+    final newValidationState = <String, bool>{};
+    _showValidation = true;
+
+    print('🔧 Validating fields for category: ${widget.category.id}');
+
+    // Required fields for all categories
+    newValidationState['title'] = titleController.text.trim().isNotEmpty;
+    newValidationState['region'] = _region.isNotEmpty;
+    newValidationState['district'] = _district.isNotEmpty;
+    newValidationState['description'] =
+        descriptionController.text.trim().isNotEmpty;
+    newValidationState['phoneNumber'] = phoneController.text.trim().isNotEmpty;
+
+    // Price validation (always required unless negotiable)
+    print('🔍 Validating price fields');
+    if (_isPriceFixed) {
+      newValidationState['price'] = priceController.text.trim().isNotEmpty;
+      if (widget.category.settings['maxPrice'] == true) {
+        newValidationState['maxPrice'] =
+            maxPriceController.text.trim().isNotEmpty;
+      } else {
+        newValidationState['maxPrice'] =
+            true; // Not required if maxPrice is not enabled
+      }
+    } else {
+      newValidationState['price'] = true; // No validation for negotiable
+      newValidationState['maxPrice'] = true;
+    }
+
+    // Quantity validation (only if explicitly enabled)
+    if (widget.category.settings['quantity'] == true) {
+      print('🔍 Validating quantity fields');
+      if (_isQuantityFixed) {
+        newValidationState['quantity'] =
+            quantityController.text.trim().isNotEmpty;
+        if (widget.category.settings['maxQuantity'] == true) {
+          newValidationState['maxQuantity'] =
+              maxQuantityController.text.trim().isNotEmpty;
+        } else {
+          newValidationState['maxQuantity'] =
+              true; // Not required if maxQuantity is not enabled
+        }
+      } else {
+        newValidationState['quantity'] = true; // No validation for negotiable
+        newValidationState['maxQuantity'] = true;
+      }
+    } else {
+      print('ℹ️ Quantity fields not applicable for this category');
+      newValidationState['quantity'] =
+          true; // Ensure quantity is valid if not required
+      newValidationState['maxQuantity'] = true;
+    }
+
+    // Additional fields validation
+    if (widget.category.settings['companyName'] == true) {
+      newValidationState['companyName'] =
+          settingsControllers['companyName']?.text.trim().isNotEmpty ?? false;
+    }
+    if (widget.category.settings['contactPerson'] == true) {
+      newValidationState['contactPerson'] =
+          settingsControllers['contactPerson']?.text.trim().isNotEmpty ?? false;
+    }
+    if (widget.category.settings['year'] == true) {
+      newValidationState['year'] = _year > 1900;
+    }
+
+    print('✅ Validation state: $newValidationState');
+    setState(() => _validationState = newValidationState);
+  }
+
+  bool get _isFormValid {
+    return _validationState.values.every((isValid) => isValid);
+  }
+
+  void _handleCreateAdvert() async {
+    final now = Timestamp.now();
+    _validateFields();
+
+    if (!_isFormValid) {
+      print('❌ Form validation failed: $_validationState');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).fill_all_fields),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      print('🔄 Creating advert...');
+      int price = 0;
+      int maxPrice = 0;
+      String priceUnit = _pricePerUnit;
+      bool tradeable = !_isPriceFixed;
+
+      if (_isPriceFixed) {
+        price =
+            int.tryParse(
+              priceController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+            ) ??
+            0;
+        if (widget.category.settings['maxPrice'] == true) {
+          maxPrice =
+              int.tryParse(
+                maxPriceController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+              ) ??
+              0;
+        }
+      }
+
+      int quantity = 0;
+      int maxQuantity = 0;
+      String quantityUnit = _quantityUnit;
+
+      if (widget.category.settings['quantity'] == true && _isQuantityFixed) {
+        quantity =
+            int.tryParse(
+              quantityController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+            ) ??
+            0;
+        if (widget.category.settings['maxQuantity'] == true) {
+          maxQuantity =
+              int.tryParse(
+                maxQuantityController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+              ) ??
+              0;
+        }
+      }
+
+      final advert = AdvertModel(
+        uid: '',
+        ownerUid: _uid,
+        active: true,
+        views: 0,
+        likes: 0,
+        createdAt: now,
+        updatedAt: now,
+        title: titleController.text,
+        phoneNumber: phoneController.text,
+        category: widget.category.id,
+        images: _images.map((e) => e?.path ?? '').toList(),
+        description: descriptionController.text,
+        region: getRegionID(_region),
+        district: getDistrictID(_district, getRegionID(_region)),
+        price: price,
+        maxPrice: maxPrice,
+        unitPer: priceUnit,
+        quantity: quantity,
+        maxQuantity: maxQuantity,
+        unit: quantityUnit,
+        tradeable: tradeable,
+        companyName:
+            widget.category.settings['companyName'] == true
+                ? settingsControllers['companyName']?.text ?? ''
+                : '',
+        contactPerson:
+            widget.category.settings['contactPerson'] == true
+                ? settingsControllers['contactPerson']?.text ?? ''
+                : '',
+        year: widget.category.settings['year'] == true ? _year : 0,
+        condition:
+            widget.category.settings['condition'] == true
+                ? (_isNew ? 0 : 1)
+                : 0,
+      );
+
+      final success = await ref
+          .read(advertNotifierProvider.notifier)
+          .createAdvert(advert);
+
+      if (!mounted) return;
+
+      if (success) {
+        print('✅ Advert created successfully');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Advertisement created successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.of(context).pop();
+      } else {
+        final error = ref.read(advertNotifierProvider).error;
+        print('❌ Failed to create advert: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error ?? 'Failed to create advertisement'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e, st) {
+      print('💥 Error creating advert: $e\n$st');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error creating advert: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Future<void> _pickImage() async {
@@ -127,14 +309,11 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 80, // Compress image to reduce size
+        imageQuality: 80,
       );
-
       if (image != null) {
-        // Check if file exists
         final file = File(image.path);
         if (!await file.exists()) {
-          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Selected image file not found'),
@@ -143,11 +322,8 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
           );
           return;
         }
-
-        // Check file size (max 5MB)
         final fileSize = await file.length();
         if (fileSize > 5 * 1024 * 1024) {
-          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Image size should be less than 5MB'),
@@ -156,18 +332,10 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
           );
           return;
         }
-
-        setState(() {
-          _images.add(image);
-          // Update validation state for images if needed
-          if (_validationState.containsKey('images')) {
-            _validationState['images'] = true;
-          }
-        });
+        setState(() => _images.add(image));
       }
-    } catch (e) {
-      print('Error picking image: $e');
-      if (!mounted) return;
+    } catch (e, st) {
+      print('💥 Error selecting image: $e\n$st');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error selecting image: ${e.toString()}'),
@@ -178,169 +346,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   }
 
   void _removeImage(int index) {
-    setState(() {
-      _images.removeAt(index);
-      // Update validation state for images if needed
-      if (_validationState.containsKey('images') && _images.isEmpty) {
-        _validationState['images'] = false;
-      }
-    });
-  }
-
-  void _validateFields() {
-    setState(() {
-      // Always validate required fields
-      _validationState['title'] = titleController.text.trim().isNotEmpty;
-      _validationState['price'] =
-          _isPriceFixed ? priceController.text.trim().isNotEmpty : true;
-      _validationState['region'] = _region.isNotEmpty;
-      _validationState['district'] = _district.isNotEmpty;
-      _validationState['description'] =
-          descriptionController.text.trim().isNotEmpty;
-      _validationState['phoneNumber'] = phoneController.text.trim().isNotEmpty;
-      _validationState['images'] = _images.isNotEmpty;
-
-      // Only validate fields that are required by the category
-      for (final entry in widget.category.settings.entries) {
-        if (!entry.value) continue; // Skip if the setting is false
-
-        switch (entry.key) {
-          case 'maxPrice':
-            _validationState['maxPrice'] =
-                !_isPriceFixed || maxPriceController.text.trim().isNotEmpty;
-            break;
-          case 'maxQuantity':
-            _validationState['maxQuantity'] =
-                !_isQuantityFixed ||
-                maxQuantityController.text.trim().isNotEmpty;
-            break;
-          case 'quantity':
-            _validationState['quantity'] =
-                !_isQuantityFixed || quantityController.text.trim().isNotEmpty;
-            break;
-          case 'condition':
-            _validationState['condition'] =
-                true; // Always valid as it's a toggle
-            break;
-          case 'year':
-            _validationState['year'] = _year > 1900;
-            break;
-          case 'companyName':
-            _validationState['companyName'] =
-                settingsControllers['companyName']?.text.trim().isNotEmpty ??
-                false;
-            break;
-          case 'contactPerson':
-            _validationState['contactPerson'] =
-                settingsControllers['contactPerson']?.text.trim().isNotEmpty ??
-                false;
-            break;
-          default:
-            // For any other settings, if they exist in the validation state, mark them as valid
-            if (_validationState.containsKey(entry.key)) {
-              _validationState[entry.key] = true;
-            }
-        }
-      }
-
-      print('Validation state: $_validationState');
-    });
-  }
-
-  bool get _isFormValid {
-    // Check if all required fields are valid
-    bool isValid =
-        _validationState['title'] == true &&
-        _validationState['price'] == true &&
-        _validationState['region'] == true &&
-        _validationState['district'] == true &&
-        _validationState['description'] == true &&
-        _validationState['phoneNumber'] == true &&
-        _validationState['images'] == true;
-
-    // Check category-specific fields
-    for (final entry in widget.category.settings.entries) {
-      if (entry.value && _validationState.containsKey(entry.key)) {
-        isValid = isValid && _validationState[entry.key]!;
-      }
-    }
-
-    return isValid;
-  }
-
-  void _handleCreateAdvert() async {
-    _validateFields();
-    print('Validation state: $_validationState');
-
-    if (!_isFormValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all required fields'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    try {
-      // Clean up the price string by removing spaces and other non-digit characters
-      final cleanPrice = priceController.text.replaceAll(RegExp(r'[^0-9]'), '');
-
-      final success = await ref
-          .read(advertNotifierProvider.notifier)
-          .createAdvert(
-            AdvertModel(
-              uid: '',
-              ownerUid: '',
-              active: true,
-              views: 0,
-              likes: 0,
-              createdDate: Timestamp.now(),
-              updatedDate: Timestamp.now(),
-              title: titleController.text,
-              price: int.parse(cleanPrice),
-              region: getRegionID(_region),
-              district: getDistrictID(_district, getRegionID(_region), regions),
-              description: descriptionController.text,
-              phoneNumber: phoneController.text,
-              category: widget.category.id,
-              images: _images.map((e) => e?.path ?? '').toList(),
-              tradeable:
-                  _isPriceFixed ? priceController.text.trim().isNotEmpty : true,
-              condition: _isNew ? 0 : 1,
-              year: _year,
-            ),
-          );
-
-      if (!mounted) return;
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Advertisement created successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // Navigate back or to the advert details page
-        Navigator.of(context).pop();
-      } else {
-        final error = ref.read(advertNotifierProvider).error;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error ?? 'Failed to create advertisement'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error creating advert: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error creating advert: Invalid price format'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    setState(() => _images.removeAt(index));
   }
 
   @override
@@ -348,10 +354,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
     final advertState = ref.watch(advertNotifierProvider);
-    final List<String> units = [
-      S.of(context).label_kg,
-      S.of(context).label_ton,
-    ];
+    final List<String> units = [S.of(context).unit_kg, S.of(context).unit_ton];
 
     return Scaffold(
       body: Stack(
@@ -359,7 +362,10 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
           CustomScrollView(
             slivers: [
               SliverAppBar(
-                title: Text('Creating a new advert', style: contrastL(context)),
+                title: Text(
+                  S.of(context).create_advert,
+                  style: contrastL(context),
+                ),
                 iconTheme: IconThemeData(color: colorScheme.inversePrimary),
                 backgroundColor: colorScheme.surface,
                 expandedHeight: screenSize.height * 0.1,
@@ -367,26 +373,30 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: 'Title of advert',
+                  title: S.of(context).title_of_ad,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: titleController,
                     theme: colorScheme,
                     style: greenM(context),
-                    hintText: 'Enter title of advert',
+                    hintText: S.of(context).title_of_ad_hint,
                     border: true,
-                    error: !_validationState['title']!,
-                    errorText: 'Title is required',
+                    error:
+                        _showValidation && !(_validationState['title'] ?? true),
+                    errorText: S.of(context).title_of_ad_required,
                   ),
                 ),
               ),
               if (widget.category.settings['condition'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: 'Condition',
+                    title: S.of(context).condition,
                     titleStyle: contrastBoldM(context),
                     child: CustomToggleButtons(
-                      options: const ['New', 'Used'],
+                      options: [
+                        S.of(context).condition_new,
+                        S.of(context).condition_used,
+                      ],
                       selectedIndex: _isNew ? 0 : 1,
                       onChanged: (index) => setState(() => _isNew = index == 0),
                     ),
@@ -395,7 +405,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               if (widget.category.settings['year'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: 'Year of release',
+                    title: S.of(context).year_of_release,
                     titleStyle: contrastBoldM(context),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -420,11 +430,8 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                               ).reversed.toList(),
                           itemBuilder: (context, item) => Text(item.toString()),
                           itemAlignment: TextAlign.center,
-                          onItemSelected: (item) {
-                            setState(() {
-                              _year = item;
-                            });
-                          },
+                          onItemSelected:
+                              (item) => setState(() => _year = item),
                         );
                       },
                     ),
@@ -432,6 +439,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                 ),
               SliverToBoxAdapter(
                 child: FormSection(
+                  titleStyle: contrastBoldM(context),
                   child: PriceSection(
                     isPriceFixed: _isPriceFixed,
                     hasMaxPrice: widget.category.settings['maxPrice'] == true,
@@ -445,11 +453,13 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                         (value) => setState(() => _isPriceFixed = value),
                     onUnitChanged:
                         (value) => setState(() => _pricePerUnit = value),
-                    priceError: !_validationState['price']!,
+                    priceError:
+                        _showValidation && !(_validationState['price'] ?? true),
                     maxPriceError:
-                        !_validationState['maxPrice']! &&
-                        _isPriceFixed &&
-                        widget.category.settings['maxPrice'] == true,
+                        _showValidation &&
+                        !(_validationState['maxPrice'] ?? true),
+                    showPricePerSelector:
+                        widget.category.settings['pricePer'] == true,
                   ),
                 ),
               ),
@@ -469,19 +479,21 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                           (value) => setState(() => _isQuantityFixed = value),
                       onUnitChanged:
                           (value) => setState(() => _quantityUnit = value),
-                      quantityError: !_validationState['quantity']!,
-                      quantityErrorText: 'Quantity is required',
+                      quantityError:
+                          _showValidation &&
+                          !(_validationState['quantity'] ?? true),
                       maxQuantityError:
-                          !_validationState['maxQuantity']! &&
-                          _isQuantityFixed &&
-                          widget.category.settings['maxQuantity'] == true,
-                      maxQuantityErrorText: 'Max quantity is required',
+                          _showValidation &&
+                          !(_validationState['maxQuantity'] ?? true),
+                      maxQuantityErrorText: S.of(context).max_quantity_required,
+                      showUnitSelector:
+                          widget.category.settings['unitPer'] == true,
                     ),
                   ),
                 ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: 'Location',
+                  title: S.of(context).location,
                   titleStyle: contrastBoldM(context),
                   child: LocationSection(
                     region: _region,
@@ -493,14 +505,18 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                         }),
                     onDistrictChanged:
                         (value) => setState(() => _district = value),
-                    regionError: !_validationState['region']!,
-                    districtError: !_validationState['district']!,
+                    regionError:
+                        _showValidation &&
+                        !(_validationState['region'] ?? true),
+                    districtError:
+                        _showValidation &&
+                        !(_validationState['district'] ?? true),
                   ),
                 ),
               ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: 'Description',
+                  title: S.of(context).description,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: descriptionController,
@@ -508,59 +524,67 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                     style: contrastM(context),
                     minLines: 3,
                     maxLines: 10,
-                    hintText: 'Describe your advert',
+                    hintText: S.of(context).description_hint,
                     border: true,
-                    error: !_validationState['description']!,
-                    errorText: 'Description is required',
+                    error:
+                        _showValidation &&
+                        !(_validationState['description'] ?? true),
+                    errorText: S.of(context).description_required,
                   ),
                 ),
               ),
               if (widget.category.settings['companyName'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: 'Company',
+                    title: S.of(context).company,
                     titleStyle: contrastBoldM(context),
                     child: CustomTextField(
                       controller: settingsControllers['companyName']!,
                       theme: colorScheme,
                       style: contrastM(context),
-                      hintText: 'Example: Apple',
+                      hintText: S.of(context).company_hint,
                       border: true,
-                      error: !_validationState['companyName']!,
-                      errorText: 'Company name is required',
+                      error:
+                          _showValidation &&
+                          !(_validationState['companyName'] ?? true),
+                      errorText: S.of(context).company_required,
                     ),
                   ),
                 ),
               if (widget.category.settings['contactPerson'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: 'Contact person',
+                    title: S.of(context).contact_person,
                     titleStyle: contrastBoldM(context),
                     child: CustomTextField(
                       controller: settingsControllers['contactPerson']!,
                       theme: colorScheme,
                       style: contrastM(context),
-                      hintText: 'Example: John Doe',
+                      hintText: S.of(context).contact_person_hint,
                       border: true,
-                      error: !_validationState['contactPerson']!,
-                      errorText: 'Contact person is required',
+                      error:
+                          _showValidation &&
+                          !(_validationState['contactPerson'] ?? true),
+                      errorText: S.of(context).contact_person_required,
                     ),
                   ),
                 ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: 'Phone number',
+                  title: S.of(context).phone_number,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: phoneController,
                     theme: colorScheme,
                     style: contrastM(context),
-                    hintText: 'Enter phone number',
+                    hintText: S.of(context).phone_number_hint,
                     border: true,
                     formatters: [PhoneNumberFormatter()],
                     keyboardType: TextInputType.phone,
-                    error: !_validationState['phoneNumber']!,
-                    errorText: 'Phone number is required',
+                    error:
+                        _showValidation &&
+                        !(_validationState['phoneNumber'] ?? true),
+                    errorText: S.of(context).phone_number_required,
                   ),
                 ),
               ),
@@ -586,7 +610,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                       ),
                       child: Center(
                         child: Text(
-                          'Create advert',
+                          S.of(context).create_advert,
                           style: overGreenBoldM(context),
                         ),
                       ),

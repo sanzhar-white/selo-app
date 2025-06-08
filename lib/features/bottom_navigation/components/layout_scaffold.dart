@@ -39,7 +39,7 @@ class LayoutScaffold extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: BottomAppBar(
         elevation: 0,
-        color: Colors.white,
+        color: theme.surface,
         height: screenSize.height * 0.07,
         padding: EdgeInsets.zero,
         child: Row(

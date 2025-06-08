@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:selo/features/authentication/domain/entities/user_entity.dart';
 import 'package:selo/features/authentication/data/models/user_model.dart';
 import 'package:selo/core/resources/data_state.dart';
 
@@ -23,13 +21,15 @@ class OTPPage extends ConsumerStatefulWidget {
 
 class _OTPPageState extends ConsumerState<OTPPage> {
   final formKey = GlobalKey<FormState>();
-  final TextEditingController controller = TextEditingController();
+  final TextEditingController codeController = TextEditingController();
+  String? _capturedCode;
 
   late Timer timer;
   int _start = 45;
 
   bool isActive = false;
   bool isLoading = false;
+  bool _mounted = true;
 
   @override
   void initState() {
@@ -42,11 +42,11 @@ class _OTPPageState extends ConsumerState<OTPPage> {
     timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       if (_start == 0) {
         timer.cancel();
-        if (mounted) {
+        if (_mounted) {
           setState(() {});
         }
       } else {
-        if (mounted) {
+        if (_mounted) {
           setState(() {
             _start--;
           });
@@ -57,43 +57,100 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
   @override
   void dispose() {
+    _mounted = false;
     if (timer.isActive) {
       timer.cancel();
     }
-    controller.dispose();
+    codeController.dispose();
     super.dispose();
   }
 
   Future<void> verifyOTP() async {
-    if (!isActive || widget.authStatus == null) return;
+    if (!_mounted || !isActive || widget.authStatus == null) {
+      print(
+        '❌ Cannot verify OTP: ${!isActive
+            ? 'inactive'
+            : !_mounted
+            ? 'disposed'
+            : 'no auth status'}',
+      );
+      return;
+    }
 
+    _capturedCode = codeController.text;
+    if (_capturedCode == null || _capturedCode!.isEmpty) {
+      print('❌ No verification code entered');
+      return;
+    }
+
+    if (!_mounted) return;
     setState(() => isLoading = true);
 
     try {
+      print('🔐 Starting OTP verification');
+      print('📝 Verification ID: ${widget.authStatus!.value}');
+      print('📱 SMS Code: $_capturedCode');
+
+      if (!_mounted) return;
       final result = await ref
           .read(signInWithCredentialUseCaseProvider)
           .call(
             params: SignInWithCredentialModel(
               verificationId: widget.authStatus!.value,
-              smsCode: controller.text,
+              smsCode: _capturedCode!,
               user: widget.authStatus!.user,
             ),
           );
 
+      if (!_mounted) return;
+
       if (result is DataSuccess<bool>) {
-        final success = result.data ?? false;
-        if (success && mounted) {
+        final success = result.data;
+        print('✅ OTP verification result: $success');
+        if (success! && _mounted) {
           context.go(Routes.homePage);
+        } else {
+          if (_mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Verification failed - please check the code and try again',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          print('❌ OTP verification failed: success was false');
         }
-      } else {
-        // TODO: Show error to user
-        print('❌ OTP verification failed');
+      } else if (result is DataFailed<bool>) {
+        final error = result.error.toString();
+        print('❌ OTP verification failed with error: $error');
+        if (_mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Verification error: ${error.contains('invalid-verification-code') ? 'Invalid code entered' : error}',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
       }
     } catch (e) {
       print('💥 Exception in OTP verification: $e');
-      // TODO: Show error to user
+      if (_mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error during verification: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     } finally {
-      if (mounted) {
+      _capturedCode = null;
+      if (_mounted) {
         setState(() => isLoading = false);
       }
     }
@@ -152,7 +209,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                         animationDuration: const Duration(milliseconds: 300),
                         backgroundColor: Colors.transparent,
                         enableActiveFill: true,
-                        controller: controller,
+                        controller: codeController,
                         onCompleted: (v) {
                           setState(() => isActive = true);
                         },

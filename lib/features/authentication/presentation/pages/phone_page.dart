@@ -7,7 +7,6 @@ import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/features/authentication/data/models/user_model.dart';
 import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
-import 'package:selo/features/authentication/domain/entities/user_entity.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
 

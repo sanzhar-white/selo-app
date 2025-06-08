@@ -19,6 +19,8 @@ class CustomTextField extends StatelessWidget {
     this.errorText,
     this.formatters,
     this.keyboardType,
+    this.onChanged,
+    this.onSubmitted,
   });
 
   final TextEditingController controller;
@@ -34,6 +36,8 @@ class CustomTextField extends StatelessWidget {
   final String? errorText;
   final List<TextInputFormatter>? formatters;
   final TextInputType? keyboardType;
+  final Function(String)? onChanged;
+  final Function(String)? onSubmitted;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -49,6 +53,7 @@ class CustomTextField extends StatelessWidget {
           textAlignVertical: TextAlignVertical.top,
           inputFormatters: formatters,
           keyboardType: keyboardType,
+          onSubmitted: onSubmitted,
           decoration: InputDecoration(
             isDense: true,
             fillColor: theme.onSurface,

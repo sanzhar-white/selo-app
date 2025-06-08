@@ -21,7 +21,7 @@ class SeloApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('en'), Locale('ru')],
+      supportedLocales: const [Locale('en'), Locale('ru'), Locale('kk')],
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       theme: theme,

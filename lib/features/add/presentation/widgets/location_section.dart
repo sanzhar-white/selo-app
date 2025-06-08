@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/shared/widgets/location_picker.dart';
+import 'package:selo/generated/l10n.dart';
 
 class LocationSection extends StatelessWidget {
   final String region;
@@ -28,12 +29,12 @@ class LocationSection extends StatelessWidget {
       locations: regions,
       onRegionChanged: onRegionChanged,
       onDistrictChanged: onDistrictChanged,
-      regionLabel: 'Region',
-      districtLabel: 'District',
+      regionLabel: S.of(context).region,
+      districtLabel: S.of(context).district,
       regionError: regionError,
       districtError: districtError,
-      regionErrorText: 'Region is required',
-      districtErrorText: 'District is required',
+      regionErrorText: S.of(context).region_required,
+      districtErrorText: S.of(context).district_required,
     );
   }
 }

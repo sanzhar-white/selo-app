@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:selo/core/constants/firebase.dart';
 import 'package:selo/core/resources/data_state.dart';
+import 'package:selo/core/services/local_storage_service.dart';
 import '../models/user_model.dart';
+import '../models/local_user_model.dart';
 import 'user_interface.dart';
 
 class FirebaseDatasource implements UserInterface {
@@ -15,9 +17,11 @@ class FirebaseDatasource implements UserInterface {
   @override
   Future<DataState<AuthStatusModel>> signUp(SignUpModel signUp) async {
     final completer = Completer<DataState<AuthStatusModel>>();
+    final now = Timestamp.now();
 
     try {
-      // Проверка: есть ли пользователь в Firestore
+      print('🔥 Firebase: Starting signUp for ${signUp.phoneNumber}');
+      // Check if user exists in Firestore
       final userSnapshot =
           await _firestore
               .collection(FirebaseCollections.users)
@@ -25,35 +29,40 @@ class FirebaseDatasource implements UserInterface {
               .get();
 
       if (userSnapshot.docs.isNotEmpty) {
+        print('❌ Firebase: Phone number already registered');
         return DataFailed(
-          Exception('Номер уже зарегистрирован'),
+          Exception('Phone number already registered'),
           StackTrace.current,
         );
       }
-      // Запускаем верификацию номера
+
+      print('✅ Firebase: Phone number available, starting verification');
+      // Start phone verification
       await _auth.verifyPhoneNumber(
         phoneNumber: signUp.phoneNumber,
         timeout: const Duration(seconds: 60),
-
-        // ✅ Автоматическое завершение входа (Android / Instant verification)
         verificationCompleted: (PhoneAuthCredential credential) async {
           try {
+            print('✅ Firebase: Auto-verification completed');
             await _auth.signInWithCredential(credential);
             final userModel = UserModel(
               uid: _auth.currentUser?.uid ?? '',
               phoneNumber: signUp.phoneNumber,
               name: signUp.name,
+              lastName: signUp.lastName,
               likes: [],
               region: 0,
               district: 0,
               profileImage: '',
-              createdAt: Timestamp.now(),
-              updatedAt: Timestamp.now(),
+              createdAt: now,
+              updatedAt: now,
+              deletedAt: null,
             );
             await _firestore
                 .collection(FirebaseCollections.users)
                 .doc(userModel.uid)
-                .set(userModel.toMap());
+                .set(userModel.toFirestoreMap());
+            print('💾 Firebase: User data saved to Firestore');
 
             completer.complete(
               DataSuccess(
@@ -65,27 +74,28 @@ class FirebaseDatasource implements UserInterface {
               ),
             );
           } catch (e, st) {
+            print('❌ Firebase: Auto-verification sign-in error: $e');
             completer.complete(DataFailed(Exception(e), st));
           }
         },
-
-        // ❌ Ошибка авторизации (например, неверный формат номера)
         verificationFailed: (FirebaseAuthException e) {
+          print('❌ Firebase: Verification failed: ${e.message}');
           completer.complete(DataFailed(e, StackTrace.current));
         },
-
-        // 📩 Код успешно отправлен — пользователь должен ввести вручную
         codeSent: (String verificationId, int? resendToken) {
+          print('📤 Firebase: SMS code sent, verification ID: $verificationId');
           final userModel = UserModel(
             uid: _auth.currentUser?.uid ?? '',
             phoneNumber: signUp.phoneNumber,
             name: signUp.name,
+            lastName: signUp.lastName,
             likes: [],
             region: 0,
             district: 0,
             profileImage: '',
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
+            createdAt: now,
+            updatedAt: now,
+            deletedAt: null,
           );
           completer.complete(
             DataSuccess(
@@ -97,13 +107,12 @@ class FirebaseDatasource implements UserInterface {
             ),
           );
         },
-
-        // ⌛ Время ожидания истекло (если автоматическая верификация не сработала)
         codeAutoRetrievalTimeout: (String verificationId) {
+          print('⌛ Firebase: Auto-verification timeout');
           if (!completer.isCompleted) {
             completer.complete(
               DataFailed(
-                Exception('Тайм-аут автоматической верификации'),
+                Exception('Auto-verification timeout'),
                 StackTrace.current,
               ),
             );
@@ -113,6 +122,7 @@ class FirebaseDatasource implements UserInterface {
 
       return await completer.future;
     } catch (e, st) {
+      print('❌ Firebase: SignUp error: $e');
       return DataFailed(Exception(e), st);
     }
   }
@@ -131,11 +141,12 @@ class FirebaseDatasource implements UserInterface {
         '',
       );
       if (!cleanNumber.startsWith('+')) {
+        print('❌ Firebase: Invalid phone number format');
         throw Exception('Phone number must start with +');
       }
 
       print(
-        '🔥 Firebase: querying Firestore with cleaned number: $cleanNumber',
+        '🔥 Firebase: Querying Firestore with cleaned number: $cleanNumber',
       );
       final userSnapshot =
           await _firestore
@@ -144,18 +155,12 @@ class FirebaseDatasource implements UserInterface {
               .get();
 
       print(
-        '🔥 Firebase: query completed, docs found: ${userSnapshot.docs.length}',
+        '🔥 Firebase: Query completed, docs found: ${userSnapshot.docs.length}',
       );
-      if (userSnapshot.docs.isNotEmpty) {
-        print('🔥 Firebase: user exists');
-        completer.complete(const DataSuccess(true));
-      } else {
-        print('🔥 Firebase: user does not exist');
-        completer.complete(const DataSuccess(false));
-      }
+      completer.complete(DataSuccess(userSnapshot.docs.isNotEmpty));
       return await completer.future;
     } catch (e, st) {
-      print('🔥 Firebase: error occurred: $e');
+      print('❌ Firebase: checkUser error: $e');
       completer.complete(DataFailed(Exception(e), st));
       return await completer.future;
     }
@@ -166,105 +171,182 @@ class FirebaseDatasource implements UserInterface {
     final completer = Completer<DataState<AuthStatusModel>>();
 
     try {
-      // Проверка: есть ли пользователь в Firestore
+      print('🔐 Firebase: Starting login process');
+      final cleanNumber = phoneNumber.phoneNumber.replaceAll(
+        RegExp(r'\s+|\(|\)|-'),
+        '',
+      );
+      print('📱 Firebase: Cleaned phone number: $cleanNumber');
+
+      // Check user in Firestore
+      print('🔍 Firebase: Checking user in Firestore');
       final userSnapshot =
           await _firestore
               .collection(FirebaseCollections.users)
-              .where('phoneNumber', isEqualTo: phoneNumber.phoneNumber)
+              .where('phoneNumber', isEqualTo: cleanNumber)
               .get();
 
       if (userSnapshot.docs.isEmpty) {
+        print('❌ Firebase: User not found in Firestore');
         return DataFailed(
-          Exception('Номер не зарегистрирован'),
+          Exception('Phone number is not registered'),
           StackTrace.current,
         );
       }
 
-      final userModel = userSnapshot.docs.first.data() as UserModel;
-      // Запускаем верификацию номера
-      await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber.phoneNumber,
-        timeout: const Duration(seconds: 60),
+      print('✅ Firebase: User found in Firestore');
+      late UserModel userModel;
+      try {
+        final userData = userSnapshot.docs.first.data();
+        print('🔍 Firebase: User data: $userData');
+        userModel = UserModel.fromFirestoreMap(userData);
+        print('👤 Firebase: User data parsed: ${userModel.phoneNumber}');
+      } catch (e, st) {
+        print('❌ Firebase: Failed to parse user data: $e');
+        return DataFailed(Exception('Failed to parse user data: $e'), st);
+      }
 
-        // ✅ Автоматическое завершение входа (Android / Instant verification)
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          try {
-            await _auth.signInWithCredential(credential);
+      try {
+        // Start phone verification
+        print('📲 Firebase: Starting phone verification');
+        await _auth.verifyPhoneNumber(
+          phoneNumber: cleanNumber,
+          timeout: const Duration(seconds: 120),
+          forceResendingToken: null,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            print('✅ Firebase: Auto-verification completed');
+            try {
+              final userCredential = await _auth.signInWithCredential(
+                credential,
+              );
+              if (userCredential.user != null) {
+                print('🔓 Firebase: Auto-sign in successful');
+                completer.complete(
+                  DataSuccess(
+                    AuthStatusModel(
+                      status: true,
+                      value: credential.verificationId ?? '',
+                      user: userModel,
+                    ),
+                  ),
+                );
+              } else {
+                print('❌ Firebase: Auto-sign in failed - no user returned');
+                completer.complete(
+                  DataFailed(
+                    Exception('Authentication failed'),
+                    StackTrace.current,
+                  ),
+                );
+              }
+            } catch (e, st) {
+              print('❌ Firebase: Auto-sign in error: $e');
+              completer.complete(DataFailed(Exception(e), st));
+            }
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            print(
+              '❌ Firebase: Verification failed: ${e.message}, Code: ${e.code}',
+            );
+            completer.complete(DataFailed(e, StackTrace.current));
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            print(
+              '📤 Firebase: SMS code sent, verification ID: $verificationId',
+            );
             completer.complete(
               DataSuccess(
                 AuthStatusModel(
                   status: true,
-                  value: credential.verificationId ?? '',
+                  value: verificationId,
                   user: userModel,
                 ),
               ),
             );
-          } catch (e, st) {
-            completer.complete(DataFailed(Exception(e), st));
-          }
-        },
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            print('⌛ Firebase: Auto-retrieval timeout');
+            if (!completer.isCompleted) {
+              completer.complete(
+                DataSuccess(
+                  AuthStatusModel(
+                    status: true,
+                    value: verificationId,
+                    user: userModel,
+                  ),
+                ),
+              );
+            }
+          },
+        );
 
-        // ❌ Ошибка авторизации (например, неверный формат номера)
-        verificationFailed: (FirebaseAuthException e) {
-          completer.complete(DataFailed(e, StackTrace.current));
-        },
-
-        // 📩 Код успешно отправлен — пользователь должен ввести вручную
-        codeSent: (String verificationId, int? resendToken) {
-          completer.complete(
-            DataSuccess(
-              AuthStatusModel(
-                status: true,
-                value: verificationId,
-                user: userModel,
-              ),
-            ),
-          );
-        },
-
-        // ⌛ Время ожидания истекло (если автоматическая верификация не сработала)
-        codeAutoRetrievalTimeout: (String verificationId) {
-          if (!completer.isCompleted) {
-            completer.complete(
-              DataFailed(
-                Exception('Тайм-аут автоматической верификации'),
-                StackTrace.current,
-              ),
-            );
-          }
-        },
-      );
-
-      return await completer.future;
+        return await completer.future;
+      } catch (e, st) {
+        print('❌ Firebase: Phone verification error: $e');
+        return DataFailed(Exception(e), st);
+      }
     } catch (e, st) {
+      print('❌ Firebase: Login process error: $e');
       return DataFailed(Exception(e), st);
     }
   }
 
   @override
   Future<DataState<bool>> anonymousLogIn() async {
-    final completer = Completer<DataState<bool>>();
-
+    final now = Timestamp.now();
     try {
+      print('🔥 Firebase: Starting anonymous login');
+      final savedUser = LocalStorageService.getUser();
+      if (savedUser != null) {
+        try {
+          await _auth.signInAnonymously();
+          print('✅ Firebase: Reused anonymous account');
+          return const DataSuccess(true);
+        } catch (e) {
+          print('❌ Firebase: Failed to reuse anonymous account: $e');
+        }
+      }
+
+      print('🔥 Firebase: Creating new anonymous account');
       final userCredential = await _auth.signInAnonymously();
+      if (userCredential.user == null) {
+        print('❌ Firebase: Failed to create anonymous user');
+        return DataFailed(
+          Exception('Failed to create anonymous user'),
+          StackTrace.current,
+        );
+      }
+
       final userModel = UserModel(
-        uid: userCredential.user?.uid ?? '',
+        uid: userCredential.user!.uid,
         phoneNumber: '',
-        name: '',
+        name: 'Anonymous',
+        lastName: '',
         likes: [],
         region: 0,
         district: 0,
         profileImage: '',
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
       );
-      await _firestore
-          .collection(FirebaseCollections.users)
-          .doc(userModel.uid)
-          .set(userModel.toMap());
-      completer.complete(const DataSuccess(true));
-      return await completer.future;
+
+      if (savedUser == null) {
+        await _firestore
+            .collection(FirebaseCollections.users)
+            .doc(userModel.uid)
+            .set(userModel.toFirestoreMap());
+        await LocalStorageService.saveUser(
+          LocalUserModel.fromUserModel(userModel),
+        );
+        print(
+          '💾 Firebase: Anonymous user saved to Firestore and local storage',
+        );
+      }
+
+      return const DataSuccess(true);
     } catch (e, st) {
+      print('❌ Firebase: anonymousLogIn error: $e');
       return DataFailed(Exception(e), st);
     }
   }
@@ -274,26 +356,65 @@ class FirebaseDatasource implements UserInterface {
     SignInWithCredentialModel signInWithCredential,
   ) async {
     try {
-      await _auth.signInWithCredential(
-        PhoneAuthProvider.credential(
-          verificationId: signInWithCredential.verificationId,
-          smsCode: signInWithCredential.smsCode,
-        ),
-      );
-      final userModel = signInWithCredential.user;
-      final userSnapshot =
-          await _firestore
-              .collection(FirebaseCollections.users)
-              .where('uid', isEqualTo: userModel.uid)
-              .get();
-      if (userSnapshot.docs.isEmpty) {
-        await _firestore
-            .collection(FirebaseCollections.users)
-            .doc(userModel.uid)
-            .set(userModel.toMap());
+      print('🔐 Firebase: Starting credential verification');
+      if (signInWithCredential.verificationId.isEmpty) {
+        print('❌ Firebase: Empty verification ID');
+        return DataFailed(
+          Exception('Invalid verification ID'),
+          StackTrace.current,
+        );
       }
+
+      if (signInWithCredential.smsCode.isEmpty ||
+          signInWithCredential.smsCode.length != 6) {
+        print(
+          '❌ Firebase: Invalid SMS code length: ${signInWithCredential.smsCode.length}',
+        );
+        return DataFailed(
+          Exception('Invalid SMS code format'),
+          StackTrace.current,
+        );
+      }
+
+      final credential = PhoneAuthProvider.credential(
+        verificationId: signInWithCredential.verificationId,
+        smsCode: signInWithCredential.smsCode,
+      );
+
+      print('🔑 Firebase: Created phone auth credential');
+      final userCredential = await _auth.signInWithCredential(credential);
+      print('👤 Firebase: Sign in attempt completed');
+
+      if (userCredential.user == null) {
+        print('❌ Firebase: No user returned after sign in');
+        return DataFailed(
+          Exception('Authentication failed - no user returned'),
+          StackTrace.current,
+        );
+      }
+
+      final userModel = signInWithCredential.user.copyWith(
+        uid: userCredential.user!.uid,
+        deletedAt: null,
+      );
+
+      print(
+        '📝 Firebase: Updating Firestore document for user: ${userModel.uid}',
+      );
+      await _firestore
+          .collection(FirebaseCollections.users)
+          .doc(userModel.uid)
+          .set(userModel.toFirestoreMap());
+
+      print('💾 Firebase: Saving to local storage');
+      await LocalStorageService.saveUser(
+        LocalUserModel.fromUserModel(userModel),
+      );
+
+      print('✅ Firebase: Authentication process completed successfully');
       return const DataSuccess(true);
     } catch (e, st) {
+      print('❌ Firebase: signInWithCredential error: $e');
       return DataFailed(Exception(e), st);
     }
   }
@@ -301,9 +422,13 @@ class FirebaseDatasource implements UserInterface {
   @override
   Future<DataState<bool>> logOut() async {
     try {
+      print('🔥 Firebase: Starting logout');
       await _auth.signOut();
+      await LocalStorageService.clearAll();
+      print('✅ Firebase: Logout successful');
       return const DataSuccess(true);
     } catch (e, st) {
+      print('❌ Firebase: logOut error: $e');
       return DataFailed(Exception(e), st);
     }
   }

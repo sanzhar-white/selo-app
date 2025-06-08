@@ -1,0 +1,127 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+
+class SearchModel extends Equatable {
+  final String? searchQuery;
+  final int? category;
+  final int? district;
+  final int? region;
+  final int? priceFrom;
+  final int? priceTo;
+  final int? sortBy;
+
+  SearchModel({
+    this.searchQuery,
+    this.category,
+    this.district,
+    this.region,
+    this.priceFrom,
+    this.priceTo,
+    this.sortBy,
+  });
+
+  SearchModel copyWith({
+    String? searchQuery,
+    int? category,
+    int? district,
+    int? region,
+    int? priceFrom,
+    int? priceTo,
+    int? sortBy,
+  }) {
+    return SearchModel(
+      searchQuery: searchQuery ?? this.searchQuery,
+      category: category ?? this.category,
+      district: district ?? this.district,
+      region: region ?? this.region,
+      priceFrom: priceFrom ?? this.priceFrom,
+      priceTo: priceTo ?? this.priceTo,
+      sortBy: sortBy ?? this.sortBy,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'searchQuery': searchQuery,
+      'category': category,
+      'district': district,
+      'region': region,
+      'priceFrom': priceFrom,
+      'priceTo': priceTo,
+      'sortBy': sortBy,
+    };
+  }
+
+  factory SearchModel.fromMap(Map<String, dynamic> map) {
+    return SearchModel(
+      searchQuery:
+          map['searchQuery'] != null ? map['searchQuery'] as String : null,
+      category: map['category'] != null ? map['category'] as int : null,
+      district: map['district'] != null ? map['district'] as int : null,
+      region: map['region'] != null ? map['region'] as int : null,
+      priceFrom: map['priceFrom'] != null ? map['priceFrom'] as int : null,
+      priceTo: map['priceTo'] != null ? map['priceTo'] as int : null,
+      sortBy: map['sortBy'] != null ? map['sortBy'] as int : null,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory SearchModel.fromJson(String source) =>
+      SearchModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'SearchModel(searchQuery: $searchQuery, category: $category, district: $district, region: $region, priceFrom: $priceFrom, priceTo: $priceTo, sortBy: $sortBy)';
+  }
+
+  @override
+  List<Object?> get props => [
+    searchQuery,
+    category,
+    district,
+    region,
+    priceFrom,
+    priceTo,
+    sortBy,
+  ];
+}
+
+class PaginationModel extends Equatable {
+  final int currentPage;
+  final int pageSize;
+  final bool refresh;
+
+  PaginationModel({
+    this.currentPage = 1,
+    this.pageSize = 10,
+    this.refresh = false,
+  });
+
+  PaginationModel copyWith({int? pageSize, int? currentPage, bool? refresh}) {
+    return PaginationModel(
+      pageSize: pageSize ?? this.pageSize,
+      currentPage: currentPage ?? this.currentPage,
+      refresh: refresh ?? this.refresh,
+    );
+  }
+
+  @override
+  List<Object?> get props => [currentPage, pageSize, refresh];
+}
+
+class BannerModel {
+  final String imageUrl;
+  final VoidCallback? onTap;
+  final String? title;
+  final String? description;
+
+  const BannerModel({
+    required this.imageUrl,
+    this.onTap,
+    this.title,
+    this.description,
+  });
+}

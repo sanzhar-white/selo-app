@@ -1,7 +1,6 @@
 import 'package:selo/core/resources/data_state.dart';
 import '../models/user_model.dart';
 import '../../domain/repositories/user_repository.dart';
-import '../../domain/entities/user_entity.dart';
 import '../datasources/user_interface.dart';
 
 class UserRepositoryImpl extends UserRepository implements UserInterface {
@@ -10,8 +9,8 @@ class UserRepositoryImpl extends UserRepository implements UserInterface {
   UserRepositoryImpl(this._userInteface);
 
   @override
-  Future<DataState<AuthStatusModel>> signUp(SignUpEntity signUp) {
-    return _userInteface.signUp(signUp as SignUpModel);
+  Future<DataState<AuthStatusModel>> signUp(SignUpModel signUp) {
+    return _userInteface.signUp(signUp);
   }
 
   @override
@@ -20,7 +19,7 @@ class UserRepositoryImpl extends UserRepository implements UserInterface {
   }
 
   @override
-  Future<DataState<bool>> checkUser(PhoneNumberEntity phoneNumber) {
+  Future<DataState<bool>> checkUser(PhoneNumberModel phoneNumber) {
     print(
       '📚 Repository: checkUser called with number: ${phoneNumber.phoneNumber}',
     );
@@ -30,7 +29,7 @@ class UserRepositoryImpl extends UserRepository implements UserInterface {
   }
 
   @override
-  Future<DataState<AuthStatusModel>> logIn(PhoneNumberEntity phoneNumber) {
+  Future<DataState<AuthStatusModel>> logIn(PhoneNumberModel phoneNumber) {
     print(
       '📚 Repository: login called with number: ${phoneNumber.phoneNumber}',
     );
@@ -41,7 +40,7 @@ class UserRepositoryImpl extends UserRepository implements UserInterface {
 
   @override
   Future<DataState<bool>> signInWithCredential(
-    SignInWithCredentialEntity signInWithCredential,
+    SignInWithCredentialModel signInWithCredential,
   ) {
     return _userInteface.signInWithCredential(
       signInWithCredential as SignInWithCredentialModel,

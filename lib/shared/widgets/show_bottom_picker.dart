@@ -18,8 +18,8 @@ Future<T?> showBottomPicker<T>({
     context: context,
     isScrollControlled: true,
     backgroundColor: colorScheme.background,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    shape: RoundedRectangleBorder(
+      borderRadius: ResponsiveRadius.screenBased(context),
     ),
     builder: (context) {
       return SafeArea(
@@ -34,7 +34,7 @@ Future<T?> showBottomPicker<T>({
                 height: 4,
                 decoration: BoxDecoration(
                   color: colorScheme.inversePrimary,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: ResponsiveRadius.screenBased(context),
                 ),
               ),
               if (title != null) ...[
