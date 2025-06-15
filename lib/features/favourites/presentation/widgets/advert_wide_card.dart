@@ -5,15 +5,17 @@ import 'package:selo/core/utils/utils.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/shared/models/advert_model.dart';
-import 'package:selo/features/favourites/presentation/providers/favourites_provider.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/features/favourites/presentation/providers/index.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:selo/core/models/category.dart';
 import 'package:selo/features/add/presentation/providers/categories_provider.dart';
-import 'package:selo/features/home/presentation/providers/home_provider.dart';
+import 'package:selo/features/home/presentation/providers/index.dart';
 import 'package:go_router/go_router.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:selo/generated/l10n.dart';
+import 'package:selo/shared/widgets/phone_show_bottom.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Add this import
 
 class AdvertWideCard extends ConsumerStatefulWidget {
   const AdvertWideCard({super.key, required this.advert});
@@ -97,15 +99,37 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
                             borderRadius: ResponsiveRadius.screenBased(context),
                             child:
                                 widget.advert.images.isNotEmpty
-                                    ? Image.network(
-                                      widget.advert.images.first,
+                                    ? CachedNetworkImage(
+                                      imageUrl: widget.advert.images.first,
                                       fit: BoxFit.cover,
                                       width: double.infinity,
-                                      errorBuilder:
-                                          (_, __, ___) => _buildPlaceholder(
-                                            context,
-                                            colorScheme,
+                                      placeholder:
+                                          (context, url) => Container(
+                                            color: colorScheme.onSurface
+                                                .withOpacity(0.1),
+                                            child: const Center(
+                                              child: CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Colors.grey),
+                                              ),
+                                            ),
                                           ),
+                                      errorWidget:
+                                          (context, url, error) =>
+                                              _buildPlaceholder(
+                                                context,
+                                                colorScheme,
+                                              ),
+                                      fadeInDuration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      fadeOutDuration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      memCacheWidth:
+                                          (screenSize.width * 1.5).toInt(),
                                     )
                                     : _buildPlaceholder(context, colorScheme),
                           ),
@@ -226,10 +250,12 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
                     ),
                     Spacer(),
                     GestureDetector(
-                      onTap:
-                          () => launchUrl(
-                            Uri.parse('tel:${widget.advert.phoneNumber}'),
-                          ),
+                      onTap: () {
+                        showPhoneBottomSheet(
+                          context,
+                          widget.advert.phoneNumber,
+                        );
+                      },
                       child: Container(
                         height: screenSize.height * 0.05,
                         decoration: BoxDecoration(

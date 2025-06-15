@@ -5,8 +5,8 @@ import 'package:selo/shared/models/advert_model.dart';
 import '../../domain/repositories/favourites_repository.dart';
 
 class FavouritesRepositoryImpl extends FavouritesRepository
-    implements FavouritesInteface {
-  final FavouritesInteface _favouritesInteface;
+    implements FavouritesInterface {
+  final FavouritesInterface _favouritesInteface;
 
   FavouritesRepositoryImpl(this._favouritesInteface);
 

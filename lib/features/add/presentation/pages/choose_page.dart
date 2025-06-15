@@ -12,7 +12,7 @@ import 'package:selo/core/models/category.dart';
 import 'package:selo/generated/l10n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:selo/shared/widgets/popup_window.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
 
 class ChoosePage extends ConsumerStatefulWidget {
   const ChoosePage({super.key});

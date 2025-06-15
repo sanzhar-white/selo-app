@@ -5,10 +5,12 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
-import 'package:selo/features/authentication/data/models/user_model.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/generated/l10n.dart';
+import 'package:selo/shared/models/user_model.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
+import 'package:flutter/services.dart';
 
 class PhonePage extends ConsumerStatefulWidget {
   const PhonePage({super.key});
@@ -34,7 +36,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
         Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            backgroundColor: colorScheme.background,
+            backgroundColor: colorScheme.surface,
             iconTheme: IconThemeData(color: colorScheme.inversePrimary),
           ),
           body: SafeArea(
@@ -50,7 +52,10 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Your phone number', style: contrastBoldL(context)),
+                      Text(
+                        S.of(context).your_phone_number,
+                        style: contrastBoldL(context),
+                      ),
                       SizedBox(height: screenSize.height * 0.015),
                       IntlPhoneField(
                         keyboardType: const TextInputType.numberWithOptions(),
@@ -82,9 +87,13 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                           filled: true,
                           fillColor: colorScheme.onSurface,
                         ),
-                        invalidNumberMessage: 'Invalid phone number',
+                        invalidNumberMessage:
+                            S.of(context).phone_number_invalid,
                         initialCountryCode: 'KZ',
                         controller: phoneController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         onChanged: (value) async {
                           setState(() {
                             // Format phone number to E.164
@@ -110,7 +119,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                           controller: nameController,
                           theme: colorScheme,
                           style: contrastM(context),
-                          hintText: 'Enter your name',
+                          hintText: S.of(context).name_hint,
                         ),
                     ],
                   ),
@@ -137,7 +146,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                       ),
                       child: Center(
                         child: Text(
-                          'Continue',
+                          S.of(context).continue_,
                           style: overGreenBoldM(context).copyWith(
                             color:
                                 isLogin != null

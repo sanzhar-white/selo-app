@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:selo/features/authentication/data/models/local_user_model.dart';
+import 'package:selo/shared/models/local_user_model.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/shared/models/local_advert_model.dart';

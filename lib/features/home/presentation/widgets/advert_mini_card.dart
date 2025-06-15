@@ -11,12 +11,13 @@ import 'package:selo/features/add/presentation/providers/categories_provider.dar
 import 'package:selo/core/models/category.dart';
 import 'package:selo/shared/widgets/shimmer_effect.dart';
 import 'package:selo/shared/models/advert_model.dart';
-import 'package:selo/features/favourites/presentation/providers/favourites_provider.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/features/favourites/presentation/providers/index.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/generated/l10n.dart';
-import 'package:selo/features/home/presentation/providers/home_provider.dart';
+import 'package:selo/features/home/presentation/providers/index.dart';
+import 'package:selo/shared/widgets/phone_show_bottom.dart';
 
-class AdvertMiniCard extends ConsumerWidget {
+class AdvertMiniCard extends ConsumerStatefulWidget {
   const AdvertMiniCard({
     super.key,
     required this.advert,
@@ -27,26 +28,106 @@ class AdvertMiniCard extends ConsumerWidget {
   final bool isLoading;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (isLoading) {
+  ConsumerState<AdvertMiniCard> createState() => _AdvertMiniCardState();
+}
+
+class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  Animation<Color?>? _colorAnimation;
+  bool _isFavourite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    // Initialize favorite state
+    final favouritesState = ref.read(favouritesNotifierProvider);
+    _isFavourite =
+        favouritesState.favouritesModel?.any(
+          (e) => e.uid == widget.advert.uid,
+        ) ??
+        false;
+    if (_isFavourite) {
+      _animationController.value = 1.0;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final colorScheme = Theme.of(context).colorScheme;
+    _colorAnimation = ColorTween(
+      begin: colorScheme.primary,
+      end: Colors.red,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _toggleFavourite() async {
+    final user = ref.read(userNotifierProvider).user;
+    if (user == null) return;
+
+    setState(() {
+      _isFavourite = !_isFavourite;
+      if (_isFavourite) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
+
+    final notifier = ref.read(favouritesNotifierProvider.notifier);
+    try {
+      await notifier.toggleFavourite(
+        userUid: user.uid,
+        advertUid: widget.advert.uid,
+      );
+    } catch (e) {
+      // Revert animation and state on error
+      setState(() {
+        _isFavourite = !_isFavourite;
+        if (_isFavourite) {
+          _animationController.forward();
+        } else {
+          _animationController.reverse();
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.isLoading) {
       return _buildShimmerCard(context);
     }
 
     final colorScheme = Theme.of(context).colorScheme;
     final radius = ResponsiveRadius.screenBased(context);
-    final favouritesState = ref.watch(favouritesNotifierProvider);
     final categories = ref.watch(categoriesNotifierProvider).valueOrNull ?? [];
     final user = ref.watch(userNotifierProvider).user;
 
-    final isFavourite =
-        favouritesState.favouritesModel?.any((e) => e.uid == advert.uid) ??
-        false;
-
     final category = categories.firstWhere(
-      (category) => category.id == advert.category,
+      (category) => category.id == widget.advert.category,
       orElse:
           () => AdCategory(
-            id: advert.category,
+            id: widget.advert.category,
             nameEn: 'Unknown',
             nameKk: 'Белгісіз',
             nameRu: 'Неизвестно',
@@ -61,19 +142,12 @@ class AdvertMiniCard extends ConsumerWidget {
       return difference.inHours < 24;
     }
 
-    Future<void> _toggleFavourite() async {
-      if (user == null) return;
-
-      final notifier = ref.read(favouritesNotifierProvider.notifier);
-      await notifier.toggleFavourite(userUid: user.uid, advertUid: advert.uid);
-    }
-
     return GestureDetector(
       onTap: () {
-        if (user != null && user.uid != advert.ownerUid) {
-          ref.read(homeNotifierProvider.notifier).viewAdvert(advert.uid);
+        if (user != null && user.uid != widget.advert.ownerUid) {
+          ref.read(homeNotifierProvider.notifier).viewAdvert(widget.advert.uid);
         }
-        context.push(Routes.nestedAdvertDetailsPage, extra: advert);
+        context.push(Routes.nestedAdvertDetailsPage, extra: widget.advert);
       },
       child: Container(
         padding: const EdgeInsets.all(2),
@@ -85,7 +159,7 @@ class AdvertMiniCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Изображение
+            // Image section
             AspectRatio(
               aspectRatio: 1.5,
               child: Stack(
@@ -105,9 +179,9 @@ class AdvertMiniCard extends ConsumerWidget {
                     child: ClipRRect(
                       borderRadius: radius,
                       child:
-                          advert.images.isNotEmpty
+                          widget.advert.images.isNotEmpty
                               ? Image.network(
-                                advert.images.first,
+                                widget.advert.images.first,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                                 errorBuilder:
@@ -117,7 +191,8 @@ class AdvertMiniCard extends ConsumerWidget {
                               : _buildPlaceholder(context, colorScheme),
                     ),
                   ),
-                  if (advert.images.isNotEmpty)
+                  if (widget.advert.images.isNotEmpty &&
+                      widget.advert.images.length > 1)
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
@@ -129,17 +204,16 @@ class AdvertMiniCard extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             color: colorScheme.onSurface.withOpacity(0.7),
-                            borderRadius: ResponsiveRadius.screenBased(context),
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
                           ),
                           child: Text(
-                            advert.images.length.toString(),
+                            widget.advert.images.length.toString(),
                             style: contrastBoldM(context),
                           ),
                         ),
                       ),
                     ),
-
-                  if (_isNewAdvert(advert.createdAt.toDate()))
+                  if (_isNewAdvert(widget.advert.createdAt.toDate()))
                     Positioned(
                       top: 8,
                       left: 8,
@@ -161,39 +235,39 @@ class AdvertMiniCard extends ConsumerWidget {
                 ],
               ),
             ),
-
-            // Текст и кнопки
+            // Text and buttons
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Текстовая информация
+                    // Text information
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          advert.title,
+                          widget.advert.title,
                           style: contrastBoldM(context),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          '${getRegionName(advert.region ?? 0)}, ${getDistrictName(advert.district ?? 0, advert.region ?? 0)}',
+                          '${getRegionName(widget.advert.region ?? 0)}, ${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
                           style: contrastM(context),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (advert.price != null && advert.price != 0) ...[
-                          if (advert.maxPrice != null) ...[
+                        if (widget.advert.price != null &&
+                            widget.advert.price != 0) ...[
+                          if (widget.advert.maxPrice != null) ...[
                             Text(
-                              'До ${advert.maxPrice} ₸',
+                              'До ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
                             ),
                           ] else ...[
                             Text(
-                              '${advert.price} ₸',
+                              '${widget.advert.price} ₸',
                               style: contrastBoldM(context),
                             ),
                           ],
@@ -207,7 +281,6 @@ class AdvertMiniCard extends ConsumerWidget {
                           getLocalizedCategory(category, context),
                           style: contrastM(context),
                           overflow: TextOverflow.ellipsis,
-
                           maxLines: 1,
                         ),
                       ],
@@ -218,12 +291,13 @@ class AdvertMiniCard extends ConsumerWidget {
             ),
             Row(
               children: [
-                // Кнопка звонка
+                // Call button
                 Flexible(
                   flex: 3,
                   child: GestureDetector(
-                    onTap:
-                        () => launchUrl(Uri.parse('tel:${advert.phoneNumber}')),
+                    onTap: () {
+                      showPhoneBottomSheet(context, widget.advert.phoneNumber);
+                    },
                     child: Container(
                       height: 32,
                       decoration: BoxDecoration(
@@ -249,7 +323,7 @@ class AdvertMiniCard extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Кнопка избранного
+                // Favourite button with animation
                 Flexible(
                   flex: 1,
                   child: GestureDetector(
@@ -268,14 +342,22 @@ class AdvertMiniCard extends ConsumerWidget {
                         ],
                       ),
                       child: Center(
-                        child: Icon(
-                          isFavourite
-                              ? CupertinoIcons.heart_fill
-                              : CupertinoIcons.heart,
-                          color:
-                              isFavourite
-                                  ? colorScheme.primary
-                                  : colorScheme.outline,
+                        child: AnimatedBuilder(
+                          animation: _animationController,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _scaleAnimation.value,
+                              child: Icon(
+                                _isFavourite
+                                    ? CupertinoIcons.heart_fill
+                                    : CupertinoIcons.heart,
+                                color:
+                                    _colorAnimation?.value ??
+                                    colorScheme.outline,
+                                size: 24,
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -296,13 +378,13 @@ class AdvertMiniCard extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Shimmer для изображения
+        // Shimmer for image
         ShimmerEffect(
           width: double.infinity,
           height: 150,
           borderRadius: radius.topLeft.x,
         ),
-        // Shimmer для текста и кнопок
+        // Shimmer for text and buttons
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(

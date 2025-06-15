@@ -15,7 +15,7 @@ import 'package:selo/features/profile/presentation/pages/my_ads_page.dart';
 import 'package:selo/features/add/presentation/pages/create_advert_page.dart';
 import 'package:selo/features/authentication/presentation/pages/phone_page.dart';
 import 'package:selo/features/authentication/presentation/pages/otp_page.dart';
-import 'package:selo/features/authentication/data/models/user_model.dart';
+import 'package:selo/shared/models/user_model.dart';
 import 'package:selo/features/init/presentation/pages/init_page.dart';
 import 'package:selo/shared/models/advert_model.dart';
 

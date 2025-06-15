@@ -22,12 +22,14 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "account_deleted":
+            MessageLookupByLibrary.simpleMessage("Account deleted"),
         "add_anonymous_window": MessageLookupByLibrary.simpleMessage(
-            "Please login to create an advert"),
-        "add_appbar_pick_category": MessageLookupByLibrary.simpleMessage(
-            "Choose category of your advert"),
+            "Please sign in to create an ad"),
+        "add_appbar_pick_category":
+            MessageLookupByLibrary.simpleMessage("Select ad category"),
         "add_appbar_title":
-            MessageLookupByLibrary.simpleMessage("Creating a new advert"),
+            MessageLookupByLibrary.simpleMessage("Create a new ad"),
         "add_photo": MessageLookupByLibrary.simpleMessage("Add photo"),
         "address": MessageLookupByLibrary.simpleMessage("Address"),
         "address_hint":
@@ -35,14 +37,20 @@ class MessageLookup extends MessageLookupByLibrary {
         "all_ads": MessageLookupByLibrary.simpleMessage("All ads"),
         "all_categories":
             MessageLookupByLibrary.simpleMessage("All categories"),
+        "anonymous_user": MessageLookupByLibrary.simpleMessage("Guest"),
         "apply": MessageLookupByLibrary.simpleMessage("Apply"),
         "call": MessageLookupByLibrary.simpleMessage("Call"),
+        "camera": MessageLookupByLibrary.simpleMessage("Camera"),
+        "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "category": MessageLookupByLibrary.simpleMessage("Category"),
-        "cheapest_first":
-            MessageLookupByLibrary.simpleMessage("Cheapest first"),
+        "change_profile_photo":
+            MessageLookupByLibrary.simpleMessage("Change profile photo"),
+        "change_saved": MessageLookupByLibrary.simpleMessage(
+            "The changes have been successfully saved"),
+        "cheapest_first": MessageLookupByLibrary.simpleMessage("Cheapest"),
         "company": MessageLookupByLibrary.simpleMessage("Company"),
         "company_hint":
-            MessageLookupByLibrary.simpleMessage("Example: TOO \'WWW\'"),
+            MessageLookupByLibrary.simpleMessage("Example: LLP \'WWW\'"),
         "company_required":
             MessageLookupByLibrary.simpleMessage("Company is required"),
         "condition": MessageLookupByLibrary.simpleMessage("Condition"),
@@ -54,45 +62,66 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Example: John Doe"),
         "contact_person_required":
             MessageLookupByLibrary.simpleMessage("Contact person is required"),
-        "create_advert": MessageLookupByLibrary.simpleMessage("Create Advert"),
-        "default_sorting": MessageLookupByLibrary.simpleMessage("Default"),
+        "continue_": MessageLookupByLibrary.simpleMessage("Continue"),
+        "create_advert": MessageLookupByLibrary.simpleMessage("Create ad"),
+        "default_sorting":
+            MessageLookupByLibrary.simpleMessage("Default sorting"),
+        "delete": MessageLookupByLibrary.simpleMessage("Delete"),
+        "delete_account":
+            MessageLookupByLibrary.simpleMessage("Delete account"),
+        "delete_account_confirmation": MessageLookupByLibrary.simpleMessage(
+            "Are you sure you want to delete the account?"),
         "description": MessageLookupByLibrary.simpleMessage("Description"),
-        "description_hint": MessageLookupByLibrary.simpleMessage(
-            "Describe your advert in detail"),
+        "description_hint":
+            MessageLookupByLibrary.simpleMessage("Describe your ad in detail"),
         "description_required":
             MessageLookupByLibrary.simpleMessage("Description is required"),
         "details": MessageLookupByLibrary.simpleMessage("Details"),
         "district": MessageLookupByLibrary.simpleMessage("District"),
         "district_required":
             MessageLookupByLibrary.simpleMessage("District is required"),
+        "district_select":
+            MessageLookupByLibrary.simpleMessage("Select district"),
         "edit_anonymous_window": MessageLookupByLibrary.simpleMessage(
-            "Please login to edit your profile"),
+            "Please sign in to edit your profile"),
         "edit_profile": MessageLookupByLibrary.simpleMessage("Edit profile"),
         "error": MessageLookupByLibrary.simpleMessage("Error"),
         "favourites_anonymous_window": MessageLookupByLibrary.simpleMessage(
-            "Please login to view your favourites ads"),
+            "Please sign in to view your favorite ads"),
         "favourites_empty": MessageLookupByLibrary.simpleMessage(
-            "You don\'t have any favourites ads yet"),
+            "You have no favorite ads yet"),
         "favourites_title":
-            MessageLookupByLibrary.simpleMessage("Your favourites ads"),
+            MessageLookupByLibrary.simpleMessage("Your favorite ads"),
         "fill_all_fields": MessageLookupByLibrary.simpleMessage(
             "Please fill in all required fields"),
         "filter": MessageLookupByLibrary.simpleMessage("Filter"),
         "fixed": MessageLookupByLibrary.simpleMessage("Fixed"),
         "from": MessageLookupByLibrary.simpleMessage("From"),
+        "gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
+        "greeting": MessageLookupByLibrary.simpleMessage(
+            "Complete quick registration\nand find clients today"),
+        "image_picker_error":
+            MessageLookupByLibrary.simpleMessage("Failed to pick image"),
+        "image_upload_error":
+            MessageLookupByLibrary.simpleMessage("Failed to upload image"),
         "images": MessageLookupByLibrary.simpleMessage("Images"),
         "images_hint": MessageLookupByLibrary.simpleMessage("Add images"),
         "images_optional": MessageLookupByLibrary.simpleMessage("optional"),
-        "item_details": MessageLookupByLibrary.simpleMessage("Item details"),
+        "item_details":
+            MessageLookupByLibrary.simpleMessage("Additional information"),
         "label_new_advert": MessageLookupByLibrary.simpleMessage("NEW!"),
         "language": MessageLookupByLibrary.simpleMessage("English"),
         "language_code": MessageLookupByLibrary.simpleMessage("en"),
         "language_display_code": MessageLookupByLibrary.simpleMessage("ENG"),
         "language_title": MessageLookupByLibrary.simpleMessage("Language"),
+        "lastname": MessageLookupByLibrary.simpleMessage("Last name"),
+        "lastname_hint":
+            MessageLookupByLibrary.simpleMessage("Enter your lastname"),
         "likes": MessageLookupByLibrary.simpleMessage("Likes"),
         "location": MessageLookupByLibrary.simpleMessage("Location"),
         "location_hint":
             MessageLookupByLibrary.simpleMessage("Enter your location"),
+        "logged_out": MessageLookupByLibrary.simpleMessage("Logged out"),
         "login": MessageLookupByLibrary.simpleMessage("Login"),
         "logout": MessageLookupByLibrary.simpleMessage("Log out"),
         "max_price": MessageLookupByLibrary.simpleMessage("Max price"),
@@ -104,38 +133,43 @@ class MessageLookup extends MessageLookupByLibrary {
         "max_quantity_required":
             MessageLookupByLibrary.simpleMessage("Max quantity is required"),
         "most_expensive_first":
-            MessageLookupByLibrary.simpleMessage("Most expensive first"),
+            MessageLookupByLibrary.simpleMessage("Most expensive"),
         "my_ads": MessageLookupByLibrary.simpleMessage("My ads"),
         "my_ads_empty":
-            MessageLookupByLibrary.simpleMessage("You don\'t have any ads yet"),
+            MessageLookupByLibrary.simpleMessage("You have no ads yet"),
         "my_ads_title": MessageLookupByLibrary.simpleMessage("Your ads"),
         "name": MessageLookupByLibrary.simpleMessage("Name"),
+        "name_hint": MessageLookupByLibrary.simpleMessage("Enter your name"),
         "nav_add": MessageLookupByLibrary.simpleMessage("Add"),
-        "nav_favourites": MessageLookupByLibrary.simpleMessage("Favourites"),
+        "nav_favourites": MessageLookupByLibrary.simpleMessage("Favorites"),
         "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
         "nav_profile": MessageLookupByLibrary.simpleMessage("Profile"),
         "negotiable": MessageLookupByLibrary.simpleMessage("Negotiable"),
-        "newest_first": MessageLookupByLibrary.simpleMessage("Newest first"),
+        "newest_first": MessageLookupByLibrary.simpleMessage("Newest"),
         "no_ads_found": MessageLookupByLibrary.simpleMessage("No ads found"),
-        "oldest_first": MessageLookupByLibrary.simpleMessage("Oldest first"),
+        "no_internet_connection":
+            MessageLookupByLibrary.simpleMessage("no_internet_connection"),
+        "no_phone_number":
+            MessageLookupByLibrary.simpleMessage("+7 (XXX) XXX XXXX"),
+        "oldest_first": MessageLookupByLibrary.simpleMessage("Oldest"),
         "optional": MessageLookupByLibrary.simpleMessage("Optional"),
         "phone_number": MessageLookupByLibrary.simpleMessage("Phone number"),
         "phone_number_hint":
             MessageLookupByLibrary.simpleMessage("Enter your phone number"),
+        "phone_number_invalid":
+            MessageLookupByLibrary.simpleMessage("Invalid phone number"),
         "phone_number_required":
             MessageLookupByLibrary.simpleMessage("Phone number is required"),
         "price": MessageLookupByLibrary.simpleMessage("Price"),
-        "price_fixed": MessageLookupByLibrary.simpleMessage("Fixed"),
-        "price_hint": MessageLookupByLibrary.simpleMessage("Enter price"),
-        "price_negotiable": MessageLookupByLibrary.simpleMessage("Negotiable"),
+        "price_hint": MessageLookupByLibrary.simpleMessage("Enter the price"),
         "price_per_unit":
             MessageLookupByLibrary.simpleMessage("Price per unit"),
         "price_range": MessageLookupByLibrary.simpleMessage("Price range"),
-        "price_range_from": MessageLookupByLibrary.simpleMessage("From"),
-        "price_range_to": MessageLookupByLibrary.simpleMessage("To"),
         "price_required":
             MessageLookupByLibrary.simpleMessage("Price is required"),
         "profile_title": MessageLookupByLibrary.simpleMessage("Profile"),
+        "profile_update_error":
+            MessageLookupByLibrary.simpleMessage("Failed to update profile"),
         "quantity": MessageLookupByLibrary.simpleMessage("Quantity"),
         "quantity_hint": MessageLookupByLibrary.simpleMessage("Enter quantity"),
         "quantity_required":
@@ -143,43 +177,37 @@ class MessageLookup extends MessageLookupByLibrary {
         "region": MessageLookupByLibrary.simpleMessage("Region"),
         "region_required":
             MessageLookupByLibrary.simpleMessage("Region is required"),
+        "region_select": MessageLookupByLibrary.simpleMessage("Select region"),
         "register": MessageLookupByLibrary.simpleMessage("Register"),
         "required": MessageLookupByLibrary.simpleMessage("Required"),
         "reset": MessageLookupByLibrary.simpleMessage("Reset"),
         "retry": MessageLookupByLibrary.simpleMessage("Retry"),
+        "salary": MessageLookupByLibrary.simpleMessage("Salary"),
+        "save": MessageLookupByLibrary.simpleMessage("Save"),
         "search_hint":
             MessageLookupByLibrary.simpleMessage("Search in Kazakhstan"),
+        "select_image_source":
+            MessageLookupByLibrary.simpleMessage("Select Image Source"),
         "signin": MessageLookupByLibrary.simpleMessage("Sign in"),
-        "signin_title": MessageLookupByLibrary.simpleMessage("Sign in"),
-        "signout": MessageLookupByLibrary.simpleMessage("Sign out"),
-        "signup": MessageLookupByLibrary.simpleMessage("Sign up"),
-        "signup_title": MessageLookupByLibrary.simpleMessage("Sign up"),
         "sort": MessageLookupByLibrary.simpleMessage("Sort"),
         "sort_by": MessageLookupByLibrary.simpleMessage("Sort by"),
-        "sort_by_date_newest": MessageLookupByLibrary.simpleMessage("Newest"),
-        "sort_by_date_oldest": MessageLookupByLibrary.simpleMessage("Oldest"),
         "sort_by_price_from":
             MessageLookupByLibrary.simpleMessage("Price from"),
-        "sort_by_price_from_lowest":
-            MessageLookupByLibrary.simpleMessage("Lowest"),
-        "sort_by_price_highest":
-            MessageLookupByLibrary.simpleMessage("Highest"),
         "sort_by_price_to": MessageLookupByLibrary.simpleMessage("Price to"),
         "terms_and_conditions":
-            MessageLookupByLibrary.simpleMessage("Terms and conditions"),
+            MessageLookupByLibrary.simpleMessage("Terms and Conditions"),
         "theme_dark": MessageLookupByLibrary.simpleMessage("Dark"),
         "theme_light": MessageLookupByLibrary.simpleMessage("Light"),
-        "theme_title": MessageLookupByLibrary.simpleMessage("Theme"),
-        "title_of_ad": MessageLookupByLibrary.simpleMessage("Title of advert"),
+        "title_of_ad": MessageLookupByLibrary.simpleMessage("Ad title"),
         "title_of_ad_hint":
-            MessageLookupByLibrary.simpleMessage("Enter title of advert"),
+            MessageLookupByLibrary.simpleMessage("Enter the title of the ad"),
         "title_of_ad_required":
             MessageLookupByLibrary.simpleMessage("Title is required"),
         "to": MessageLookupByLibrary.simpleMessage("To"),
         "trade_not_possible":
-            MessageLookupByLibrary.simpleMessage("Trade not possible"),
+            MessageLookupByLibrary.simpleMessage("Exchange not possible"),
         "trade_possible":
-            MessageLookupByLibrary.simpleMessage("Trade possible"),
+            MessageLookupByLibrary.simpleMessage("Exchange possible"),
         "unit": MessageLookupByLibrary.simpleMessage("Unit"),
         "unit_kg": MessageLookupByLibrary.simpleMessage("kg"),
         "unit_ton": MessageLookupByLibrary.simpleMessage("ton"),
@@ -187,7 +215,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "views": MessageLookupByLibrary.simpleMessage("Views"),
         "volume_quantity":
             MessageLookupByLibrary.simpleMessage("Volume / Quantity"),
+        "welcome": MessageLookupByLibrary.simpleMessage("Welcome to Selo"),
+        "withoutregistor": MessageLookupByLibrary.simpleMessage(
+            "Continue without registration"),
         "year_of_release":
-            MessageLookupByLibrary.simpleMessage("Year of release")
+            MessageLookupByLibrary.simpleMessage("Year of release"),
+        "your_phone_number":
+            MessageLookupByLibrary.simpleMessage("Your phone number")
       };
 }

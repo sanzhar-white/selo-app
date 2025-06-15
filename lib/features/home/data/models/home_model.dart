@@ -23,22 +23,23 @@ class SearchModel extends Equatable {
   });
 
   SearchModel copyWith({
-    String? searchQuery,
-    int? category,
-    int? district,
-    int? region,
-    int? priceFrom,
-    int? priceTo,
-    int? sortBy,
+    Object? searchQuery = const _Unset(),
+    Object? category = const _Unset(),
+    Object? district = const _Unset(),
+    Object? region = const _Unset(),
+    Object? priceFrom = const _Unset(),
+    Object? priceTo = const _Unset(),
+    Object? sortBy = const _Unset(),
   }) {
     return SearchModel(
-      searchQuery: searchQuery ?? this.searchQuery,
-      category: category ?? this.category,
-      district: district ?? this.district,
-      region: region ?? this.region,
-      priceFrom: priceFrom ?? this.priceFrom,
-      priceTo: priceTo ?? this.priceTo,
-      sortBy: sortBy ?? this.sortBy,
+      searchQuery:
+          searchQuery is _Unset ? this.searchQuery : searchQuery as String?,
+      category: category is _Unset ? this.category : category as int?,
+      district: district is _Unset ? this.district : district as int?,
+      region: region is _Unset ? this.region : region as int?,
+      priceFrom: priceFrom is _Unset ? this.priceFrom : priceFrom as int?,
+      priceTo: priceTo is _Unset ? this.priceTo : priceTo as int?,
+      sortBy: sortBy is _Unset ? this.sortBy : sortBy as int?,
     );
   }
 
@@ -124,4 +125,8 @@ class BannerModel {
     this.title,
     this.description,
   });
+}
+
+class _Unset {
+  const _Unset();
 }

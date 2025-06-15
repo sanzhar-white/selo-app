@@ -16,7 +16,7 @@ import 'package:selo/features/add/presentation/widgets/quantity_section.dart';
 import 'package:selo/features/add/presentation/widgets/location_section.dart';
 import 'package:selo/features/add/presentation/widgets/image_section.dart';
 import 'package:selo/features/add/presentation/providers/advert_provider.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'dart:io';

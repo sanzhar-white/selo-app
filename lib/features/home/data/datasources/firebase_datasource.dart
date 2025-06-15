@@ -188,7 +188,7 @@ class FirebaseHomeScreenRemoteDataSource
     int? priceFrom,
     int? priceTo,
   }) {
-    if (category != null) {
+    if (category != null && category! >= -1) {
       query = query.where('category', isEqualTo: category);
       print('Applied filter by category: $category');
     }

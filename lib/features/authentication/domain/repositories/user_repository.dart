@@ -1,4 +1,4 @@
-import '../../data/models/user_model.dart';
+import '../../../../shared/models/user_model.dart';
 import 'package:selo/core/resources/data_state.dart';
 
 abstract class UserRepository {

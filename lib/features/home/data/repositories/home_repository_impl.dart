@@ -103,7 +103,7 @@ class HomeRepositoryImpl extends HomeRepository
   ) async {
     if (searchModel == null ||
         (searchModel.searchQuery == null &&
-            (searchModel.category == null || searchModel.category == 0) &&
+            searchModel.category == null &&
             searchModel.district == null &&
             searchModel.region == null &&
             searchModel.priceFrom == null &&
@@ -116,10 +116,7 @@ class HomeRepositoryImpl extends HomeRepository
     try {
       final filterParams = {
         'searchQuery': searchModel.searchQuery ?? '',
-        'category':
-            searchModel.category == 0
-                ? ''
-                : searchModel.category?.toString() ?? '',
+        'category': searchModel.category?.toString() ?? '',
         'district': searchModel.district?.toString() ?? '',
         'region': searchModel.region?.toString() ?? '',
         'priceFrom': searchModel.priceFrom?.toString() ?? '',
@@ -144,7 +141,7 @@ class HomeRepositoryImpl extends HomeRepository
 
       final result = await _homeInterface.getFilteredAdvertisements(
         searchModel.copyWith(
-          category: searchModel.category == 0 ? null : searchModel.category,
+          category: searchModel.category == null ? null : searchModel.category,
         ),
         paginationModel,
       );
@@ -167,10 +164,7 @@ class HomeRepositoryImpl extends HomeRepository
       print('Error getting filtered advertisements: $e');
       final filterParams = {
         'searchQuery': searchModel.searchQuery ?? '',
-        'category':
-            searchModel.category == 0
-                ? ''
-                : searchModel.category?.toString() ?? '',
+        'category': searchModel.category?.toString() ?? '',
         'district': searchModel.district?.toString() ?? '',
         'region': searchModel.region?.toString() ?? '',
         'priceFrom': searchModel.priceFrom?.toString() ?? '',

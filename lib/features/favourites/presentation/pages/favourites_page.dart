@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:selo/core/theme/text_styles.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/features/favourites/data/model/favourites_model.dart';
-import 'package:selo/features/favourites/presentation/providers/favourites_provider.dart';
+import 'package:selo/features/favourites/presentation/providers/index.dart';
 import 'package:selo/features/favourites/presentation/widgets/advert_wide_card.dart';
 import 'package:selo/generated/l10n.dart';
 

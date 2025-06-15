@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:selo/core/constants/firebase.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/core/services/local_storage_service.dart';
-import '../models/user_model.dart';
-import '../models/local_user_model.dart';
+import '../../../../shared/models/user_model.dart';
+import '../../../../shared/models/local_user_model.dart';
 import 'user_interface.dart';
 
 class FirebaseDatasource implements UserInterface {

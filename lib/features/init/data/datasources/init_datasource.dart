@@ -1,7 +1,7 @@
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/core/services/local_storage_service.dart';
-import 'package:selo/features/authentication/data/models/local_user_model.dart';
-import 'package:selo/features/authentication/data/models/user_model.dart';
+import 'package:selo/shared/models/local_user_model.dart';
+import 'package:selo/shared/models/user_model.dart';
 import 'package:selo/features/init/data/datasources/init_datasource_interface.dart';
 import 'package:selo/features/init/data/models/init_state_model.dart';
 

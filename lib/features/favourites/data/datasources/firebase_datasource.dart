@@ -6,7 +6,7 @@ import 'package:selo/shared/models/advert_model.dart';
 import 'favourites_interface.dart';
 import 'dart:io';
 
-class FirebaseDatasource implements FavouritesInteface {
+class FirebaseDatasource implements FavouritesInterface {
   final FirebaseFirestore _firestore;
 
   FirebaseDatasource(this._firestore);

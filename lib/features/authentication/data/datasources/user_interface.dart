@@ -1,6 +1,6 @@
 import 'package:selo/core/resources/data_state.dart';
 
-import '../models/user_model.dart';
+import '../../../../shared/models/user_model.dart';
 
 abstract class UserInterface {
   Future<DataState<AuthStatusModel>> signUp(SignUpModel signUp);
@@ -12,7 +12,8 @@ abstract class UserInterface {
   Future<DataState<AuthStatusModel>> logIn(PhoneNumberModel phoneNumber);
 
   Future<DataState<bool>> signInWithCredential(
-      SignInWithCredentialModel signInWithCredential);
+    SignInWithCredentialModel signInWithCredential,
+  );
 
   Future<DataState<bool>> logOut();
 }

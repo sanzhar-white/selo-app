@@ -4,10 +4,11 @@ import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:selo/features/home/presentation/providers/home_provider.dart';
+import 'package:selo/features/home/presentation/providers/index.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:selo/core/constants/routes.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Add this import
 
 class CategoryCard extends ConsumerWidget {
   const CategoryCard({super.key, required this.category});
@@ -39,21 +40,52 @@ class CategoryCard extends ConsumerWidget {
         ),
         child: Stack(
           children: [
-            // Фото — снизу слева
+            // Image — bottom right
             Align(
               alignment: Alignment.bottomRight,
               child:
                   category.imageUrl != ''
-                      ? Image.network(
-                        category.imageUrl,
+                      ? CachedNetworkImage(
+                        imageUrl: category.imageUrl,
                         width: 100,
                         height: 60,
                         fit: BoxFit.contain,
+                        placeholder:
+                            (context, url) => Container(
+                              width: 100,
+                              height: 60,
+                              color: colorScheme.onSurface.withOpacity(0.1),
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        errorWidget:
+                            (context, url, error) => Container(
+                              width: 100,
+                              height: 60,
+                              color: colorScheme.inversePrimary,
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
+                            ),
+                        fadeInDuration: const Duration(milliseconds: 300),
+                        fadeOutDuration: const Duration(milliseconds: 300),
+                        memCacheWidth: 150, // Scaled for 100px width at 1.5x
+                        memCacheHeight: 90, // Scaled for 60px height at 1.5x
                       )
-                      : const Icon(Icons.category_outlined, size: 60),
+                      : Icon(
+                        Icons.category_outlined,
+                        size: 60,
+                        color: colorScheme.inversePrimary,
+                      ),
             ),
-
-            // Текст — сверху справа
+            // Text — top left
             Align(
               alignment: Alignment.topLeft,
               child: Text(

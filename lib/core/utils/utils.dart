@@ -53,3 +53,49 @@ String getConditionName(int id, BuildContext context) {
   }
   throw Exception('Didn\'t add the localisation correctly');
 }
+
+String formatPhoneNumber(String input) {
+  final digits = input.replaceAll(RegExp(r'\D'), '');
+
+  if (digits.isEmpty) return '';
+
+  // Ensure the number starts with '7' and prepend '+7' if not, and limit to 11 digits
+  String cleanedDigits = digits;
+  if (cleanedDigits.startsWith('8')) {
+    cleanedDigits = '7' + cleanedDigits.substring(1);
+  } else if (!cleanedDigits.startsWith('7')) {
+    cleanedDigits = '7' + cleanedDigits;
+  }
+
+  // Limit to a maximum of 11 digits (including the initial 7)
+  if (cleanedDigits.length > 11) {
+    cleanedDigits = cleanedDigits.substring(0, 11);
+  }
+
+  // Remove the initial '7' for formatting purposes
+  final effectiveDigits =
+      cleanedDigits.length > 1 ? cleanedDigits.substring(1) : '';
+  final buffer = StringBuffer('+7');
+
+  if (effectiveDigits.isNotEmpty) {
+    buffer.write(' (');
+    if (effectiveDigits.length > 3) {
+      buffer.write(effectiveDigits.substring(0, 3));
+      buffer.write(')');
+      if (effectiveDigits.length > 3) {
+        buffer.write(' ');
+        if (effectiveDigits.length > 6) {
+          buffer.write(effectiveDigits.substring(3, 6));
+          buffer.write(' ');
+          buffer.write(effectiveDigits.substring(6));
+        } else {
+          buffer.write(effectiveDigits.substring(3));
+        }
+      }
+    } else {
+      buffer.write(effectiveDigits);
+    }
+  }
+
+  return buffer.toString().trim();
+}

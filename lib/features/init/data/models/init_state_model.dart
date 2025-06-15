@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:selo/features/authentication/data/models/user_model.dart';
+import 'package:selo/shared/models/user_model.dart';
 
 class InitStateModel extends Equatable {
   final bool isInitialized;

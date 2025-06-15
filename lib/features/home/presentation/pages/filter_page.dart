@@ -5,12 +5,12 @@ import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/features/add/presentation/providers/categories_provider.dart';
-import 'package:selo/features/authentication/data/models/user_model.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/shared/models/user_model.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/features/favourites/data/model/favourites_model.dart';
-import 'package:selo/features/favourites/presentation/providers/favourites_provider.dart';
+import 'package:selo/features/favourites/presentation/providers/index.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
-import 'package:selo/features/home/presentation/providers/home_provider.dart';
+import 'package:selo/features/home/presentation/providers/index.dart';
 import 'package:selo/features/home/presentation/widgets/advert_detail_card.dart';
 import 'package:selo/features/home/presentation/widgets/filter_show_bottom.dart';
 import 'package:selo/features/home/presentation/widgets/search_appbar.dart';
@@ -50,10 +50,11 @@ class _FilterPageState extends ConsumerState<FilterPage> {
   void initState() {
     super.initState();
     _searchController.text = widget.searchQueryText;
-    if (widget.initialCategoryId != null || widget.searchQueryText.isNotEmpty) {
+    if ((widget.initialCategoryId != null && widget.initialCategoryId! >= -1) ||
+        widget.searchQueryText.isNotEmpty) {
       currentFilters = SearchModel(
         category:
-            widget.initialCategoryId == 0 ? null : widget.initialCategoryId,
+            widget.initialCategoryId == null ? null : widget.initialCategoryId,
         searchQuery:
             widget.searchQueryText.isNotEmpty ? widget.searchQueryText : null,
       );
@@ -99,6 +100,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
 
     if (_isFilterEmpty(currentFilters)) {
       currentFilters = null;
+
       await homeNotifier.loadAllAdvertisements(
         refresh: true,
         page: _paginationModel.currentPage,
@@ -180,24 +182,25 @@ class _FilterPageState extends ConsumerState<FilterPage> {
   }
 
   void _showError(String? error) {
-    if (error != null && mounted && error != _lastError) {
-      _lastError = error;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                error.contains('failed-precondition') ||
-                        error.contains('Failed')
-                    ? S.of(context).error
-                    : error,
-              ),
-              duration: const Duration(seconds: 5),
-            ),
-          );
-        }
-      });
-    }
+    if (error == null || !mounted || error == _lastError) return;
+
+    _lastError = error;
+
+    Future.microtask(() {
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.clearSnackBars();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            error.contains('failed-precondition') || error.contains('Failed')
+                ? S.of(context).error
+                : error,
+          ),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    });
   }
 
   @override
@@ -260,7 +263,8 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   onApply: (result) {
                     setState(() {
                       currentFilters = result?.copyWith(
-                        category: result.category == 0 ? null : result.category,
+                        category:
+                            result.category == null ? null : result.category,
                       );
                       if (_isFilterEmpty(currentFilters)) {
                         currentFilters = null;
@@ -310,7 +314,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                                     _refreshContent();
                                   },
                         ),
-                      if (currentFilters?.category != null)
+                      if (currentFilters != null &&
+                          currentFilters!.category != null &&
+                          currentFilters!.category! >= -1)
                         Chip(
                           label: Text(
                             getLocalizedCategory(

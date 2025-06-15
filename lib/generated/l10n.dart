@@ -60,6 +60,16 @@ class S {
     );
   }
 
+  /// `en`
+  String get language_code {
+    return Intl.message(
+      'en',
+      name: 'language_code',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `ENG`
   String get language_display_code {
     return Intl.message(
@@ -75,26 +85,6 @@ class S {
     return Intl.message(
       'Language',
       name: 'language_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `en`
-  String get language_code {
-    return Intl.message(
-      'en',
-      name: 'language_code',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Theme`
-  String get theme_title {
-    return Intl.message(
-      'Theme',
-      name: 'theme_title',
       desc: '',
       args: [],
     );
@@ -120,6 +110,26 @@ class S {
     );
   }
 
+  /// `Continue`
+  String get continue_ {
+    return Intl.message(
+      'Continue',
+      name: 'continue_',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Complete quick registration\nand find clients today`
+  String get greeting {
+    return Intl.message(
+      'Complete quick registration\nand find clients today',
+      name: 'greeting',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Login`
   String get login {
     return Intl.message(
@@ -140,16 +150,6 @@ class S {
     );
   }
 
-  /// `Sign up`
-  String get signup {
-    return Intl.message(
-      'Sign up',
-      name: 'signup',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Sign in`
   String get signin {
     return Intl.message(
@@ -160,111 +160,61 @@ class S {
     );
   }
 
-  /// `Sign out`
-  String get signout {
+  /// `Welcome to Selo`
+  String get welcome {
     return Intl.message(
-      'Sign out',
-      name: 'signout',
+      'Welcome to Selo',
+      name: 'welcome',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sign up`
-  String get signup_title {
+  /// `Continue without registration`
+  String get withoutregistor {
     return Intl.message(
-      'Sign up',
-      name: 'signup_title',
+      'Continue without registration',
+      name: 'withoutregistor',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sign in`
-  String get signin_title {
+  /// `Add`
+  String get nav_add {
     return Intl.message(
-      'Sign in',
-      name: 'signin_title',
+      'Add',
+      name: 'nav_add',
       desc: '',
       args: [],
     );
   }
 
-  /// `Unknown`
-  String get unknown {
+  /// `Favorites`
+  String get nav_favourites {
     return Intl.message(
-      'Unknown',
-      name: 'unknown',
+      'Favorites',
+      name: 'nav_favourites',
       desc: '',
       args: [],
     );
   }
 
-  /// `Optional`
-  String get optional {
+  /// `Home`
+  String get nav_home {
     return Intl.message(
-      'Optional',
-      name: 'optional',
+      'Home',
+      name: 'nav_home',
       desc: '',
       args: [],
     );
   }
 
-  /// `Required`
-  String get required {
+  /// `Profile`
+  String get nav_profile {
     return Intl.message(
-      'Required',
-      name: 'required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Error`
-  String get error {
-    return Intl.message(
-      'Error',
-      name: 'error',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Views`
-  String get views {
-    return Intl.message(
-      'Views',
-      name: 'views',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Category`
-  String get category {
-    return Intl.message(
-      'Category',
-      name: 'category',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Trade possible`
-  String get trade_possible {
-    return Intl.message(
-      'Trade possible',
-      name: 'trade_possible',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Trade not possible`
-  String get trade_not_possible {
-    return Intl.message(
-      'Trade not possible',
-      name: 'trade_not_possible',
+      'Profile',
+      name: 'nav_profile',
       desc: '',
       args: [],
     );
@@ -290,6 +240,16 @@ class S {
     );
   }
 
+  /// `Category`
+  String get category {
+    return Intl.message(
+      'Category',
+      name: 'category',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `No ads found`
   String get no_ads_found {
     return Intl.message(
@@ -305,26 +265,6 @@ class S {
     return Intl.message(
       'Search in Kazakhstan',
       name: 'search_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Call`
-  String get call {
-    return Intl.message(
-      'Call',
-      name: 'call',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Filter`
-  String get filter {
-    return Intl.message(
-      'Filter',
-      name: 'filter',
       desc: '',
       args: [],
     );
@@ -370,311 +310,81 @@ class S {
     );
   }
 
+  /// `Default sorting`
+  String get default_sorting {
+    return Intl.message(
+      'Default sorting',
+      name: 'default_sorting',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Newest`
-  String get sort_by_date_newest {
+  String get newest_first {
     return Intl.message(
       'Newest',
-      name: 'sort_by_date_newest',
+      name: 'newest_first',
       desc: '',
       args: [],
     );
   }
 
   /// `Oldest`
-  String get sort_by_date_oldest {
+  String get oldest_first {
     return Intl.message(
       'Oldest',
-      name: 'sort_by_date_oldest',
+      name: 'oldest_first',
       desc: '',
       args: [],
     );
   }
 
-  /// `Lowest`
-  String get sort_by_price_from_lowest {
+  /// `Cheapest`
+  String get cheapest_first {
     return Intl.message(
-      'Lowest',
-      name: 'sort_by_price_from_lowest',
+      'Cheapest',
+      name: 'cheapest_first',
       desc: '',
       args: [],
     );
   }
 
-  /// `Highest`
-  String get sort_by_price_highest {
+  /// `Most expensive`
+  String get most_expensive_first {
     return Intl.message(
-      'Highest',
-      name: 'sort_by_price_highest',
+      'Most expensive',
+      name: 'most_expensive_first',
       desc: '',
       args: [],
     );
   }
 
-  /// `Negotiable`
-  String get price_negotiable {
+  /// `Filter`
+  String get filter {
     return Intl.message(
-      'Negotiable',
-      name: 'price_negotiable',
+      'Filter',
+      name: 'filter',
       desc: '',
       args: [],
     );
   }
 
   /// `Fixed`
-  String get price_fixed {
+  String get fixed {
     return Intl.message(
       'Fixed',
-      name: 'price_fixed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Price range`
-  String get price_range {
-    return Intl.message(
-      'Price range',
-      name: 'price_range',
+      name: 'fixed',
       desc: '',
       args: [],
     );
   }
 
   /// `From`
-  String get price_range_from {
+  String get from {
     return Intl.message(
       'From',
-      name: 'price_range_from',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `To`
-  String get price_range_to {
-    return Intl.message(
-      'To',
-      name: 'price_range_to',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Creating a new advert`
-  String get add_appbar_title {
-    return Intl.message(
-      'Creating a new advert',
-      name: 'add_appbar_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Choose category of your advert`
-  String get add_appbar_pick_category {
-    return Intl.message(
-      'Choose category of your advert',
-      name: 'add_appbar_pick_category',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Title of advert`
-  String get title_of_ad {
-    return Intl.message(
-      'Title of advert',
-      name: 'title_of_ad',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Enter title of advert`
-  String get title_of_ad_hint {
-    return Intl.message(
-      'Enter title of advert',
-      name: 'title_of_ad_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Title is required`
-  String get title_of_ad_required {
-    return Intl.message(
-      'Title is required',
-      name: 'title_of_ad_required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Description`
-  String get description {
-    return Intl.message(
-      'Description',
-      name: 'description',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Describe your advert in detail`
-  String get description_hint {
-    return Intl.message(
-      'Describe your advert in detail',
-      name: 'description_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Description is required`
-  String get description_required {
-    return Intl.message(
-      'Description is required',
-      name: 'description_required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Phone number`
-  String get phone_number {
-    return Intl.message(
-      'Phone number',
-      name: 'phone_number',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Enter your phone number`
-  String get phone_number_hint {
-    return Intl.message(
-      'Enter your phone number',
-      name: 'phone_number_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Phone number is required`
-  String get phone_number_required {
-    return Intl.message(
-      'Phone number is required',
-      name: 'phone_number_required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Location`
-  String get location {
-    return Intl.message(
-      'Location',
-      name: 'location',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Enter your location`
-  String get location_hint {
-    return Intl.message(
-      'Enter your location',
-      name: 'location_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Address`
-  String get address {
-    return Intl.message(
-      'Address',
-      name: 'address',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Enter your address`
-  String get address_hint {
-    return Intl.message(
-      'Enter your address',
-      name: 'address_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Images`
-  String get images {
-    return Intl.message(
-      'Images',
-      name: 'images',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `optional`
-  String get images_optional {
-    return Intl.message(
-      'optional',
-      name: 'images_optional',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Add images`
-  String get images_hint {
-    return Intl.message(
-      'Add images',
-      name: 'images_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Add photo`
-  String get add_photo {
-    return Intl.message(
-      'Add photo',
-      name: 'add_photo',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Price`
-  String get price {
-    return Intl.message(
-      'Price',
-      name: 'price',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Enter price`
-  String get price_hint {
-    return Intl.message(
-      'Enter price',
-      name: 'price_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Price is required`
-  String get price_required {
-    return Intl.message(
-      'Price is required',
-      name: 'price_required',
+      name: 'from',
       desc: '',
       args: [],
     );
@@ -710,31 +420,521 @@ class S {
     );
   }
 
-  /// `Fixed`
-  String get fixed {
+  /// `Price`
+  String get price {
     return Intl.message(
-      'Fixed',
-      name: 'fixed',
+      'Price',
+      name: 'price',
       desc: '',
       args: [],
     );
   }
 
-  /// `Volume / Quantity`
-  String get volume_quantity {
+  /// `Enter the price`
+  String get price_hint {
     return Intl.message(
-      'Volume / Quantity',
-      name: 'volume_quantity',
+      'Enter the price',
+      name: 'price_hint',
       desc: '',
       args: [],
     );
   }
 
-  /// `Quantity`
-  String get quantity {
+  /// `Price per unit`
+  String get price_per_unit {
     return Intl.message(
-      'Quantity',
-      name: 'quantity',
+      'Price per unit',
+      name: 'price_per_unit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Price range`
+  String get price_range {
+    return Intl.message(
+      'Price range',
+      name: 'price_range',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Price is required`
+  String get price_required {
+    return Intl.message(
+      'Price is required',
+      name: 'price_required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Salary`
+  String get salary {
+    return Intl.message(
+      'Salary',
+      name: 'salary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `To`
+  String get to {
+    return Intl.message(
+      'To',
+      name: 'to',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exchange not possible`
+  String get trade_not_possible {
+    return Intl.message(
+      'Exchange not possible',
+      name: 'trade_not_possible',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exchange possible`
+  String get trade_possible {
+    return Intl.message(
+      'Exchange possible',
+      name: 'trade_possible',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select ad category`
+  String get add_appbar_pick_category {
+    return Intl.message(
+      'Select ad category',
+      name: 'add_appbar_pick_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a new ad`
+  String get add_appbar_title {
+    return Intl.message(
+      'Create a new ad',
+      name: 'add_appbar_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create ad`
+  String get create_advert {
+    return Intl.message(
+      'Create ad',
+      name: 'create_advert',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Description`
+  String get description {
+    return Intl.message(
+      'Description',
+      name: 'description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Describe your ad in detail`
+  String get description_hint {
+    return Intl.message(
+      'Describe your ad in detail',
+      name: 'description_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Description is required`
+  String get description_required {
+    return Intl.message(
+      'Description is required',
+      name: 'description_required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `NEW!`
+  String get label_new_advert {
+    return Intl.message(
+      'NEW!',
+      name: 'label_new_advert',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ad title`
+  String get title_of_ad {
+    return Intl.message(
+      'Ad title',
+      name: 'title_of_ad',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter the title of the ad`
+  String get title_of_ad_hint {
+    return Intl.message(
+      'Enter the title of the ad',
+      name: 'title_of_ad_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Title is required`
+  String get title_of_ad_required {
+    return Intl.message(
+      'Title is required',
+      name: 'title_of_ad_required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Address`
+  String get address {
+    return Intl.message(
+      'Address',
+      name: 'address',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your address`
+  String get address_hint {
+    return Intl.message(
+      'Enter your address',
+      name: 'address_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Company`
+  String get company {
+    return Intl.message(
+      'Company',
+      name: 'company',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Example: LLP 'WWW'`
+  String get company_hint {
+    return Intl.message(
+      'Example: LLP \'WWW\'',
+      name: 'company_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Company is required`
+  String get company_required {
+    return Intl.message(
+      'Company is required',
+      name: 'company_required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact person`
+  String get contact_person {
+    return Intl.message(
+      'Contact person',
+      name: 'contact_person',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Example: John Doe`
+  String get contact_person_hint {
+    return Intl.message(
+      'Example: John Doe',
+      name: 'contact_person_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact person is required`
+  String get contact_person_required {
+    return Intl.message(
+      'Contact person is required',
+      name: 'contact_person_required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `District`
+  String get district {
+    return Intl.message(
+      'District',
+      name: 'district',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `District is required`
+  String get district_required {
+    return Intl.message(
+      'District is required',
+      name: 'district_required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select district`
+  String get district_select {
+    return Intl.message(
+      'Select district',
+      name: 'district_select',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Location`
+  String get location {
+    return Intl.message(
+      'Location',
+      name: 'location',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your location`
+  String get location_hint {
+    return Intl.message(
+      'Enter your location',
+      name: 'location_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone number`
+  String get phone_number {
+    return Intl.message(
+      'Phone number',
+      name: 'phone_number',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your phone number`
+  String get phone_number_hint {
+    return Intl.message(
+      'Enter your phone number',
+      name: 'phone_number_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid phone number`
+  String get phone_number_invalid {
+    return Intl.message(
+      'Invalid phone number',
+      name: 'phone_number_invalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone number is required`
+  String get phone_number_required {
+    return Intl.message(
+      'Phone number is required',
+      name: 'phone_number_required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Region`
+  String get region {
+    return Intl.message(
+      'Region',
+      name: 'region',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Region is required`
+  String get region_required {
+    return Intl.message(
+      'Region is required',
+      name: 'region_required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select region`
+  String get region_select {
+    return Intl.message(
+      'Select region',
+      name: 'region_select',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your phone number`
+  String get your_phone_number {
+    return Intl.message(
+      'Your phone number',
+      name: 'your_phone_number',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add photo`
+  String get add_photo {
+    return Intl.message(
+      'Add photo',
+      name: 'add_photo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gallery`
+  String get gallery {
+    return Intl.message(
+      'Gallery',
+      name: 'gallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Camera`
+  String get camera {
+    return Intl.message(
+      'Camera',
+      name: 'camera',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to pick image`
+  String get image_picker_error {
+    return Intl.message(
+      'Failed to pick image',
+      name: 'image_picker_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to upload image`
+  String get image_upload_error {
+    return Intl.message(
+      'Failed to upload image',
+      name: 'image_upload_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Images`
+  String get images {
+    return Intl.message(
+      'Images',
+      name: 'images',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add images`
+  String get images_hint {
+    return Intl.message(
+      'Add images',
+      name: 'images_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `optional`
+  String get images_optional {
+    return Intl.message(
+      'optional',
+      name: 'images_optional',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select Image Source`
+  String get select_image_source {
+    return Intl.message(
+      'Select Image Source',
+      name: 'select_image_source',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Condition`
+  String get condition {
+    return Intl.message(
+      'Condition',
+      name: 'condition',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New`
+  String get condition_new {
+    return Intl.message(
+      'New',
+      name: 'condition_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Used`
+  String get condition_used {
+    return Intl.message(
+      'Used',
+      name: 'condition_used',
       desc: '',
       args: [],
     );
@@ -770,11 +970,11 @@ class S {
     );
   }
 
-  /// `Quantity is required`
-  String get quantity_required {
+  /// `Quantity`
+  String get quantity {
     return Intl.message(
-      'Quantity is required',
-      name: 'quantity_required',
+      'Quantity',
+      name: 'quantity',
       desc: '',
       args: [],
     );
@@ -790,171 +990,21 @@ class S {
     );
   }
 
-  /// `Condition`
-  String get condition {
+  /// `Quantity is required`
+  String get quantity_required {
     return Intl.message(
-      'Condition',
-      name: 'condition',
+      'Quantity is required',
+      name: 'quantity_required',
       desc: '',
       args: [],
     );
   }
 
-  /// `Year of release`
-  String get year_of_release {
+  /// `Unit`
+  String get unit {
     return Intl.message(
-      'Year of release',
-      name: 'year_of_release',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Region`
-  String get region {
-    return Intl.message(
-      'Region',
-      name: 'region',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Region is required`
-  String get region_required {
-    return Intl.message(
-      'Region is required',
-      name: 'region_required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `District`
-  String get district {
-    return Intl.message(
-      'District',
-      name: 'district',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `District is required`
-  String get district_required {
-    return Intl.message(
-      'District is required',
-      name: 'district_required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `New`
-  String get condition_new {
-    return Intl.message(
-      'New',
-      name: 'condition_new',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Used`
-  String get condition_used {
-    return Intl.message(
-      'Used',
-      name: 'condition_used',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `From`
-  String get from {
-    return Intl.message(
-      'From',
-      name: 'from',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `To`
-  String get to {
-    return Intl.message(
-      'To',
-      name: 'to',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Price per unit`
-  String get price_per_unit {
-    return Intl.message(
-      'Price per unit',
-      name: 'price_per_unit',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Company`
-  String get company {
-    return Intl.message(
-      'Company',
-      name: 'company',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Company is required`
-  String get company_required {
-    return Intl.message(
-      'Company is required',
-      name: 'company_required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Example: TOO 'WWW'`
-  String get company_hint {
-    return Intl.message(
-      'Example: TOO \'WWW\'',
-      name: 'company_hint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Contact person`
-  String get contact_person {
-    return Intl.message(
-      'Contact person',
-      name: 'contact_person',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Contact person is required`
-  String get contact_person_required {
-    return Intl.message(
-      'Contact person is required',
-      name: 'contact_person_required',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Example: John Doe`
-  String get contact_person_hint {
-    return Intl.message(
-      'Example: John Doe',
-      name: 'contact_person_hint',
+      'Unit',
+      name: 'unit',
       desc: '',
       args: [],
     );
@@ -980,91 +1030,61 @@ class S {
     );
   }
 
-  /// `Unit`
-  String get unit {
+  /// `Volume / Quantity`
+  String get volume_quantity {
     return Intl.message(
-      'Unit',
-      name: 'unit',
+      'Volume / Quantity',
+      name: 'volume_quantity',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your favourites ads`
-  String get favourites_title {
+  /// `Year of release`
+  String get year_of_release {
     return Intl.message(
-      'Your favourites ads',
-      name: 'favourites_title',
+      'Year of release',
+      name: 'year_of_release',
       desc: '',
       args: [],
     );
   }
 
-  /// `You don't have any favourites ads yet`
-  String get favourites_empty {
+  /// `Change profile photo`
+  String get change_profile_photo {
     return Intl.message(
-      'You don\'t have any favourites ads yet',
-      name: 'favourites_empty',
+      'Change profile photo',
+      name: 'change_profile_photo',
       desc: '',
       args: [],
     );
   }
 
-  /// `Home`
-  String get nav_home {
+  /// `The changes have been successfully saved`
+  String get change_saved {
     return Intl.message(
-      'Home',
-      name: 'nav_home',
+      'The changes have been successfully saved',
+      name: 'change_saved',
       desc: '',
       args: [],
     );
   }
 
-  /// `Add`
-  String get nav_add {
+  /// `Last name`
+  String get lastname {
     return Intl.message(
-      'Add',
-      name: 'nav_add',
+      'Last name',
+      name: 'lastname',
       desc: '',
       args: [],
     );
   }
 
-  /// `Favourites`
-  String get nav_favourites {
+  /// `Enter your lastname`
+  String get lastname_hint {
     return Intl.message(
-      'Favourites',
-      name: 'nav_favourites',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Profile`
-  String get nav_profile {
-    return Intl.message(
-      'Profile',
-      name: 'nav_profile',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Profile`
-  String get profile_title {
-    return Intl.message(
-      'Profile',
-      name: 'profile_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Edit profile`
-  String get edit_profile {
-    return Intl.message(
-      'Edit profile',
-      name: 'edit_profile',
+      'Enter your lastname',
+      name: 'lastname_hint',
       desc: '',
       args: [],
     );
@@ -1080,6 +1100,66 @@ class S {
     );
   }
 
+  /// `Enter your name`
+  String get name_hint {
+    return Intl.message(
+      'Enter your name',
+      name: 'name_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profile`
+  String get profile_title {
+    return Intl.message(
+      'Profile',
+      name: 'profile_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to update profile`
+  String get profile_update_error {
+    return Intl.message(
+      'Failed to update profile',
+      name: 'profile_update_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please sign in to view your favorite ads`
+  String get favourites_anonymous_window {
+    return Intl.message(
+      'Please sign in to view your favorite ads',
+      name: 'favourites_anonymous_window',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You have no favorite ads yet`
+  String get favourites_empty {
+    return Intl.message(
+      'You have no favorite ads yet',
+      name: 'favourites_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your favorite ads`
+  String get favourites_title {
+    return Intl.message(
+      'Your favorite ads',
+      name: 'favourites_title',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `My ads`
   String get my_ads {
     return Intl.message(
@@ -1090,21 +1170,11 @@ class S {
     );
   }
 
-  /// `Terms and conditions`
-  String get terms_and_conditions {
+  /// `You have no ads yet`
+  String get my_ads_empty {
     return Intl.message(
-      'Terms and conditions',
-      name: 'terms_and_conditions',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Log out`
-  String get logout {
-    return Intl.message(
-      'Log out',
-      name: 'logout',
+      'You have no ads yet',
+      name: 'my_ads_empty',
       desc: '',
       args: [],
     );
@@ -1120,71 +1190,101 @@ class S {
     );
   }
 
-  /// `You don't have any ads yet`
-  String get my_ads_empty {
+  /// `Account deleted`
+  String get account_deleted {
     return Intl.message(
-      'You don\'t have any ads yet',
-      name: 'my_ads_empty',
+      'Account deleted',
+      name: 'account_deleted',
       desc: '',
       args: [],
     );
   }
 
-  /// `Create Advert`
-  String get create_advert {
+  /// `Guest`
+  String get anonymous_user {
     return Intl.message(
-      'Create Advert',
-      name: 'create_advert',
+      'Guest',
+      name: 'anonymous_user',
       desc: '',
       args: [],
     );
   }
 
-  /// `NEW!`
-  String get label_new_advert {
+  /// `Delete account`
+  String get delete_account {
     return Intl.message(
-      'NEW!',
-      name: 'label_new_advert',
+      'Delete account',
+      name: 'delete_account',
       desc: '',
       args: [],
     );
   }
 
-  /// `Please login to create an advert`
+  /// `Are you sure you want to delete the account?`
+  String get delete_account_confirmation {
+    return Intl.message(
+      'Are you sure you want to delete the account?',
+      name: 'delete_account_confirmation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Logged out`
+  String get logged_out {
+    return Intl.message(
+      'Logged out',
+      name: 'logged_out',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log out`
+  String get logout {
+    return Intl.message(
+      'Log out',
+      name: 'logout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Terms and Conditions`
+  String get terms_and_conditions {
+    return Intl.message(
+      'Terms and Conditions',
+      name: 'terms_and_conditions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please sign in to create an ad`
   String get add_anonymous_window {
     return Intl.message(
-      'Please login to create an advert',
+      'Please sign in to create an ad',
       name: 'add_anonymous_window',
       desc: '',
       args: [],
     );
   }
 
-  /// `Please login to edit your profile`
+  /// `Please sign in to edit your profile`
   String get edit_anonymous_window {
     return Intl.message(
-      'Please login to edit your profile',
+      'Please sign in to edit your profile',
       name: 'edit_anonymous_window',
       desc: '',
       args: [],
     );
   }
 
-  /// `Please login to view your favourites ads`
-  String get favourites_anonymous_window {
+  /// `+7 (XXX) XXX XXXX`
+  String get no_phone_number {
     return Intl.message(
-      'Please login to view your favourites ads',
-      name: 'favourites_anonymous_window',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Reset`
-  String get reset {
-    return Intl.message(
-      'Reset',
-      name: 'reset',
+      '+7 (XXX) XXX XXXX',
+      name: 'no_phone_number',
       desc: '',
       args: [],
     );
@@ -1200,71 +1300,21 @@ class S {
     );
   }
 
-  /// `Default`
-  String get default_sorting {
+  /// `Cancel`
+  String get cancel {
     return Intl.message(
-      'Default',
-      name: 'default_sorting',
+      'Cancel',
+      name: 'cancel',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cheapest first`
-  String get cheapest_first {
+  /// `Delete`
+  String get delete {
     return Intl.message(
-      'Cheapest first',
-      name: 'cheapest_first',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Most expensive first`
-  String get most_expensive_first {
-    return Intl.message(
-      'Most expensive first',
-      name: 'most_expensive_first',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Newest first`
-  String get newest_first {
-    return Intl.message(
-      'Newest first',
-      name: 'newest_first',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Oldest first`
-  String get oldest_first {
-    return Intl.message(
-      'Oldest first',
-      name: 'oldest_first',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Retry`
-  String get retry {
-    return Intl.message(
-      'Retry',
-      name: 'retry',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Please fill in all required fields`
-  String get fill_all_fields {
-    return Intl.message(
-      'Please fill in all required fields',
-      name: 'fill_all_fields',
+      'Delete',
+      name: 'delete',
       desc: '',
       args: [],
     );
@@ -1280,10 +1330,30 @@ class S {
     );
   }
 
-  /// `Item details`
+  /// `Edit profile`
+  String get edit_profile {
+    return Intl.message(
+      'Edit profile',
+      name: 'edit_profile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please fill in all required fields`
+  String get fill_all_fields {
+    return Intl.message(
+      'Please fill in all required fields',
+      name: 'fill_all_fields',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Additional information`
   String get item_details {
     return Intl.message(
-      'Item details',
+      'Additional information',
       name: 'item_details',
       desc: '',
       args: [],
@@ -1295,6 +1365,106 @@ class S {
     return Intl.message(
       'Likes',
       name: 'likes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset`
+  String get reset {
+    return Intl.message(
+      'Reset',
+      name: 'reset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get retry {
+    return Intl.message(
+      'Retry',
+      name: 'retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get save {
+    return Intl.message(
+      'Save',
+      name: 'save',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error`
+  String get error {
+    return Intl.message(
+      'Error',
+      name: 'error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `no_internet_connection`
+  String get no_internet_connection {
+    return Intl.message(
+      'no_internet_connection',
+      name: 'no_internet_connection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Optional`
+  String get optional {
+    return Intl.message(
+      'Optional',
+      name: 'optional',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Required`
+  String get required {
+    return Intl.message(
+      'Required',
+      name: 'required',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unknown`
+  String get unknown {
+    return Intl.message(
+      'Unknown',
+      name: 'unknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Call`
+  String get call {
+    return Intl.message(
+      'Call',
+      name: 'call',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Views`
+  String get views {
+    return Intl.message(
+      'Views',
+      name: 'views',
       desc: '',
       args: [],
     );

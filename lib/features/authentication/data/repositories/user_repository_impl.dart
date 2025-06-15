@@ -1,5 +1,5 @@
 import 'package:selo/core/resources/data_state.dart';
-import '../models/user_model.dart';
+import '../../../../shared/models/user_model.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_interface.dart';
 

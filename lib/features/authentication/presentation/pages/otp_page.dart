@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:selo/features/authentication/data/models/user_model.dart';
+import 'package:selo/shared/models/user_model.dart';
 import 'package:selo/core/resources/data_state.dart';
+import 'package:flutter/services.dart';
 
 class OTPPage extends ConsumerStatefulWidget {
   final AuthStatusModel? authStatus;
@@ -58,9 +59,11 @@ class _OTPPageState extends ConsumerState<OTPPage> {
   @override
   void dispose() {
     _mounted = false;
+
     if (timer.isActive) {
       timer.cancel();
     }
+
     codeController.dispose();
     super.dispose();
   }
@@ -199,7 +202,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                           borderRadius: ResponsiveRadius.screenBased(context),
                           fieldHeight: 50,
                           fieldWidth: 40,
-                          activeFillColor: colorScheme.onSurface,
+                          activeFillColor: colorScheme.primary,
                           inactiveFillColor: colorScheme.onSurface,
                           selectedFillColor: colorScheme.onSurface,
                           activeColor: colorScheme.primary,
@@ -210,6 +213,9 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                         backgroundColor: Colors.transparent,
                         enableActiveFill: true,
                         controller: codeController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         onCompleted: (v) {
                           setState(() => isActive = true);
                         },

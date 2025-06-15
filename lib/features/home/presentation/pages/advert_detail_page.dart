@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'package:selo/features/add/presentation/providers/categories_provider.dart';
@@ -7,10 +8,10 @@ import 'package:selo/core/models/category.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/generated/l10n.dart';
-import 'package:flutter/material.dart';
-import 'package:selo/features/favourites/presentation/providers/favourites_provider.dart';
-import 'package:selo/features/home/presentation/providers/home_provider.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
+import 'package:selo/features/favourites/presentation/providers/index.dart';
+import 'package:selo/features/home/presentation/providers/index.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
+import 'package:selo/shared/widgets/phone_show_bottom.dart';
 
 class AdvertDetailsPage extends ConsumerStatefulWidget {
   final AdvertModel advert;
@@ -21,42 +22,88 @@ class AdvertDetailsPage extends ConsumerStatefulWidget {
   ConsumerState<AdvertDetailsPage> createState() => _AdvertDetailsPageState();
 }
 
-class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage> {
+class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
+    with SingleTickerProviderStateMixin {
   bool isFavourite = false;
+  bool _isTogglingFavourite = false; // Индикатор загрузки лайка
+  late final AnimationController _animationController;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _rotationAnimation;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      isFavourite =
-          ref
-              .watch(favouritesNotifierProvider)
-              .favouritesModel
-              ?.any((e) => e.uid == widget.advert.uid) ??
-          false;
-    });
-    print(isFavourite);
+    // Асинхронная загрузка избранного
+    _loadFavouriteStatus();
+    // Initialize animation controller for like and back button
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.05).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  // Загрузка статуса лайка
+  Future<void> _loadFavouriteStatus() async {
+    final favourites = ref.read(favouritesNotifierProvider).favouritesModel;
+    if (favourites != null && mounted) {
+      setState(() {
+        isFavourite = favourites.any((e) => e.uid == widget.advert.uid);
+      });
+    }
   }
 
   Future<void> _toggleFavourite() async {
     final user = ref.read(userNotifierProvider).user;
-    if (user == null) {
-      return;
-    }
-    final notifier = ref.read(favouritesNotifierProvider.notifier);
-    await notifier.toggleFavourite(
-      userUid: user.uid,
-      advertUid: widget.advert.uid,
-    );
+    if (user == null) return;
+
+    // Оптимистичный UI: обновляем локально
     setState(() {
       isFavourite = !isFavourite;
+      _isTogglingFavourite = true;
+      if (isFavourite) {
+        _animationController.forward().then(
+          (_) => _animationController.reverse(),
+        );
+      }
     });
+
+    // Синхронизация с сервером
+    final notifier = ref.read(favouritesNotifierProvider.notifier);
+    try {
+      await notifier.toggleFavourite(
+        userUid: user.uid,
+        advertUid: widget.advert.uid,
+      );
+    } catch (e) {
+      // Откат при ошибке
+      setState(() {
+        isFavourite = !isFavourite;
+      });
+      debugPrint('Error toggling favourite: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isTogglingFavourite = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final screenSize = MediaQuery.of(context).size;
     final categories = ref.watch(categoriesNotifierProvider).valueOrNull ?? [];
     final category = categories.firstWhere(
       (cat) => cat.id == widget.advert.category,
@@ -72,383 +119,216 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage> {
     );
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        title: Text(widget.advert.title, style: greenBoldM(context)),
-        actions: [
-          IconButton(
-            onPressed: _toggleFavourite,
-            icon: Icon(
-              isFavourite ? Icons.favorite : Icons.favorite_border,
-              color: colorScheme.primary,
-              size: screenSize.width * 0.08,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.share, color: colorScheme.primary),
-          ),
-        ],
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.primary,
-        elevation: 0.5,
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenSize.width * 0.04,
-            vertical: screenSize.height * 0.02,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _ImageCarousel(images: widget.advert.images),
-              SizedBox(height: screenSize.height * 0.02),
-              if (category.settings['pricePer'] == true ||
-                  category.settings['salary'] == true ||
-                  widget.advert.price != 0 ||
-                  widget.advert.price >= 0) ...[
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Semantics(
-                          label: S.of(context).price,
-                          child: Text(
-                            widget.advert.price == 0
-                                ? S.of(context).negotiable
-                                : '${widget.advert.price.toStringAsFixed(0)} ₸',
-                            style: greenBoldL(context).copyWith(fontSize: 24),
+      body: CustomScrollView(
+        physics: ClampingScrollPhysics(),
+        slivers: [
+          // Image section
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _ImageCarousel(images: widget.advert.images),
+                  Positioned(
+                    top: 16,
+                    left: 16,
+                    child: SafeArea(
+                      child: ScaleTransition(
+                        scale: Tween<double>(begin: 1.0, end: 0.9).animate(
+                          CurvedAnimation(
+                            parent: _animationController,
+                            curve: Curves.easeOut,
                           ),
                         ),
-                        if (widget.advert.tradeable &&
-                            category.settings['tradeable'] == true) ...[
-                          const SizedBox(height: 4),
-                          Semantics(
-                            label: S.of(context).trade_possible,
-                            child: Text(
-                              S.of(context).trade_possible,
-                              style: grayM(context).copyWith(fontSize: 14),
-                            ),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: colorScheme.surface,
+                            shadows: [
+                              BoxShadow(
+                                color: colorScheme.inversePrimary,
+                                blurRadius: 50,
+                              ),
+                            ],
                           ),
-                        ],
-                        if (category.settings['maxPrice'] == true &&
-                            widget.advert.maxPrice != null &&
-                            widget.advert.maxPrice! > 0) ...[
-                          const SizedBox(height: 8),
-                          Semantics(
-                            label: S.of(context).max_price,
-                            child: Text(
-                              '${S.of(context).max_price}: ${widget.advert.maxPrice!.toStringAsFixed(0)} ₸',
-                              style: contrastM(context).copyWith(fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      ],
+                          onPressed: () {
+                            _animationController.forward().then((_) {
+                              _animationController.reverse();
+                              Navigator.pop(context);
+                            });
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
-              SizedBox(height: screenSize.height * 0.02),
-              Semantics(
-                label: S.of(context).title_of_ad,
-                child: Text(widget.advert.title, style: contrastBoldM(context)),
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: SafeArea(
+                      child: Row(
+                        children: [
+                          ScaleTransition(
+                            scale: _scaleAnimation,
+                            child: RotationTransition(
+                              turns: _rotationAnimation,
+                              child: IconButton(
+                                onPressed:
+                                    _isTogglingFavourite
+                                        ? null
+                                        : _toggleFavourite,
+                                icon:
+                                    _isTogglingFavourite
+                                        ? const SizedBox(
+                                          width: 28,
+                                          height: 28,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                        : Icon(
+                                          isFavourite
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color:
+                                              isFavourite
+                                                  ? Colors.red
+                                                  : colorScheme.surface,
+                                          size: 28,
+                                          shadows: [
+                                            BoxShadow(
+                                              color: colorScheme.inversePrimary,
+                                              blurRadius: 50,
+                                            ),
+                                          ],
+                                        ),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.share,
+                              color: colorScheme.surface,
+                              shadows: [
+                                BoxShadow(
+                                  color: colorScheme.inversePrimary,
+                                  blurRadius: 50,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              Semantics(
-                label: S.of(context).location,
-                child: Row(
+            ),
+          ),
+          // Main content
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.location_on,
-                      size: 16,
-                      color: colorScheme.secondary,
-                    ),
-                    const SizedBox(width: 4),
+                    // Title and location
                     Text(
-                      '${getRegionName(widget.advert.region ?? 0)}, ${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
-                      style: grayM(context),
+                      widget.advert.title,
+                      style: contrastBoldM(context).copyWith(fontSize: 22),
+                      semanticsLabel: S.of(context).title_of_ad,
                     ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 16,
+                          color: colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${getRegionName(widget.advert.region ?? 0)}, ${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
+                          style: grayM(context),
+                          semanticsLabel: S.of(context).location,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Price section
+                    if (category.settings['pricePer'] == true ||
+                        category.settings['salary'] == true ||
+                        widget.advert.price != 0 ||
+                        widget.advert.maxPrice != null) ...[
+                      _PriceCard(
+                        advert: widget.advert,
+                        category: category,
+                        colorScheme: colorScheme,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    // Details
+                    _DetailsCard(
+                      advert: widget.advert,
+                      category: category,
+                      colorScheme: colorScheme,
+                    ),
+                    const SizedBox(height: 12),
+                    // Quantity
+                    if (category.settings['quantity'] == true ||
+                        category.settings['maxQuantity'] == true) ...[
+                      _QuantityCard(
+                        advert: widget.advert,
+                        category: category,
+                        colorScheme: colorScheme,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    // Item details
+                    if (category.settings['condition'] == true ||
+                        category.settings['year'] == true) ...[
+                      _ItemDetailsCard(
+                        advert: widget.advert,
+                        category: category,
+                        colorScheme: colorScheme,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    // Description
+                    _DescriptionCard(
+                      advert: widget.advert,
+                      colorScheme: colorScheme,
+                    ),
+                    const SizedBox(height: 12),
+                    // Stats
+                    _StatsCard(advert: widget.advert, colorScheme: colorScheme),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
-              SizedBox(height: screenSize.height * 0.02),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Semantics(
-                        label: S.of(context).details,
-                        child: Text(
-                          S.of(context).details,
-                          style: greenBoldM(context),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _InfoRow(
-                        title: S.of(context).phone_number,
-                        value:
-                            widget.advert.phoneNumber.isNotEmpty
-                                ? widget.advert.phoneNumber
-                                : S.of(context).unknown,
-                        isVisible: true,
-                        icon: Icons.phone,
-                        colorScheme: colorScheme,
-                        semanticsLabel: S.of(context).phone_number,
-                      ),
-                      _InfoRow(
-                        title: S.of(context).category,
-                        value:
-                            getLocalizedCategory(category, context).isNotEmpty
-                                ? getLocalizedCategory(category, context)
-                                : S.of(context).unknown,
-                        isVisible: true,
-                        icon: Icons.category,
-                        colorScheme: colorScheme,
-                        semanticsLabel: S.of(context).category,
-                      ),
-                      _InfoRow(
-                        title: S.of(context).contact_person,
-                        value:
-                            widget.advert.contactPerson?.isNotEmpty == true
-                                ? widget.advert.contactPerson!
-                                : S.of(context).unknown,
-                        isVisible: category.settings['contactPerson'] == true,
-                        icon: Icons.person,
-                        colorScheme: colorScheme,
-                        semanticsLabel: S.of(context).contact_person,
-                      ),
-                      _InfoRow(
-                        title: S.of(context).company,
-                        value:
-                            widget.advert.companyName?.isNotEmpty == true
-                                ? widget.advert.companyName!
-                                : S.of(context).unknown,
-                        isVisible: category.settings['companyName'] == true,
-                        icon: Icons.business,
-                        colorScheme: colorScheme,
-                        semanticsLabel: S.of(context).company,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: screenSize.height * 0.02),
-              if (category.settings['quantity'] == true ||
-                  category.settings['maxQuantity'] == true) ...[
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Semantics(
-                          label: S.of(context).quantity,
-                          child: Text(
-                            S.of(context).quantity,
-                            style: greenBoldM(context),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Semantics(
-                          label:
-                              '${S.of(context).quantity} and ${S.of(context).max_quantity}',
-                          child: Row(
-                            children: [
-                              if (category.settings['quantity'] == true &&
-                                  widget.advert.quantity != null &&
-                                  widget.advert.quantity! > 0)
-                                Text(
-                                  '${S.of(context).quantity}: ${widget.advert.quantity} ${widget.advert.unit?.isNotEmpty == true ? widget.advert.unit! : ''}',
-                                  style: contrastM(context),
-                                ),
-                              if (category.settings['quantity'] == true &&
-                                  category.settings['maxQuantity'] == true &&
-                                  widget.advert.quantity != null &&
-                                  widget.advert.quantity! > 0 &&
-                                  widget.advert.maxQuantity != null &&
-                                  widget.advert.maxQuantity! > 0) ...[
-                                const SizedBox(width: 8),
-                                Text(' | ', style: grayM(context)),
-                                const SizedBox(width: 8),
-                              ],
-                              if (category.settings['maxQuantity'] == true &&
-                                  widget.advert.maxQuantity != null &&
-                                  widget.advert.maxQuantity! > 0)
-                                Text(
-                                  '${S.of(context).max_quantity}: ${widget.advert.maxQuantity} ${widget.advert.unit?.isNotEmpty == true ? widget.advert.unit! : ''}',
-                                  style: contrastM(context),
-                                ),
-                              if (!(category.settings['quantity'] == true &&
-                                      widget.advert.quantity != null &&
-                                      widget.advert.quantity! > 0) &&
-                                  !(category.settings['maxQuantity'] == true &&
-                                      widget.advert.maxQuantity != null &&
-                                      widget.advert.maxQuantity! > 0))
-                                Text(
-                                  S.of(context).unknown,
-                                  style: contrastM(context),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: screenSize.height * 0.02),
-              ],
-              if (category.settings['condition'] == true ||
-                  category.settings['year'] == true) ...[
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Semantics(
-                          label: S.of(context).item_details,
-                          child: Text(
-                            S.of(context).item_details,
-                            style: greenBoldM(context),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _InfoRow(
-                          title: S.of(context).condition,
-                          value:
-                              widget.advert.condition != null &&
-                                      widget.advert.condition != 0
-                                  ? getConditionName(
-                                    widget.advert.condition!,
-                                    context,
-                                  )
-                                  : S.of(context).unknown,
-                          isVisible: category.settings['condition'] == true,
-                          icon: Icons.build,
-                          colorScheme: colorScheme,
-                          semanticsLabel: S.of(context).condition,
-                        ),
-                        _InfoRow(
-                          title: S.of(context).year_of_release,
-                          value:
-                              widget.advert.year != null &&
-                                      widget.advert.year! > 0
-                                  ? widget.advert.year.toString()
-                                  : S.of(context).unknown,
-                          isVisible: category.settings['year'] == true,
-                          icon: Icons.calendar_today,
-                          colorScheme: colorScheme,
-                          semanticsLabel: S.of(context).year_of_release,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: screenSize.height * 0.02),
-              ],
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Semantics(
-                        label: S.of(context).description,
-                        child: Text(
-                          S.of(context).description,
-                          style: greenBoldM(context),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Semantics(
-                        label: S.of(context).description,
-                        child: Text(
-                          widget.advert.description.isNotEmpty
-                              ? widget.advert.description
-                              : S.of(context).unknown,
-                          style: grayM(context).copyWith(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: screenSize.height * 0.02),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.remove_red_eye,
-                        size: 16,
-                        color: colorScheme.secondary,
-                      ),
-                      const SizedBox(width: 4),
-                      Semantics(
-                        label: S.of(context).views,
-                        child: Text(
-                          '${widget.advert.views} ${S.of(context).views}',
-                          style: grayS(context),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Icon(
-                        Icons.favorite,
-                        size: 16,
-                        color: colorScheme.secondary,
-                      ),
-                      const SizedBox(width: 4),
-                      Semantics(
-                        label: S.of(context).likes,
-                        child: Text(
-                          '${widget.advert.likes} ${S.of(context).likes}',
-                          style: grayS(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: screenSize.height * 0.04),
-            ],
+            ]),
           ),
-        ),
+        ],
       ),
+      // Floating action button (Call button)
+      floatingActionButton: _ActionBar(
+        colorScheme: colorScheme,
+        onCall: () {
+          showPhoneBottomSheet(context, widget.advert.phoneNumber);
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
     );
   }
 }
 
+// Image carousel
 class _ImageCarousel extends StatelessWidget {
   final List<String> images;
 
@@ -456,33 +336,537 @@ class _ImageCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          height: 240,
-          child:
-              images.isEmpty
-                  ? Container(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withOpacity(0.1),
-                    child: const Center(child: Icon(Icons.image_not_supported)),
-                  )
-                  : PageView.builder(
-                    itemCount: images.length,
-                    itemBuilder:
-                        (context, index) =>
-                            Image.network(images[index], fit: BoxFit.cover),
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return images.isEmpty
+        ? Container(
+          color: colorScheme.onSurface.withOpacity(0.1),
+          child: const Center(
+            child: Icon(
+              Icons.image_not_supported,
+              size: 48,
+              color: Colors.grey,
+            ),
+          ),
+        )
+        : Stack(
+          children: [
+            PageView.builder(
+              itemCount: images.length,
+              itemBuilder:
+                  (context, index) => CachedNetworkImage(
+                    imageUrl: images[index],
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) => Container(
+                          color: colorScheme.onSurface.withOpacity(0.1),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                    errorWidget:
+                        (context, url, error) => Container(
+                          color: colorScheme.onSurface.withOpacity(0.1),
+                          child: const Center(
+                            child: Icon(
+                              Icons.error_outline,
+                              size: 48,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                    fadeInDuration: const Duration(milliseconds: 300),
+                    fadeOutDuration: const Duration(milliseconds: 300),
+                    memCacheWidth:
+                        (MediaQuery.of(context).size.width * 1.5).toInt(),
+                    memCacheHeight:
+                        (MediaQuery.of(context).size.height * 0.4 * 1.5)
+                            .toInt(),
                   ),
+            ),
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  images.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+  }
+}
+
+// Price card
+class _PriceCard extends StatelessWidget {
+  final AdvertModel advert;
+  final AdCategory category;
+  final ColorScheme colorScheme;
+
+  const _PriceCard({
+    required this.advert,
+    required this.category,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              S.of(context).price,
+              style: greenBoldM(context).copyWith(fontSize: 18),
+              semanticsLabel: S.of(context).price,
+            ),
+            const SizedBox(height: 8),
+            if (advert.price == 0)
+              Text(
+                S.of(context).negotiable,
+                style: grayM(context).copyWith(fontSize: 16),
+              )
+            else ...[
+              _PriceRange(
+                minPrice: advert.price.toDouble(),
+                maxPrice: (advert.maxPrice ?? advert.price).toDouble(),
+                colorScheme: colorScheme,
+              ),
+              if (advert.tradeable &&
+                  category.settings['tradeable'] == true) ...[
+                const SizedBox(height: 8),
+                Text(
+                  S.of(context).trade_possible,
+                  style: grayS(context).copyWith(color: colorScheme.secondary),
+                  semanticsLabel: S.of(context).trade_possible,
+                ),
+              ],
+            ],
+          ],
         ),
       ),
     );
   }
 }
 
+// Price range
+class _PriceRange extends StatelessWidget {
+  final double minPrice;
+  final double maxPrice;
+  final ColorScheme colorScheme;
+
+  const _PriceRange({
+    required this.minPrice,
+    required this.maxPrice,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '${S.of(context).from}: ${minPrice.toStringAsFixed(0)} ₸\n${S.of(context).to}: ${maxPrice.toStringAsFixed(0)} ₸',
+      style: contrastBoldM(context),
+    );
+  }
+}
+
+// Details card
+class _DetailsCard extends StatelessWidget {
+  final AdvertModel advert;
+  final AdCategory category;
+  final ColorScheme colorScheme;
+
+  const _DetailsCard({
+    required this.advert,
+    required this.category,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              S.of(context).details,
+              style: greenBoldM(context).copyWith(fontSize: 18),
+              semanticsLabel: S.of(context).details,
+            ),
+            const SizedBox(height: 12),
+            _InfoRow(
+              title: S.of(context).phone_number,
+              value:
+                  advert.phoneNumber.isNotEmpty
+                      ? advert.phoneNumber
+                      : S.of(context).unknown,
+              isVisible: true,
+              icon: Icons.phone,
+              colorScheme: colorScheme,
+              semanticsLabel: S.of(context).phone_number,
+            ),
+            _InfoRow(
+              title: S.of(context).category,
+              value:
+                  getLocalizedCategory(category, context).isNotEmpty
+                      ? getLocalizedCategory(category, context)
+                      : S.of(context).unknown,
+              isVisible: true,
+              icon: Icons.category,
+              colorScheme: colorScheme,
+              semanticsLabel: S.of(context).category,
+            ),
+            _InfoRow(
+              title: S.of(context).contact_person,
+              value:
+                  advert.contactPerson?.isNotEmpty == true
+                      ? advert.contactPerson!
+                      : S.of(context).unknown,
+              isVisible: category.settings['contactPerson'] == true,
+              icon: Icons.person,
+              colorScheme: colorScheme,
+              semanticsLabel: S.of(context).contact_person,
+            ),
+            _InfoRow(
+              title: S.of(context).company,
+              value:
+                  advert.companyName?.isNotEmpty == true
+                      ? advert.companyName!
+                      : S.of(context).unknown,
+              isVisible: category.settings['companyName'] == true,
+              icon: Icons.business,
+              colorScheme: colorScheme,
+              semanticsLabel: S.of(context).company,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Quantity card
+class _QuantityCard extends StatelessWidget {
+  final AdvertModel advert;
+  final AdCategory category;
+  final ColorScheme colorScheme;
+
+  const _QuantityCard({
+    required this.advert,
+    required this.category,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final unit = advert.unit ?? '';
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              S.of(context).quantity,
+              style: greenBoldM(context).copyWith(fontSize: 18),
+              semanticsLabel: S.of(context).quantity,
+            ),
+            const SizedBox(height: 12),
+            if (category.settings['quantity'] == true &&
+                advert.quantity != null &&
+                advert.quantity! > 0 &&
+                category.settings['maxQuantity'] == true &&
+                advert.maxQuantity != null &&
+                advert.maxQuantity! > 0)
+              _QuantityTag(
+                value:
+                    '${S.of(context).from} ${advert.quantity} $unit \n${S.of(context).to} ${advert.maxQuantity} $unit',
+                colorScheme: colorScheme,
+              )
+            else if (category.settings['quantity'] == true &&
+                advert.quantity != null &&
+                advert.quantity! > 0)
+              _QuantityTag(
+                value: '${advert.quantity} $unit',
+                colorScheme: colorScheme,
+              )
+            else if (category.settings['maxQuantity'] == true &&
+                advert.maxQuantity != null &&
+                advert.maxQuantity! > 0)
+              _QuantityTag(
+                value: '${advert.maxQuantity} $unit',
+                colorScheme: colorScheme,
+              )
+            else
+              Text(
+                S.of(context).unknown,
+                style: grayM(context).copyWith(fontSize: 16),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Quantity tag
+class _QuantityTag extends StatelessWidget {
+  final String value;
+  final ColorScheme colorScheme;
+
+  const _QuantityTag({required this.value, required this.colorScheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [Text(value, style: contrastBoldM(context))],
+      ),
+    );
+  }
+}
+
+// Item details card
+class _ItemDetailsCard extends StatelessWidget {
+  final AdvertModel advert;
+  final AdCategory category;
+  final ColorScheme colorScheme;
+
+  const _ItemDetailsCard({
+    required this.advert,
+    required this.category,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              S.of(context).item_details,
+              style: greenBoldM(context).copyWith(fontSize: 18),
+              semanticsLabel: S.of(context).item_details,
+            ),
+            const SizedBox(height: 12),
+            _InfoRow(
+              title: S.of(context).condition,
+              value:
+                  advert.condition != null && advert.condition != 0
+                      ? getConditionName(advert.condition!, context)
+                      : S.of(context).unknown,
+              isVisible: category.settings['condition'] == true,
+              icon: Icons.build,
+              colorScheme: colorScheme,
+              semanticsLabel: S.of(context).condition,
+            ),
+            _InfoRow(
+              title: S.of(context).year_of_release,
+              value:
+                  advert.year != null && advert.year! > 0
+                      ? advert.year.toString()
+                      : S.of(context).unknown,
+              isVisible: category.settings['year'] == true,
+              icon: Icons.calendar_today,
+              colorScheme: colorScheme,
+              semanticsLabel: S.of(context).year_of_release,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Description card
+class _DescriptionCard extends StatelessWidget {
+  final AdvertModel advert;
+  final ColorScheme colorScheme;
+
+  const _DescriptionCard({required this.advert, required this.colorScheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              S.of(context).description,
+              style: greenBoldM(context).copyWith(fontSize: 18),
+              semanticsLabel: S.of(context).description,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              advert.description.isNotEmpty
+                  ? advert.description
+                  : S.of(context).unknown,
+              style: grayM(context).copyWith(fontSize: 14, height: 1.6),
+              semanticsLabel: S.of(context).description,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Stats card
+class _StatsCard extends StatelessWidget {
+  final AdvertModel advert;
+  final ColorScheme colorScheme;
+
+  const _StatsCard({required this.advert, required this.colorScheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.remove_red_eye,
+                  size: 16,
+                  color: colorScheme.secondary,
+                ),
+                const SizedBox(width: 4),
+                Semantics(
+                  label: S.of(context).views,
+                  child: Text(
+                    '${advert.views} ${S.of(context).views}',
+                    style: grayS(context),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Icon(Icons.favorite, size: 16, color: colorScheme.secondary),
+                const SizedBox(width: 4),
+                Semantics(
+                  label: S.of(context).likes,
+                  child: Text(
+                    '${advert.likes} ${S.of(context).likes}',
+                    style: grayS(context),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Action bar
+class _ActionBar extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final VoidCallback onCall;
+
+  const _ActionBar({required this.colorScheme, required this.onCall});
+
+  @override
+  Widget build(BuildContext context) {
+    return _ActionButton(
+      icon: Icons.call,
+      label: S.of(context).call,
+      onTap: onCall,
+      colorScheme: colorScheme,
+    );
+  }
+}
+
+// Action button
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final ColorScheme colorScheme;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: colorScheme.primary,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [Icon(icon, size: 30, color: Colors.white)],
+        ),
+      ),
+    );
+  }
+}
+
+// Info row
 class _InfoRow extends StatelessWidget {
   final String title;
   final String value;
@@ -505,15 +889,15 @@ class _InfoRow extends StatelessWidget {
     if (!isVisible || value.trim().isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Semantics(
         label: semanticsLabel,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 16, color: colorScheme.secondary),
-              const SizedBox(width: 8),
+              Icon(icon, size: 18, color: colorScheme.secondary),
+              const SizedBox(width: 12),
             ],
             Text('$title: ', style: greenBoldM(context).copyWith(fontSize: 16)),
             Expanded(

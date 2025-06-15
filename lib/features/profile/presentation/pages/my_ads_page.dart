@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:selo/core/theme/text_styles.dart';
-import 'package:selo/features/authentication/presentation/provider/authentication_provider.dart';
-import 'package:selo/features/profile/presentation/providers/profile_provider.dart';
+import 'package:selo/features/authentication/presentation/provider/index.dart';
+import 'package:selo/features/profile/presentation/providers/index.dart';
 import 'package:selo/features/favourites/presentation/widgets/advert_wide_card.dart';
 import 'package:selo/generated/l10n.dart';
 

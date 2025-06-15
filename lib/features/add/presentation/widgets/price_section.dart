@@ -49,7 +49,11 @@ class PriceSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isSalary ? 'Salary' : (hasPricePer ? 'Price per unit' : 'Price'),
+          isSalary
+              ? S.of(context).salary
+              : (hasPricePer
+                  ? S.of(context).price_per_unit
+                  : S.of(context).price),
           style: contrastBoldM(context),
         ),
         SizedBox(height: screenSize.height * 0.015),
