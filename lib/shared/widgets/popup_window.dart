@@ -61,7 +61,9 @@ class PopupWindow {
                           color: colorScheme.primary,
                           borderRadius: ResponsiveRadius.screenBased(context),
                           onPressed: () {
-                            Navigator.pop(context);
+                            context.pop();
+                            ;
+
                             if (onButtonPressed != null) {
                               onButtonPressed!();
                             } else {

@@ -16,6 +16,7 @@ import 'package:selo/features/home/presentation/widgets/filter_show_bottom.dart'
 import 'package:selo/features/home/presentation/widgets/search_appbar.dart';
 import 'package:selo/generated/l10n.dart';
 import 'package:selo/shared/models/advert_model.dart';
+import 'package:selo/shared/widgets/shimmer_effect.dart';
 import 'package:selo/core/models/category.dart';
 
 class FilterPage extends ConsumerStatefulWidget {
@@ -440,7 +441,31 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                 ),
               ),
             ),
-            if (adverts.isEmpty && !homeState.isLoading)
+            if (homeState.isLoading && adverts.isEmpty)
+              SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.width * 0.05,
+                ),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    mainAxisSpacing: screenSize.height * 0.03,
+                    childAspectRatio: 0.8,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.secondary,
+                        borderRadius: ResponsiveRadius.screenBased(context),
+                      ),
+                      child: _buildShimmerCard(context),
+                    ),
+                    childCount:
+                        6, // Количество шиммер-карточек для имитации загрузки
+                  ),
+                ),
+              )
+            else if (adverts.isEmpty && !homeState.isLoading)
               SliverToBoxAdapter(
                 child: Center(
                   child: Padding(
@@ -451,32 +476,32 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                     ),
                   ),
                 ),
-              ),
-            SliverPadding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenSize.width * 0.05,
-              ),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
-                  mainAxisSpacing: screenSize.height * 0.03,
-                  childAspectRatio: 0.8,
+              )
+            else
+              SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.width * 0.05,
                 ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final advert = adverts[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: colorScheme.secondary,
-                      borderRadius: ResponsiveRadius.screenBased(context),
-                    ),
-                    child: AdvertDetailCard(
-                      advert: advert,
-                      isLoading: homeState.isLoading,
-                    ),
-                  );
-                }, childCount: adverts.length),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    mainAxisSpacing: screenSize.height * 0.03,
+                    childAspectRatio: 0.8,
+                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final advert = adverts[index];
+                    return RepaintBoundary(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.secondary,
+                          borderRadius: ResponsiveRadius.screenBased(context),
+                        ),
+                        child: AdvertDetailCard(advert: advert),
+                      ),
+                    );
+                  }, childCount: adverts.length),
+                ),
               ),
-            ),
             if (homeState.isLoading && adverts.isNotEmpty)
               SliverToBoxAdapter(
                 child: Center(
@@ -489,6 +514,53 @@ class _FilterPageState extends ConsumerState<FilterPage> {
           ],
         ),
       ),
+    );
+  }
+
+  // Метод для шиммера (перенесен из AdvertDetailCard)
+  Widget _buildShimmerCard(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final radius = ResponsiveRadius.screenBased(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ShimmerEffect(
+          width: double.infinity,
+          height: 250,
+          borderRadius: radius.topLeft.x,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              ShimmerEffect(width: 160, height: 26, borderRadius: 4),
+              const SizedBox(height: 8),
+              ShimmerEffect(width: 120, height: 24, borderRadius: 4),
+              const SizedBox(height: 8),
+              ShimmerEffect(width: 80, height: 26, borderRadius: 4),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ShimmerEffect(
+                      width: 100,
+                      height: 32,
+                      borderRadius: radius.bottomLeft.x,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ShimmerEffect(
+                    width: 32,
+                    height: 32,
+                    borderRadius: radius.bottomRight.x,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'package:selo/features/add/presentation/providers/categories_provider.dart';
@@ -155,7 +156,8 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                           onPressed: () {
                             _animationController.forward().then((_) {
                               _animationController.reverse();
-                              Navigator.pop(context);
+                              context.pop();
+                              ;
                             });
                           },
                         ),

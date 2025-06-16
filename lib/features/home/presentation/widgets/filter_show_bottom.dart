@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/core/models/category.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
@@ -218,7 +219,8 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                           sortBy: selectedSorting,
                         );
                         onApply(result);
-                        Navigator.pop(context);
+                        context.pop();
+                        ;
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,

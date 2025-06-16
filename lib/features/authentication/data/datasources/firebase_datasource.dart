@@ -160,7 +160,6 @@ class FirebaseDatasource implements UserInterface {
       completer.complete(DataSuccess(userSnapshot.docs.isNotEmpty));
       return await completer.future;
     } catch (e, st) {
-      print('❌ Firebase: checkUser error: $e');
       completer.complete(DataFailed(Exception(e), st));
       return await completer.future;
     }

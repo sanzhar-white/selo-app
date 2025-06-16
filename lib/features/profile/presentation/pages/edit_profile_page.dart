@@ -252,7 +252,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                   );
                   final uid = ref.read(userNotifierProvider).user?.uid ?? '';
                   profileNotifier.deleteUser(uid).then((_) {
-                    Navigator.pop(context);
+                    context.pop();
+                    ;
+
                     ref.read(userNotifierProvider.notifier).logOut();
                     context.go(Routes.authenticationPage);
                   });

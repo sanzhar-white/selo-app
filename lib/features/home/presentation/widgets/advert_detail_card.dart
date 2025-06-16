@@ -8,7 +8,6 @@ import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'package:selo/features/add/presentation/providers/categories_provider.dart';
 import 'package:selo/core/models/category.dart';
-import 'package:selo/shared/widgets/shimmer_effect.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/features/favourites/presentation/providers/index.dart';
 import 'package:selo/features/authentication/presentation/provider/index.dart';
@@ -18,14 +17,9 @@ import 'package:selo/shared/widgets/phone_show_bottom.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class AdvertDetailCard extends ConsumerStatefulWidget {
-  const AdvertDetailCard({
-    super.key,
-    required this.advert,
-    this.isLoading = false,
-  });
+  const AdvertDetailCard({super.key, required this.advert});
 
   final AdvertModel advert;
-  final bool isLoading;
 
   @override
   ConsumerState<AdvertDetailCard> createState() => _AdvertDetailCardState();
@@ -50,7 +44,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
-    // Initialize favorite state
     final favouritesState = ref.read(favouritesNotifierProvider);
     _isFavourite =
         favouritesState.favouritesModel?.any(
@@ -100,7 +93,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
         advertUid: widget.advert.uid,
       );
     } catch (e) {
-      // Revert animation and state on error
       setState(() {
         _isFavourite = !_isFavourite;
         if (_isFavourite) {
@@ -114,10 +106,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) {
-      return _buildShimmerCard(context);
-    }
-
     final colorScheme = Theme.of(context).colorScheme;
     final radius = ResponsiveRadius.screenBased(context);
     final categories = ref.watch(categoriesNotifierProvider).valueOrNull ?? [];
@@ -160,7 +148,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image section
             AspectRatio(
               aspectRatio: 1.5,
               child: Stack(
@@ -173,7 +160,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                         BoxShadow(
                           color: colorScheme.inversePrimary.withOpacity(0.2),
                           blurRadius: 6,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -201,7 +188,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                                     ),
                                 errorWidget:
                                     (context, url, error) =>
-                                        _buildPlaceholder(context, colorScheme),
+                                        Container(color: colorScheme.surface),
                                 fadeInDuration: const Duration(
                                   milliseconds: 300,
                                 ),
@@ -212,7 +199,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                                     (MediaQuery.of(context).size.width * 1.5)
                                         .toInt(),
                               )
-                              : _buildPlaceholder(context, colorScheme),
+                              : Container(color: colorScheme.surface),
                     ),
                   ),
                   if (widget.advert.images.isNotEmpty &&
@@ -222,13 +209,15 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
                             color: colorScheme.onSurface.withOpacity(0.7),
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(8),
+                            ),
                           ),
                           child: Text(
                             widget.advert.images.length.toString(),
@@ -243,7 +232,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                       left: 8,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: radius.topLeft.x * 1,
+                          horizontal: radius.topLeft.x,
                           vertical: radius.topLeft.y * 0.2,
                         ),
                         decoration: BoxDecoration(
@@ -259,14 +248,12 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                 ],
               ),
             ),
-            // Text and buttons
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Text information
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -283,24 +270,22 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (widget.advert.price != null &&
-                            widget.advert.price != 0) ...[
-                          if (widget.advert.maxPrice != null) ...[
+                            widget.advert.price != 0)
+                          if (widget.advert.maxPrice != null)
                             Text(
                               'До ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
-                            ),
-                          ] else ...[
+                            )
+                          else
                             Text(
                               '${widget.advert.price} ₸',
                               style: contrastBoldM(context),
-                            ),
-                          ],
-                        ] else ...[
+                            )
+                        else
                           Text(
                             S.of(context).negotiable,
                             style: contrastBoldM(context),
                           ),
-                        ],
                         Text(
                           getLocalizedCategory(category, context),
                           style: contrastM(context),
@@ -308,14 +293,13 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           maxLines: 2,
                         ),
                         if (widget.advert.tradeable &&
-                            category.settings['tradeable'] == true) ...[
+                            category.settings['tradeable'] == true)
                           Text(
                             S.of(context).trade_possible,
                             style: contrastM(context),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
-                        ],
                         Text(
                           '${widget.advert.views} ${S.of(context).views}, ${widget.advert.createdAt.toDate().toLocal().toString().split(' ')[0]}',
                           style: contrastM(context),
@@ -330,7 +314,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
             ),
             Row(
               children: [
-                // Call button
                 Flexible(
                   flex: 3,
                   child: GestureDetector(
@@ -346,7 +329,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           BoxShadow(
                             color: colorScheme.inversePrimary.withOpacity(0.2),
                             blurRadius: 4,
-                            offset: Offset(0, 0),
+                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
@@ -362,7 +345,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Favourite button with animation
                 Flexible(
                   flex: 1,
                   child: GestureDetector(
@@ -376,7 +358,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           BoxShadow(
                             color: colorScheme.inversePrimary.withOpacity(0.2),
                             blurRadius: 4,
-                            offset: Offset(0, 0),
+                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
@@ -407,72 +389,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildShimmerCard(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final radius = ResponsiveRadius.screenBased(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Shimmer for image
-        ShimmerEffect(
-          width: double.infinity,
-          height: 250,
-          borderRadius: radius.topLeft.x,
-        ),
-        // Shimmer for text and buttons
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              ShimmerEffect(width: 160, height: 26, borderRadius: 4),
-              const SizedBox(height: 8),
-              ShimmerEffect(width: 120, height: 24, borderRadius: 4),
-              const SizedBox(height: 8),
-              ShimmerEffect(width: 80, height: 26, borderRadius: 4),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ShimmerEffect(
-                      width: 100,
-                      height: 32,
-                      borderRadius: radius.bottomLeft.x,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ShimmerEffect(
-                    width: 32,
-                    height: 32,
-                    borderRadius: radius.bottomRight.x,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPlaceholder(BuildContext context, ColorScheme colorScheme) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: ResponsiveRadius.screenBased(context),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.inversePrimary.withOpacity(0.2),
-            blurRadius: 4,
-            offset: Offset(0, 0),
-          ),
-        ],
-      ),
-      child: Icon(Icons.image, size: 50, color: colorScheme.primary),
     );
   }
 }

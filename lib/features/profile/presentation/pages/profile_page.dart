@@ -217,13 +217,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                   : S.of(context).no_phone_number,
                               style: contrastM(context),
                             ),
-                            if (userState.error != null) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                userState.error!,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ],
                             SizedBox(height: screenSize.height * 0.01),
                             GestureDetector(
                               onTap:
