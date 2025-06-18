@@ -19,6 +19,10 @@ import 'package:selo/features/home/presentation/widgets/search_appbar.dart';
 import 'package:selo/features/home/presentation/widgets/shimmers/shimmer_page.dart';
 import 'package:selo/generated/l10n.dart';
 import 'package:selo/shared/models/advert_model.dart';
+import 'package:collection/collection.dart';
+import 'package:selo/core/theme/responsive_radius.dart';
+
+import 'package:selo/core/utils/utils.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -32,6 +36,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   bool isAnonymous = false;
   final TextEditingController searchQuery = TextEditingController();
   String? _lastError;
+  bool _isInitialized = false;
 
   PaginationModel _paginationModel = PaginationModel(
     pageSize: 10,
@@ -49,6 +54,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     searchQuery.dispose();
@@ -58,13 +68,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   Future<void> _initializeData() async {
     final homeNotifier = ref.read(homeNotifierProvider.notifier);
 
-    await homeNotifier.loadAllAdvertisements(
-      refresh: false,
-      page: _paginationModel.currentPage,
-      pageSize: _paginationModel.pageSize,
-    );
-    await homeNotifier.loadBanners();
-    await ref.read(categoriesNotifierProvider.notifier).loadCategories();
+    // Load all data in parallel
+    await Future.wait([
+      homeNotifier.loadAllAdvertisements(
+        refresh: false,
+        page: _paginationModel.currentPage,
+        pageSize: _paginationModel.pageSize,
+      ),
+      homeNotifier.loadBanners(),
+      ref.read(categoriesNotifierProvider.notifier).loadCategories(),
+    ]);
 
     if (!mounted) return;
 
@@ -76,7 +89,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
 
     isAnonymous = await ref.read(userNotifierProvider.notifier).isAnonymous();
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
 
     if (ref.read(homeNotifierProvider).allAdvertisements == null ||
         ref.read(homeNotifierProvider).allAdvertisements!.isEmpty) {
@@ -94,13 +111,16 @@ class _HomePageState extends ConsumerState<HomePage> {
       );
     });
 
-    await homeNotifier.loadAllAdvertisements(
-      refresh: true,
-      page: _paginationModel.currentPage,
-      pageSize: _paginationModel.pageSize,
-    );
-    await homeNotifier.loadBanners();
-    await ref.read(categoriesNotifierProvider.notifier).loadCategories();
+    // Load all data in parallel
+    await Future.wait([
+      homeNotifier.loadAllAdvertisements(
+        refresh: true,
+        page: _paginationModel.currentPage,
+        pageSize: _paginationModel.pageSize,
+      ),
+      homeNotifier.loadBanners(),
+      ref.read(categoriesNotifierProvider.notifier).loadCategories(),
+    ]);
 
     if (!mounted) return;
 
@@ -158,9 +178,32 @@ class _HomePageState extends ConsumerState<HomePage> {
     final homeState = ref.watch(homeNotifierProvider);
     final categories = ref.watch(categoriesNotifierProvider);
 
+    // Слушаем изменения в избранном
+    ref.listen(favouritesNotifierProvider, (previous, next) {
+      if (previous?.favouritesModel != next.favouritesModel && mounted) {
+        // Проверяем, действительно ли изменились избранные
+        final previousFavorites =
+            previous?.favouritesModel?.map((e) => e.uid).toSet() ?? {};
+        final nextFavorites =
+            next.favouritesModel?.map((e) => e.uid).toSet() ?? {};
+
+        if (!const SetEquality().equals(previousFavorites, nextFavorites)) {
+          // Обновляем только если действительно изменился набор избранных
+          ref
+              .read(homeNotifierProvider.notifier)
+              .loadAllAdvertisements(
+                refresh: true,
+                page: 1,
+                pageSize: _paginationModel.pageSize,
+              );
+        }
+      }
+    });
+
     _showError(homeState.error);
 
-    if (homeState.isLoading && homeState.allAdvertisements == null) {
+    if (!_isInitialized ||
+        (homeState.isLoading && homeState.allAdvertisements == null)) {
       return const HomePageShimmer();
     }
 
@@ -275,9 +318,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                   }, childCount: adverts.length),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: screenSize.width > 600 ? 3 : 2,
-                    mainAxisSpacing: screenSize.width * 0.02,
+                    mainAxisSpacing: screenSize.width * 0.1,
                     crossAxisSpacing: screenSize.width * 0.02,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.65,
                   ),
                 ),
               ),

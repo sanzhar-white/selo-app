@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:selo/core/di/di.dart';
 import 'package:selo/features/add/domain/repositories/advert_repository.dart';
 import 'package:selo/features/add/domain/usecases/create_ad_usecase.dart';
 import 'package:selo/shared/models/advert_model.dart';
@@ -8,11 +9,13 @@ import 'package:selo/features/add/data/datasources/firebase_datasource.dart';
 import 'package:selo/features/add/data/datasources/advert_interface.dart';
 import 'package:selo/features/add/data/repositories/advert_repository_impl.dart';
 import 'package:selo/core/resources/data_state.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 final firebaseDatasourceProvider = Provider<AdvertInteface>((ref) {
   return FirebaseDatasource(
-    FirebaseFirestore.instance,
-    FirebaseStorage.instance,
+    di<FirebaseFirestore>(),
+    di<FirebaseStorage>(),
+    di<Talker>(),
   );
 });
 

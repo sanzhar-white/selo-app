@@ -47,6 +47,7 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
     final childAspectRatio = screenSize.width > 800 ? 6.0 : 5.0;
 
     final colorScheme = Theme.of(context).colorScheme;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return Scaffold(
       body: categoriesState.when(
@@ -112,7 +113,7 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          borderRadius: ResponsiveRadius.screenBased(context),
+                          borderRadius: radius,
                           color: colorScheme.onSurface,
                         ),
                         margin: EdgeInsets.symmetric(
@@ -157,7 +158,7 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                       //   elevation: 10,
                       //   shadowColor: colorScheme.primary,
                       //   shape: RoundedRectangleBorder(
-                      //     borderRadius: ResponsiveRadius.screenBased(context),
+                      //     borderRadius: radius,
                       //   ),
                       //   child: Center(
                       //     child: Text(

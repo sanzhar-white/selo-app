@@ -43,6 +43,7 @@ class QuantitySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,13 +54,13 @@ class QuantitySection extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             color: colorScheme.onSurface,
-            borderRadius: ResponsiveRadius.screenBased(context),
+            borderRadius: radius,
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final buttonWidth = (constraints.maxWidth - 12) / 2;
               return ToggleButtons(
-                borderRadius: ResponsiveRadius.screenBased(context),
+                borderRadius: radius,
                 fillColor: colorScheme.primary,
                 selectedColor: colorScheme.onPrimary,
                 color: colorScheme.primary,
@@ -199,6 +200,7 @@ class QuantitySection extends StatelessWidget {
     ColorScheme colorScheme,
     Size screenSize,
   ) {
+    final radius = ResponsiveRadius.screenBased(context);
     return GestureDetector(
       onTap: () {
         showBottomPicker<String>(
@@ -213,7 +215,7 @@ class QuantitySection extends StatelessWidget {
         width: screenSize.width * 0.15,
         decoration: BoxDecoration(
           color: colorScheme.primary,
-          borderRadius: ResponsiveRadius.screenBased(context),
+          borderRadius: radius,
         ),
         child: Center(
           child: Text(quantityUnit, style: overGreenBoldM(context)),

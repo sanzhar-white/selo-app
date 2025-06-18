@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/di/di.dart';
 import 'package:selo/features/authentication/data/datasources/firebase_datasource.dart';
 import 'package:selo/features/authentication/data/datasources/user_interface.dart';
 import 'package:selo/features/authentication/data/repositories/user_repository_impl.dart';
@@ -7,11 +8,16 @@ import 'package:selo/features/authentication/domain/repositories/user_repository
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:selo/shared/models/user_model.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'user/user_notifier.dart';
 import 'user/user_state.dart';
 
 final firebaseDatasourceProvider = Provider<UserInterface>((ref) {
-  return FirebaseDatasource(FirebaseFirestore.instance, FirebaseAuth.instance);
+  return FirebaseDatasource(
+    di<FirebaseFirestore>(),
+    di<FirebaseAuth>(),
+    di<Talker>(),
+  );
 });
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {

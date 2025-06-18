@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/di/di.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/features/favourites/data/model/favourites_model.dart';
 import 'package:selo/shared/models/advert_model.dart';
@@ -6,24 +8,9 @@ import 'package:talker/talker.dart';
 import '../providers.dart';
 import 'favourites_state.dart';
 
-class CacheManager {
-  static const Duration cacheDuration = Duration(minutes: 3);
-  static DateTime? lastFetchTime;
-
-  bool shouldRefresh() {
-    return lastFetchTime == null ||
-        DateTime.now().difference(lastFetchTime!) > cacheDuration;
-  }
-
-  void updateLastFetchTime() {
-    lastFetchTime = DateTime.now();
-  }
-}
-
 class FavouritesNotifier extends StateNotifier<FavouritesState> {
   final Ref ref;
-  final talker = Talker();
-  final cacheManager = CacheManager();
+  final talker = di<Talker>();
   final Map<String, bool> _loadingAdverts = {};
 
   FavouritesNotifier(this.ref) : super(const FavouritesState());
@@ -38,13 +25,16 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
     _loadingAdverts.remove(advertUid);
   }
 
-  Future<bool> getFavourites(UserUidModel userUid, {bool force = false}) async {
-    if (!force && !cacheManager.shouldRefresh()) return true;
+  Future<bool> getFavourites(UserUidModel userUid) async {
     return _executeUseCase(
       () => ref.read(getFavouritesUseCaseProvider).call(params: userUid),
       onSuccess: (List<AdvertModel>? favourites) {
         state = state.copyWith(favouritesModel: favourites);
-        cacheManager.updateLastFetchTime();
+        if (favourites != null) {
+          ref
+              .read(favouriteStatusProvider.notifier)
+              .setFavourites(favourites.map((ad) => ad.uid).toList());
+        }
       },
       errorMessage: 'Failed to load favourites',
     );
@@ -67,6 +57,9 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
                 ),
               ),
       errorMessage: 'Failed to add to favourites',
+      onSuccess: () {
+        ref.read(favouriteStatusProvider.notifier).toggleFavourite(advertUid);
+      },
     );
   }
 
@@ -87,6 +80,9 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
                 ),
               ),
       errorMessage: 'Failed to remove from favourites',
+      onSuccess: () {
+        ref.read(favouriteStatusProvider.notifier).toggleFavourite(advertUid);
+      },
     );
   }
 
@@ -107,6 +103,9 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
                 ),
               ),
       errorMessage: 'Failed to toggle favourite',
+      onSuccess: () {
+        ref.read(favouriteStatusProvider.notifier).toggleFavourite(advertUid);
+      },
     );
   }
 
@@ -115,6 +114,7 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
     required String userUid,
     required Future<DataState<bool>> Function() action,
     required String errorMessage,
+    required VoidCallback onSuccess,
   }) async {
     if (isAdvertLoading(advertUid)) return false;
     _startLoadingAdvert(advertUid);
@@ -122,7 +122,8 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
     try {
       final result = await action();
       if (result is DataSuccess && result.data == true) {
-        return await getFavourites(UserUidModel(uid: userUid), force: true);
+        onSuccess();
+        return await getFavourites(UserUidModel(uid: userUid));
       } else if (result is DataFailed) {
         state = state.copyWith(error: result.error.toString());
         talker.error('$errorMessage: ${result.error}');

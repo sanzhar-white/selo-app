@@ -30,6 +30,7 @@ class CustomToggleButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
     final defaultHeight =
         screenSize.height > 800
             ? screenSize.height * 0.05
@@ -39,7 +40,7 @@ class CustomToggleButtons extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: unselectedColor ?? colorScheme.onSurface,
-        borderRadius: ResponsiveRadius.screenBased(context),
+        borderRadius: radius,
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -48,7 +49,7 @@ class CustomToggleButtons extends StatelessWidget {
               options.length;
 
           return ToggleButtons(
-            borderRadius: ResponsiveRadius.screenBased(context),
+            borderRadius: radius,
             fillColor: selectedColor ?? colorScheme.primary,
             selectedColor: selectedTextColor ?? colorScheme.onPrimary,
             color: unselectedTextColor ?? colorScheme.primary,

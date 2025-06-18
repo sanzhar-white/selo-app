@@ -13,6 +13,7 @@ ThemeData lightTheme = ThemeData(
 
     onSurface: Color(0xffF2F2F7),
     secondary: Color(0xff636363),
+    error: Color(0xffe53935),
   ),
 );
 
@@ -29,5 +30,6 @@ ThemeData darkTheme = ThemeData(
 
     onSurface: Color(0xff1C1C1E),
     secondary: Color(0xff636363),
+    error: Color(0xffff5252),
   ),
 );

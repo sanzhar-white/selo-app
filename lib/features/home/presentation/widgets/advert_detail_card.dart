@@ -29,8 +29,10 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  Animation<Color?>? _colorAnimation;
-  bool _isFavourite = false;
+  late Animation<double> _fillAnimation;
+  dynamic user;
+  List<AdCategory> categories = [];
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -40,31 +42,29 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
       duration: const Duration(milliseconds: 300),
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
-    final favouritesState = ref.read(favouritesNotifierProvider);
-    _isFavourite =
-        favouritesState.favouritesModel?.any(
-          (e) => e.uid == widget.advert.uid,
-        ) ??
-        false;
-    if (_isFavourite) {
-      _animationController.value = 1.0;
-    }
+    _fillAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final colorScheme = Theme.of(context).colorScheme;
-    _colorAnimation = ColorTween(
-      begin: colorScheme.primary,
-      end: Colors.red,
-    ).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
+    if (!_isInitialized) {
+      _isInitialized = true;
+      user = ref.read(userNotifierProvider).user;
+      categories = ref.read(categoriesNotifierProvider).valueOrNull ?? [];
+      final isFavourite = ref
+          .read(favouriteStatusProvider)
+          .contains(widget.advert.uid);
+      if (isFavourite) {
+        _animationController.forward();
+      }
+    }
   }
 
   @override
@@ -74,17 +74,16 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
   }
 
   Future<void> _toggleFavourite() async {
-    final user = ref.read(userNotifierProvider).user;
     if (user == null) return;
 
-    setState(() {
-      _isFavourite = !_isFavourite;
-      if (_isFavourite) {
-        _animationController.forward();
-      } else {
-        _animationController.reverse();
-      }
-    });
+    final isFavourite = ref
+        .read(favouriteStatusProvider)
+        .contains(widget.advert.uid);
+    if (!isFavourite) {
+      _animationController.forward();
+    } else {
+      _animationController.reverse();
+    }
 
     final notifier = ref.read(favouritesNotifierProvider.notifier);
     try {
@@ -93,14 +92,11 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
         advertUid: widget.advert.uid,
       );
     } catch (e) {
-      setState(() {
-        _isFavourite = !_isFavourite;
-        if (_isFavourite) {
-          _animationController.forward();
-        } else {
-          _animationController.reverse();
-        }
-      });
+      if (!isFavourite) {
+        _animationController.reverse();
+      } else {
+        _animationController.forward();
+      }
     }
   }
 
@@ -110,6 +106,9 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
     final radius = ResponsiveRadius.screenBased(context);
     final categories = ref.watch(categoriesNotifierProvider).valueOrNull ?? [];
     final user = ref.watch(userNotifierProvider).user;
+    final isFavourite = ref
+        .watch(favouriteStatusProvider)
+        .contains(widget.advert.uid);
     final screenSize = MediaQuery.of(context).size;
 
     final category = categories.firstWhere(
@@ -215,9 +214,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           ),
                           decoration: BoxDecoration(
                             color: colorScheme.onSurface.withOpacity(0.7),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(8),
-                            ),
+                            borderRadius: radius,
                           ),
                           child: Text(
                             widget.advert.images.length.toString(),
@@ -237,7 +234,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                         ),
                         decoration: BoxDecoration(
                           color: colorScheme.primary,
-                          borderRadius: ResponsiveRadius.screenBased(context),
+                          borderRadius: radius,
                         ),
                         child: Text(
                           S.of(context).label_new_advert,
@@ -368,14 +365,26 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           builder: (context, child) {
                             return Transform.scale(
                               scale: _scaleAnimation.value,
-                              child: Icon(
-                                _isFavourite
-                                    ? CupertinoIcons.heart_fill
-                                    : CupertinoIcons.heart,
-                                color:
-                                    _colorAnimation?.value ??
-                                    colorScheme.primary,
-                                size: screenSize.height * 0.035,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.heart,
+                                    color: colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  ClipRect(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: _fillAnimation.value,
+                                      child: Icon(
+                                        CupertinoIcons.heart_fill,
+                                        color: colorScheme.error,
+                                        size: 24,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             );
                           },

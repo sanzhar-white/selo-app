@@ -45,6 +45,7 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return Scaffold(
       body: Stack(
@@ -119,9 +120,7 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                                 screenSize.height * 0.07,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: ResponsiveRadius.screenBased(
-                                  context,
-                                ),
+                                borderRadius: radius,
                               ),
                             ),
                             child: Text(
@@ -145,9 +144,7 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                                 screenSize.height * 0.07,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: ResponsiveRadius.screenBased(
-                                  context,
-                                ),
+                                borderRadius: radius,
                               ),
                               side: BorderSide(color: colorScheme.primary),
                             ),

@@ -26,7 +26,8 @@ class AdvertDetailsPage extends ConsumerStatefulWidget {
 class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     with SingleTickerProviderStateMixin {
   bool isFavourite = false;
-  bool _isTogglingFavourite = false; // Индикатор загрузки лайка
+  bool _isTogglingFavourite = false;
+  bool _isInitialized = false;
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _rotationAnimation;
@@ -34,9 +35,6 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
   @override
   void initState() {
     super.initState();
-    // Асинхронная загрузка избранного
-    _loadFavouriteStatus();
-    // Initialize animation controller for like and back button
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -49,10 +47,20 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     );
   }
 
-  // Загрузка статуса лайка
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _isInitialized = true;
+      _loadFavouriteStatus();
+    }
+  }
+
   Future<void> _loadFavouriteStatus() async {
+    if (!mounted) return;
+
     final favourites = ref.read(favouritesNotifierProvider).favouritesModel;
-    if (favourites != null && mounted) {
+    if (favourites != null) {
       setState(() {
         isFavourite = favourites.any((e) => e.uid == widget.advert.uid);
       });
@@ -63,7 +71,6 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     final user = ref.read(userNotifierProvider).user;
     if (user == null) return;
 
-    // Оптимистичный UI: обновляем локально
     setState(() {
       isFavourite = !isFavourite;
       _isTogglingFavourite = true;
@@ -74,18 +81,23 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
       }
     });
 
-    // Синхронизация с сервером
     final notifier = ref.read(favouritesNotifierProvider.notifier);
     try {
       await notifier.toggleFavourite(
         userUid: user.uid,
         advertUid: widget.advert.uid,
       );
+      if (mounted) {
+        ref
+            .read(homeNotifierProvider.notifier)
+            .loadAllAdvertisements(refresh: true, page: 1, pageSize: 10);
+      }
     } catch (e) {
-      // Откат при ошибке
-      setState(() {
-        isFavourite = !isFavourite;
-      });
+      if (mounted) {
+        setState(() {
+          isFavourite = !isFavourite;
+        });
+      }
       debugPrint('Error toggling favourite: $e');
     } finally {
       if (mounted) {
@@ -429,10 +441,11 @@ class _PriceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: radius,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -508,10 +521,11 @@ class _DetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: radius,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -589,11 +603,12 @@ class _QuantityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     final unit = advert.unit ?? '';
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: radius,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -675,10 +690,11 @@ class _ItemDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: radius,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -729,10 +745,11 @@ class _DescriptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: radius,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -768,10 +785,11 @@ class _StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: radius,
       ),
       child: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50),
@@ -849,6 +867,7 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -857,7 +876,7 @@ class _ActionButton extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: colorScheme.primary,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: radius,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -1,48 +1,124 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:selo/core/utils/utils.dart';
+import 'package:selo/core/constants/routes.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
+import 'package:selo/core/utils/utils.dart';
+import 'package:selo/features/add/presentation/providers/categories_provider.dart';
+import 'package:selo/core/models/category.dart';
+import 'package:selo/shared/widgets/shimmer_effect.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/features/favourites/presentation/providers/index.dart';
 import 'package:selo/features/authentication/presentation/provider/index.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:selo/core/models/category.dart';
-import 'package:selo/features/add/presentation/providers/categories_provider.dart';
-import 'package:selo/features/home/presentation/providers/index.dart';
-import 'package:go_router/go_router.dart';
-import 'package:selo/core/constants/routes.dart';
 import 'package:selo/generated/l10n.dart';
+import 'package:selo/features/home/presentation/providers/index.dart';
 import 'package:selo/shared/widgets/phone_show_bottom.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // Add this import
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AdvertWideCard extends ConsumerStatefulWidget {
-  const AdvertWideCard({super.key, required this.advert});
+  const AdvertWideCard({
+    super.key,
+    required this.advert,
+    this.isLoading = false,
+  });
 
   final AdvertModel advert;
+  final bool isLoading;
 
   @override
   ConsumerState<AdvertWideCard> createState() => _AdvertWideCardState();
 }
 
-class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
+class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fillAnimation;
   dynamic user;
   List<AdCategory> categories = [];
+  bool _isInitialized = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      user = ref.watch(userNotifierProvider).user;
-      categories = ref.watch(categoriesNotifierProvider).valueOrNull ?? [];
-      setState(() {});
-    });
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
+    _fillAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _isInitialized = true;
+      user = ref.read(userNotifierProvider).user;
+      categories = ref.read(categoriesNotifierProvider).valueOrNull ?? [];
+      final isFavourite = ref
+          .read(favouriteStatusProvider)
+          .contains(widget.advert.uid);
+      if (isFavourite) {
+        _animationController.forward();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _toggleFavourite() async {
+    if (user == null) return;
+
+    final isFavourite = ref
+        .read(favouriteStatusProvider)
+        .contains(widget.advert.uid);
+    if (!isFavourite) {
+      _animationController.forward();
+    } else {
+      _animationController.reverse();
+    }
+
+    final notifier = ref.read(favouritesNotifierProvider.notifier);
+    try {
+      await notifier.toggleFavourite(
+        userUid: user.uid,
+        advertUid: widget.advert.uid,
+      );
+    } catch (e) {
+      if (!isFavourite) {
+        _animationController.reverse();
+      } else {
+        _animationController.forward();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
+    if (widget.isLoading) {
+      return _buildShimmerCard(context);
+    }
+
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final isFavourite = ref
+        .watch(favouriteStatusProvider)
+        .contains(widget.advert.uid);
+
     final category = categories.firstWhere(
       (category) => category.id == widget.advert.category,
       orElse:
@@ -55,6 +131,13 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
             settings: {},
           ),
     );
+
+    bool _isNewAdvert(DateTime createdAt) {
+      final now = DateTime.now();
+      final difference = now.difference(createdAt);
+      return difference.inHours < 24;
+    }
+
     return GestureDetector(
       onTap: () {
         if (user != null && user.uid != widget.advert.ownerUid) {
@@ -70,7 +153,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
         width: screenSize.width,
         decoration: BoxDecoration(
           color: colorScheme.surface,
-          borderRadius: ResponsiveRadius.screenBased(context),
+          borderRadius: radius,
         ),
         child: Row(
           children: [
@@ -83,127 +166,150 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        borderRadius: ResponsiveRadius.screenBased(context),
+                        borderRadius: radius,
                         boxShadow: [
                           BoxShadow(
                             color: colorScheme.inversePrimary.withOpacity(0.2),
                             blurRadius: 6,
-                            offset: Offset(0, 3),
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          ClipRRect(
-                            borderRadius: ResponsiveRadius.screenBased(context),
-                            child:
-                                widget.advert.images.isNotEmpty
-                                    ? CachedNetworkImage(
-                                      imageUrl: widget.advert.images.first,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      placeholder:
-                                          (context, url) => Container(
-                                            color: colorScheme.onSurface
-                                                .withOpacity(0.1),
-                                            child: const Center(
-                                              child: CircularProgressIndicator(
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                      Color
-                                                    >(Colors.grey),
-                                              ),
-                                            ),
+                      child: ClipRRect(
+                        borderRadius: radius,
+                        child:
+                            widget.advert.images.isNotEmpty
+                                ? CachedNetworkImage(
+                                  imageUrl: widget.advert.images.first,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  placeholder:
+                                      (context, url) => Container(
+                                        color: colorScheme.onSurface
+                                            .withOpacity(0.1),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.grey,
+                                                ),
                                           ),
-                                      errorWidget:
-                                          (context, url, error) =>
-                                              _buildPlaceholder(
-                                                context,
-                                                colorScheme,
-                                              ),
-                                      fadeInDuration: const Duration(
-                                        milliseconds: 300,
+                                        ),
                                       ),
-                                      fadeOutDuration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      memCacheWidth:
-                                          (screenSize.width * 1.5).toInt(),
-                                    )
-                                    : _buildPlaceholder(context, colorScheme),
-                          ),
-                          if (widget.advert.images.isNotEmpty)
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
+                                  errorWidget:
+                                      (context, url, error) =>
+                                          _buildPlaceholder(
+                                            context,
+                                            colorScheme,
+                                          ),
+                                  fadeInDuration: const Duration(
+                                    milliseconds: 300,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.onSurface.withOpacity(
-                                      0.5,
-                                    ),
-                                    borderRadius: ResponsiveRadius.screenBased(
-                                      context,
-                                    ),
+                                  fadeOutDuration: const Duration(
+                                    milliseconds: 300,
                                   ),
-                                  child: Text(
-                                    widget.advert.images.length.toString(),
-                                    style: contrastBoldM(context),
-                                  ),
-                                ),
-                              ),
+                                  memCacheWidth:
+                                      (screenSize.width * 1.5).toInt(),
+                                )
+                                : _buildPlaceholder(context, colorScheme),
+                      ),
+                    ),
+                    if (widget.advert.images.isNotEmpty)
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
                             ),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: GestureDetector(
-                              onTap:
-                                  user == null
-                                      ? null
-                                      : () {
-                                        ref
-                                            .read(
-                                              favouritesNotifierProvider
-                                                  .notifier,
-                                            )
-                                            .toggleFavourite(
-                                              userUid: user.uid,
-                                              advertUid: widget.advert.uid,
-                                            );
-                                      },
-                              child: Container(
-                                height: 48,
-                                width: 48,
-                                margin: EdgeInsets.only(top: 10, left: 10),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.surface,
-                                  borderRadius: ResponsiveRadius.screenBased(
-                                    context,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: colorScheme.inversePrimary
-                                          .withOpacity(0.2),
-                                      blurRadius: 4,
-                                      offset: Offset(0, 0),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    size: screenSize.width * 0.08,
-                                    CupertinoIcons.heart_fill,
-                                    color: colorScheme.primary,
-                                  ),
-                                ),
-                              ),
+                            decoration: BoxDecoration(
+                              color: colorScheme.onSurface.withOpacity(0.5),
+                              borderRadius: radius,
+                            ),
+                            child: Text(
+                              widget.advert.images.length.toString(),
+                              style: contrastBoldM(context),
                             ),
                           ),
-                        ],
+                        ),
+                      ),
+                    if (_isNewAdvert(widget.advert.createdAt.toDate()))
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: radius.topLeft.x,
+                            vertical:
+                                ResponsiveRadius.screenBased(
+                                  context,
+                                ).topLeft.y *
+                                0.2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            borderRadius: radius,
+                          ),
+                          child: Text(
+                            S.of(context).label_new_advert,
+                            style: overGreenBoldM(context),
+                          ),
+                        ),
+                      ),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: GestureDetector(
+                        onTap: user == null ? null : _toggleFavourite,
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface,
+                            borderRadius: radius,
+                            boxShadow: [
+                              BoxShadow(
+                                color: colorScheme.inversePrimary.withOpacity(
+                                  0.2,
+                                ),
+                                blurRadius: 4,
+                                offset: const Offset(0, 0),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: AnimatedBuilder(
+                              animation: _animationController,
+                              builder: (context, child) {
+                                return Transform.scale(
+                                  scale: _scaleAnimation.value,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.heart,
+                                        color: colorScheme.primary,
+                                        size: 24,
+                                      ),
+                                      ClipRect(
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: _fillAnimation.value,
+                                          child: Icon(
+                                            CupertinoIcons.heart_fill,
+                                            color: colorScheme.error,
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -248,38 +354,44 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
                       getLocalizedCategory(category, context),
                       style: grayM(context),
                     ),
-                    Spacer(),
-                    GestureDetector(
-                      onTap: () {
-                        showPhoneBottomSheet(
-                          context,
-                          widget.advert.phoneNumber,
-                        );
-                      },
-                      child: Container(
-                        height: screenSize.height * 0.05,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary,
-                          borderRadius: ResponsiveRadius.screenBased(context),
-                          boxShadow: [
-                            BoxShadow(
-                              color: colorScheme.inversePrimary.withOpacity(
-                                0.2,
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Flexible(
+                          flex: 3,
+                          child: GestureDetector(
+                            onTap: () {
+                              showPhoneBottomSheet(
+                                context,
+                                widget.advert.phoneNumber,
+                              );
+                            },
+                            child: Container(
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary,
+                                borderRadius: radius,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: colorScheme.inversePrimary
+                                        .withOpacity(0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 0),
+                                  ),
+                                ],
                               ),
-                              blurRadius: 4,
-                              offset: Offset(0, 0),
+                              child: Center(
+                                child: Text(
+                                  S.of(context).call,
+                                  style: overGreenBoldM(context),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            S.of(context).call,
-                            style: overGreenBoldM(context),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -288,6 +400,57 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildShimmerCard(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
+
+    return Row(
+      children: [
+        Flexible(
+          flex: 1,
+          child: AspectRatio(
+            aspectRatio: screenSize.width * 2.1 / screenSize.height,
+            child: ShimmerEffect(
+              width: double.infinity,
+              height: 150,
+              borderRadius: radius.topLeft.x,
+            ),
+          ),
+        ),
+        Flexible(
+          flex: 1,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerEffect(width: 160, height: 16, borderRadius: 4),
+                const SizedBox(height: 8),
+                ShimmerEffect(width: 120, height: 14, borderRadius: 4),
+                const SizedBox(height: 8),
+                ShimmerEffect(width: 80, height: 16, borderRadius: 4),
+                const Spacer(),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 3,
+                      child: ShimmerEffect(
+                        width: 100,
+                        height: 32,
+                        borderRadius: radius.bottomLeft.x,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -301,7 +464,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard> {
           BoxShadow(
             color: colorScheme.inversePrimary.withOpacity(0.2),
             blurRadius: 4,
-            offset: Offset(0, 0),
+            offset: const Offset(0, 0),
           ),
         ],
       ),

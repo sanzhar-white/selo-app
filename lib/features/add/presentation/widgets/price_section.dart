@@ -99,6 +99,7 @@ class PriceSection extends StatelessWidget {
   Widget _buildPriceRangeWithUnit(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return SizedBox(
       height: screenSize.height * 0.06,
@@ -120,8 +121,8 @@ class PriceSection extends StatelessWidget {
               ],
               keyboardType: TextInputType.number,
               borderRadius: BorderRadius.only(
-                topLeft: ResponsiveRadius.screenBased(context).topLeft,
-                bottomLeft: ResponsiveRadius.screenBased(context).bottomLeft,
+                topLeft: radius.topLeft,
+                bottomLeft: radius.bottomLeft,
               ),
             ),
           ),
@@ -142,8 +143,8 @@ class PriceSection extends StatelessWidget {
               ],
               keyboardType: TextInputType.number,
               borderRadius: BorderRadius.only(
-                topLeft: ResponsiveRadius.screenBased(context).topLeft,
-                bottomLeft: ResponsiveRadius.screenBased(context).bottomLeft,
+                topLeft: radius.topLeft,
+                bottomLeft: radius.bottomLeft,
               ),
             ),
           ),
@@ -222,12 +223,13 @@ class PriceSection extends StatelessWidget {
   ) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return Container(
       width: screenSize.width * 0.5,
       decoration: BoxDecoration(
         color: colorScheme.onSurface,
-        borderRadius: ResponsiveRadius.screenBased(context),
+        borderRadius: radius,
       ),
       child: Row(
         children: [
@@ -255,14 +257,15 @@ class PriceSection extends StatelessWidget {
   Widget _buildCurrencyContainer(BuildContext context, bool error) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return Container(
       width: screenSize.width * 0.15,
       decoration: BoxDecoration(
         color: colorScheme.onSurface,
         borderRadius: BorderRadius.only(
-          topRight: ResponsiveRadius.screenBased(context).topRight,
-          bottomRight: ResponsiveRadius.screenBased(context).bottomRight,
+          topRight: radius.topRight,
+          bottomRight: radius.bottomRight,
         ),
         border: Border(
           left: BorderSide(color: error ? Colors.red : colorScheme.secondary),
@@ -275,6 +278,7 @@ class PriceSection extends StatelessWidget {
   Widget _buildUnitSelector(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return GestureDetector(
       onTap: () {
@@ -290,7 +294,7 @@ class PriceSection extends StatelessWidget {
         width: screenSize.width * 0.15,
         decoration: BoxDecoration(
           color: colorScheme.primary,
-          borderRadius: ResponsiveRadius.screenBased(context),
+          borderRadius: radius,
         ),
         child: Center(
           child: Text(pricePerUnit, style: overGreenBoldM(context)),

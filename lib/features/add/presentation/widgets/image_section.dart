@@ -57,18 +57,17 @@ class ImageSection extends StatelessWidget {
 
   Widget _buildMainImage(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return Container(
       width: double.infinity,
       height: screenSize.height * 0.25,
-      decoration: BoxDecoration(
-        borderRadius: ResponsiveRadius.screenBased(context),
-      ),
+      decoration: BoxDecoration(borderRadius: radius),
       child:
           images.isEmpty
               ? _AddImagePlaceholder(onTap: onPickImage, withText: true)
               : ClipRRect(
-                borderRadius: ResponsiveRadius.screenBased(context),
+                borderRadius: radius,
                 child: Image.file(
                   File(images.first!.path),
                   fit: BoxFit.cover,
@@ -82,6 +81,7 @@ class ImageSection extends StatelessWidget {
   Widget _buildImageGrid(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     final itemCount = images.length < 10 ? images.length + 1 : 10;
 
@@ -102,7 +102,7 @@ class ImageSection extends StatelessWidget {
             return Stack(
               children: [
                 ClipRRect(
-                  borderRadius: ResponsiveRadius.screenBased(context),
+                  borderRadius: radius,
                   child: Image.file(
                     File(images[index]!.path),
                     fit: BoxFit.cover,
@@ -136,7 +136,7 @@ class ImageSection extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: colorScheme.onSurface,
-                  borderRadius: ResponsiveRadius.screenBased(context),
+                  borderRadius: radius,
                 ),
                 child: Center(
                   child: Icon(
@@ -163,13 +163,14 @@ class _AddImagePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: colorScheme.onSurface,
-          borderRadius: ResponsiveRadius.screenBased(context),
+          borderRadius: radius,
         ),
         child: Center(
           child: Column(

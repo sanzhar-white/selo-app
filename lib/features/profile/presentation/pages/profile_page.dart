@@ -73,6 +73,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
     final userState = ref.watch(userNotifierProvider);
@@ -98,7 +99,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   decoration: BoxDecoration(
                     color: colorScheme.onSurface,
-                    borderRadius: ResponsiveRadius.screenBased(context),
+                    borderRadius: radius,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -147,7 +148,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   height: screenSize.height * _headerHeightFactor,
                   decoration: BoxDecoration(
                     color: colorScheme.onSurface,
-                    borderRadius: ResponsiveRadius.screenBased(context),
+                    borderRadius: radius,
                   ),
                   child: Center(
                     child: Row(
@@ -312,13 +313,14 @@ class ProfileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     return Container(
       width: screenSize.width * _buttonWidthFactor,
       height: screenSize.height * _buttonHeightFactor,
       margin: EdgeInsets.symmetric(vertical: screenSize.height * _marginFactor),
       decoration: BoxDecoration(
         color: colorScheme.onSurface,
-        borderRadius: ResponsiveRadius.screenBased(context),
+        borderRadius: radius,
       ),
       padding: EdgeInsets.symmetric(
         horizontal: screenSize.width * _paddingFactor,

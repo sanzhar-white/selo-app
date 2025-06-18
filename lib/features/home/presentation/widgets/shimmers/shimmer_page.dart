@@ -80,20 +80,17 @@ class _ShimmerAdsList extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final itemCount = 6;
 
-    return SliverGrid(
+    return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (context, index) => const ShimmerEffect(
-          width: double.infinity,
-          height: 200,
-          borderRadius: 16,
+        (context, index) => Padding(
+          padding: EdgeInsets.only(bottom: screenWidth * 0.04),
+          child: const ShimmerEffect(
+            width: double.infinity,
+            height: 200,
+            borderRadius: 16,
+          ),
         ),
         childCount: itemCount,
-      ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: screenWidth > 600 ? 3 : 2,
-        mainAxisSpacing: screenWidth * 0.02,
-        crossAxisSpacing: screenWidth * 0.02,
-        childAspectRatio: 0.7,
       ),
     );
   }

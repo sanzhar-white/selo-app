@@ -271,6 +271,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final radius = ResponsiveRadius.screenBased(context);
     final colorScheme = Theme.of(context).colorScheme;
     final profileState = ref.watch(profileNotifierProvider);
     final userState = ref.watch(userNotifierProvider);
@@ -383,9 +384,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 48),
                         backgroundColor: colorScheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: ResponsiveRadius.screenBased(context),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: radius),
                       ),
                       child: Text(
                         S.of(context).apply,
@@ -399,9 +398,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 48),
                         backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: ResponsiveRadius.screenBased(context),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: radius),
                       ),
                       child: Text(
                         S.of(context).delete_account,

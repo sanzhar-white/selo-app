@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/di/di.dart';
 import 'package:selo/core/resources/data_state.dart';
-import 'package:selo/core/services/local_storage_service.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:talker/talker.dart';
@@ -11,13 +11,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
   HomeNotifier(this.ref) : super(const HomeState());
 
   final Ref ref;
-  final talker = Talker();
-  DateTime? _lastFetchTime;
-  final Duration _cacheDuration = const Duration(minutes: 10);
+  final talker = di<Talker>();
 
   Future<void> clearFilteredCache() async {
     try {
-      await LocalStorageService.clearFilteredAdsCache();
       state = state.copyWith(
         filteredAdvertisements: [],
         hasMoreFiltered: true,
@@ -25,24 +22,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
         error: null,
         currentFilter: null,
       );
-      talker.info('Cleared filtered ads cache');
+      talker.info('Cleared filtered ads');
     } catch (e) {
-      talker.error('Error clearing filtered cache: $e');
-      state = state.copyWith(error: 'Failed to clear filtered cache: $e');
+      talker.error('Error clearing filtered ads: $e');
+      state = state.copyWith(error: 'Failed to clear filtered ads: $e');
     }
   }
 
   Future<void> loadBanners({bool forceRefresh = false}) async {
-    if (!forceRefresh &&
-        _lastFetchTime != null &&
-        DateTime.now().difference(_lastFetchTime!) < _cacheDuration) {
-      return;
-    }
     await _executeUseCase(
       () => ref.read(getBannersUseCaseProvider)(),
       (banners) {
         state = state.copyWith(banners: banners, isLoading: false);
-        _lastFetchTime = DateTime.now();
       },
       errorMessage: 'Failed to load banners',
     );
@@ -74,9 +65,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           isLoading: false,
           currentFilter: null,
         );
-        if (ads.isNotEmpty) {
-          LocalStorageService.cacheAdvertisements(ads, page);
-        }
       },
       errorMessage: 'Failed to load advertisements',
     );
@@ -116,13 +104,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           currentFilter: appliedFilter,
           isLoading: false,
         );
-        if (ads.isNotEmpty && appliedFilter != null) {
-          LocalStorageService.cacheFilteredAds(
-            ads,
-            _createFilterParams(appliedFilter),
-          );
-        }
-        talker.info('Cached ${ads.length} filtered ads for page $page');
+        talker.info('Loaded ${ads.length} filtered ads for page $page');
       },
       errorMessage: 'Failed to load filtered ads',
     );
@@ -151,6 +133,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
           isLoading: false,
           error: result.error?.toString() ?? errorMessage ?? 'Unknown error',
         );
+      } else {
+        state = state.copyWith(isLoading: false);
       }
     } catch (e) {
       talker.error('$errorMessage: $e');

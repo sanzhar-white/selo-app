@@ -353,6 +353,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
     final advertState = ref.watch(advertNotifierProvider);
     final List<String> units = [S.of(context).unit_kg, S.of(context).unit_ton];
 
@@ -414,9 +415,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                           screenSize.height * 0.05,
                         ),
                         backgroundColor: colorScheme.onSurface,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: ResponsiveRadius.screenBased(context),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: radius),
                       ),
                       child: Text(_year.toString(), style: contrastM(context)),
                       onPressed: () {
@@ -606,7 +605,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                       height: screenSize.height * 0.07,
                       decoration: BoxDecoration(
                         color: colorScheme.primary,
-                        borderRadius: ResponsiveRadius.screenBased(context),
+                        borderRadius: radius,
                       ),
                       child: Center(
                         child: Text(

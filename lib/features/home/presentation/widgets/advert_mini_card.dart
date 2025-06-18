@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
@@ -35,6 +36,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _fillAnimation;
   Animation<Color?>? _colorAnimation;
   bool _isFavourite = false;
 
@@ -46,8 +48,12 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
       duration: const Duration(milliseconds: 300),
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    _scaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
+    _fillAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
     // Initialize favorite state
@@ -101,14 +107,17 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
       );
     } catch (e) {
       // Revert animation and state on error
-      setState(() {
-        _isFavourite = !_isFavourite;
-        if (_isFavourite) {
-          _animationController.forward();
-        } else {
-          _animationController.reverse();
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _isFavourite = !_isFavourite;
+          if (_isFavourite) {
+            _animationController.forward();
+          } else {
+            _animationController.reverse();
+          }
+        });
+      }
+      debugPrint('Error toggling favourite: $e');
     }
   }
 
@@ -232,6 +241,58 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                         ),
                       ),
                     ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: _toggleFavourite,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: radius,
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.inversePrimary.withOpacity(
+                                0.2,
+                              ),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: AnimatedBuilder(
+                          animation: _animationController,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _scaleAnimation.value,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.heart,
+                                    color: colorScheme.primary,
+                                    size: 26,
+                                  ),
+                                  ClipRect(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: _fillAnimation.value,
+                                      child: Icon(
+                                        CupertinoIcons.heart_fill,
+                                        color: colorScheme.error,
+                                        size: 26,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -299,7 +360,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                       showPhoneBottomSheet(context, widget.advert.phoneNumber);
                     },
                     child: Container(
-                      height: 32,
+                      height: 42,
                       decoration: BoxDecoration(
                         color: colorScheme.primary,
                         borderRadius: radius,
@@ -317,47 +378,6 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           style: overGreenBoldM(context),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Favourite button with animation
-                Flexible(
-                  flex: 1,
-                  child: GestureDetector(
-                    onTap: user == null ? null : _toggleFavourite,
-                    child: Container(
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        borderRadius: radius,
-                        boxShadow: [
-                          BoxShadow(
-                            color: colorScheme.inversePrimary.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: AnimatedBuilder(
-                          animation: _animationController,
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: _scaleAnimation.value,
-                              child: Icon(
-                                _isFavourite
-                                    ? CupertinoIcons.heart_fill
-                                    : CupertinoIcons.heart,
-                                color:
-                                    _colorAnimation?.value ??
-                                    colorScheme.outline,
-                                size: 24,
-                              ),
-                            );
-                          },
                         ),
                       ),
                     ),

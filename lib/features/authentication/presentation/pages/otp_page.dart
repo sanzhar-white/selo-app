@@ -163,6 +163,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return Stack(
       children: [
@@ -199,7 +200,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                         animationType: AnimationType.fade,
                         pinTheme: PinTheme(
                           shape: PinCodeFieldShape.box,
-                          borderRadius: ResponsiveRadius.screenBased(context),
+                          borderRadius: radius,
                           fieldHeight: 50,
                           fieldWidth: 40,
                           activeFillColor: colorScheme.primary,
@@ -281,9 +282,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                 ),
                 backgroundColor:
                     isActive ? colorScheme.primary : colorScheme.onSurface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: ResponsiveRadius.screenBased(context),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: radius),
               ),
               onPressed: isActive ? verifyOTP : null,
               child: Text(

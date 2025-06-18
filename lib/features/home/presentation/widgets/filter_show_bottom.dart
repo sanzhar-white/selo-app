@@ -38,14 +38,13 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
 
   SearchModel? result;
   final colorScheme = Theme.of(context).colorScheme;
+  final radius = ResponsiveRadius.screenBased(context);
 
   await showModalBottomSheet(
     isScrollControlled: true,
     context: context,
     backgroundColor: colorScheme.surface,
-    shape: RoundedRectangleBorder(
-      borderRadius: ResponsiveRadius.screenBased(context),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: radius),
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
@@ -117,9 +116,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                               });
                             },
                             shape: RoundedRectangleBorder(
-                              borderRadius: ResponsiveRadius.screenBased(
-                                context,
-                              ),
+                              borderRadius: radius,
                               side: const BorderSide(
                                 color: Colors.transparent,
                                 width: 0,
@@ -200,7 +197,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                       filled: true,
                       fillColor: colorScheme.onSurface,
                       border: OutlineInputBorder(
-                        borderRadius: ResponsiveRadius.screenBased(context),
+                        borderRadius: radius,
                         borderSide: BorderSide.none,
                       ),
                     ),
@@ -225,9 +222,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: ResponsiveRadius.screenBased(context),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: radius),
                       ),
                       child: Text(
                         S.of(context).apply,

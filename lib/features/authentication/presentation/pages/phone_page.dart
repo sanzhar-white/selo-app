@@ -30,6 +30,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return Stack(
       children: [
@@ -68,21 +69,21 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                               width: 1,
                               color: colorScheme.primary,
                             ),
-                            borderRadius: ResponsiveRadius.screenBased(context),
+                            borderRadius: radius,
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
                               width: 1,
                               color: colorScheme.primary,
                             ),
-                            borderRadius: ResponsiveRadius.screenBased(context),
+                            borderRadius: radius,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
                               width: 1,
                               color: colorScheme.primary,
                             ),
-                            borderRadius: ResponsiveRadius.screenBased(context),
+                            borderRadius: radius,
                           ),
                           filled: true,
                           fillColor: colorScheme.onSurface,
@@ -142,7 +143,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                             isLogin != null
                                 ? colorScheme.primary
                                 : colorScheme.onSurface,
-                        borderRadius: ResponsiveRadius.screenBased(context),
+                        borderRadius: radius,
                       ),
                       child: Center(
                         child: Text(

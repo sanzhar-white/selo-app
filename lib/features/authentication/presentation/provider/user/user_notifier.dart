@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/di/di.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/core/services/local_storage_service.dart';
 import 'package:selo/shared/models/user_model.dart';
@@ -8,7 +9,7 @@ import 'user_state.dart';
 
 class UserNotifier extends StateNotifier<UserState> {
   final Ref ref;
-  final talker = Talker();
+  final talker = di<Talker>();
 
   UserNotifier(this.ref) : super(const UserState()) {
     final localUser = LocalStorageService.getUser();

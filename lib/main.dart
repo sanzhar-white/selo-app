@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:selo/core/services/local_storage_service.dart';
 import 'package:selo/seloapp.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:selo/core/di/di.dart';
 
 Future<void> main() async {
   try {
@@ -31,6 +32,9 @@ Future<void> main() async {
         appVerificationDisabledForTesting: true,
       );
     }
+
+    // Initialize dependencies
+    initDependencies();
 
     // Initialize Hive after path_provider
     await LocalStorageService.init();

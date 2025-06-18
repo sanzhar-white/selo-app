@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/di/di.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/features/profile/data/models/profile_user.dart';
 import 'package:selo/shared/models/advert_model.dart';
@@ -22,7 +23,7 @@ class CacheManager {
 
 class ProfileNotifier extends StateNotifier<ProfileState> {
   final Ref ref;
-  final talker = Talker();
+  final talker = di<Talker>();
   final cacheManager = CacheManager();
 
   ProfileNotifier(this.ref) : super(const ProfileState());

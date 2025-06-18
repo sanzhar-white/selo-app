@@ -5,13 +5,16 @@ import 'package:selo/features/home/data/datasources/firebase_datasource.dart';
 import 'package:selo/features/home/data/repositories/home_repository_impl.dart';
 import 'package:selo/features/home/domain/repositories/home_repository.dart';
 import 'package:selo/features/home/domain/usecases/index.dart';
+import 'package:selo/core/di/di.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'home/home_notifier.dart';
 import 'home/home_state.dart';
 
 final firebaseDatasourceProvider =
     Provider<HomeScreenRemoteDataSourceInterface>(
       (ref) => FirebaseHomeScreenRemoteDataSource(
-        firestore: FirebaseFirestore.instance,
+        di<FirebaseFirestore>(),
+        di<Talker>(),
       ),
     );
 

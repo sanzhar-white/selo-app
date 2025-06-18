@@ -9,15 +9,18 @@ import 'package:selo/shared/models/user_model.dart';
 import 'package:selo/features/profile/data/datasources/profile_interface.dart';
 import 'package:selo/features/profile/data/models/profile_user.dart';
 import 'package:selo/shared/models/advert_model.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class FirebaseProfileRemoteDataSource implements ProfileInterface {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
+  final Talker _talker;
 
-  FirebaseProfileRemoteDataSource(this._firestore, this._storage);
+  FirebaseProfileRemoteDataSource(this._firestore, this._storage, this._talker);
 
   @override
   Future<DataState<List<AdvertModel>>> getMyAdverts(String uid) async {
+    _talker.info('🔄 Fetching adverts for user: $uid');
     try {
       final snapshot =
           await _firestore
@@ -26,61 +29,57 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
               .get();
       final List<AdvertModel> adverts =
           snapshot.docs.map((doc) => AdvertModel.fromJson(doc.data())).toList();
+      _talker.info('✅ Successfully fetched ${adverts.length} adverts');
       return DataSuccess(adverts);
-    } catch (e) {
-      print('Fetch adverts error: $e');
-      return DataFailed(
-        Exception('Failed to fetch adverts: $e'),
-        StackTrace.current,
-      );
+    } catch (e, stack) {
+      _talker.error('❌ Failed to fetch adverts', e, stack);
+      return DataFailed(Exception('Failed to fetch adverts: $e'), stack);
     }
   }
 
   @override
   Future<DataState<bool>> deleteAdvert(String uid) async {
+    _talker.info('🔄 Deleting advert: $uid');
     try {
       await _firestore.collection(FirebaseCollections.adverts).doc(uid).update({
         'active': false,
       });
+      _talker.info('✅ Successfully deleted advert');
       return DataSuccess(true);
-    } catch (e) {
-      print('Delete advert error: $e');
-      return DataFailed(
-        Exception('Failed to delete advert: $e'),
-        StackTrace.current,
-      );
+    } catch (e, stack) {
+      _talker.error('❌ Failed to delete advert', e, stack);
+      return DataFailed(Exception('Failed to delete advert: $e'), stack);
     }
   }
 
   @override
   Future<DataState<bool>> deleteUser(String uid) async {
+    _talker.info('🔄 Deleting user: $uid');
     try {
       await _firestore.collection(FirebaseCollections.users).doc(uid).set({
         'deletedAt': Timestamp.now(),
         'isDeleted': true,
       }, SetOptions(merge: true));
+      _talker.info('✅ Successfully deleted user');
       return DataSuccess(true);
-    } catch (e) {
-      print('Delete user error: $e');
-      return DataFailed(
-        Exception('Failed to delete user: $e'),
-        StackTrace.current,
-      );
+    } catch (e, stack) {
+      _talker.error('❌ Failed to delete user', e, stack);
+      return DataFailed(Exception('Failed to delete user: $e'), stack);
     }
   }
 
   // Удаление старого изображения
   Future<void> _deleteOldProfileImage(String? oldImageUrl) async {
     if (oldImageUrl == null || !oldImageUrl.startsWith('https')) {
-      print('No old image to delete or invalid URL: $oldImageUrl');
+      _talker.debug('ℹ️ No old image to delete or invalid URL: $oldImageUrl');
       return;
     }
     try {
       final ref = _storage.refFromURL(oldImageUrl);
       await ref.delete();
-      print('Deleted old image: $oldImageUrl');
-    } catch (e) {
-      print('Failed to delete old image: $e');
+      _talker.debug('🗑️ Deleted old image: $oldImageUrl');
+    } catch (e, stack) {
+      _talker.error('⚠️ Failed to delete old image', e, stack);
       // Продолжаем, даже если удаление не удалось
     }
   }
@@ -91,27 +90,28 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
     String localPath,
     String? oldImageUrl,
   ) async {
+    _talker.info('🔄 Uploading profile image for user: $uid');
     try {
-      // Проверка файла
       final file = File(localPath);
-      print('Uploading file: $localPath');
+      _talker.debug('📁 Processing file: $localPath');
+
       if (!file.existsSync()) {
         throw Exception('Image file does not exist at $localPath');
       }
+
       final fileSize = await file.length();
-      print('File size: $fileSize bytes');
+      _talker.debug('📊 File size: $fileSize bytes');
+
       if (fileSize > 5 * 1024 * 1024) {
         throw Exception('Image file is too large (max 5MB): $fileSize bytes');
       }
 
-      // Удаляем старое изображение
       await _deleteOldProfileImage(oldImageUrl);
 
-      // Подготовка файла
       final fileName =
           '${DateTime.now().millisecondsSinceEpoch}_${file.uri.pathSegments.last}';
       final storageRef = _storage.ref().child('user_photos/$uid/$fileName');
-      print('Storage path: user_photos/$uid/$fileName');
+      _talker.debug('📂 Storage path: user_photos/$uid/$fileName');
 
       final ext = fileName.split('.').last.toLowerCase();
       final contentType = ext == 'png' ? 'image/png' : 'image/jpeg';
@@ -123,7 +123,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
       int retryCount = 0;
       while (retryCount < 3 && downloadUrl == null) {
         if (retryCount > 0) {
-          print('Retrying upload for $localPath (attempt ${retryCount + 1})');
+          _talker.debug('🔄 Retrying upload (attempt ${retryCount + 1})');
           await Future.delayed(Duration(seconds: 1));
         }
 
@@ -134,9 +134,9 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
             throw Exception('Upload failed: ${snapshot.state}');
           }
           downloadUrl = await snapshot.ref.getDownloadURL();
-          print('Uploaded image URL: $downloadUrl');
-        } on FirebaseException catch (e) {
-          print('Firebase error during upload: ${e.code} - ${e.message}');
+          _talker.debug('✅ Uploaded image URL: $downloadUrl');
+        } on FirebaseException catch (e, stack) {
+          _talker.error('❌ Firebase error during upload', e, stack);
           if (retryCount == 2) {
             throw Exception('Failed to upload after 3 attempts: ${e.code}');
           }
@@ -148,41 +148,47 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
         throw Exception('Failed to upload image after 3 attempts');
       }
 
+      _talker.info('✅ Successfully uploaded profile image');
       return downloadUrl;
-    } catch (e) {
-      print('Upload error: $e');
+    } catch (e, stack) {
+      _talker.error('❌ Failed to upload profile image', e, stack);
       throw Exception('Failed to upload profile image: $e');
     }
   }
 
   @override
   Future<DataState<bool>> updateUser(UpdateUserModel updateUser) async {
+    _talker.info('🔄 Updating user: ${updateUser.uid}');
     try {
-      // Проверяем существование пользователя
+      _talker.debug('📥 Checking user existence...');
       final user =
           await _firestore
               .collection(FirebaseCollections.users)
               .doc(updateUser.uid)
               .get();
       if (!user.exists) {
+        _talker.error('❌ User not found: ${updateUser.uid}');
         return DataFailed(Exception('User not found'), StackTrace.current);
       }
+
       final userData = user.data();
       if (userData == null) {
+        _talker.error('❌ User data is null for user: ${updateUser.uid}');
         return DataFailed(Exception('User data is null'), StackTrace.current);
       }
 
       String? profileImageUrl = updateUser.profileImage;
       final userModel = UserModel.fromFirestoreMap(userData);
 
-      // Загружаем новое изображение, если это локальный путь
       if (profileImageUrl != null && !profileImageUrl.startsWith('http')) {
+        _talker.debug('📤 Uploading new profile image...');
         profileImageUrl = await _uploadProfileImage(
           updateUser.uid,
           profileImageUrl,
-          userModel.profileImage, // Передаём старый URL для удаления
+          userModel.profileImage,
         );
         if (profileImageUrl == null) {
+          _talker.error('❌ Failed to upload profile image');
           return DataFailed(
             Exception('Failed to upload profile image'),
             StackTrace.current,
@@ -190,7 +196,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
         }
       }
 
-      // Формируем обновлённую модель пользователя
+      _talker.debug('📝 Updating user data...');
       final updatedUser = userModel.copyWith(
         name: updateUser.name,
         lastName: updateUser.lastName,
@@ -201,25 +207,22 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
         updatedAt: Timestamp.now(),
       );
 
-      // Сохраняем в Firestore
       await _firestore
           .collection(FirebaseCollections.users)
           .doc(updateUser.uid)
           .set(updatedUser.toFirestoreMap(), SetOptions(merge: true));
 
-      // Обновляем локальное хранилище
+      _talker.debug('💾 Updating local storage...');
       await LocalStorageService.deleteUser();
       await LocalStorageService.saveUser(
         LocalUserModel.fromUserModel(updatedUser),
       );
 
+      _talker.info('✅ Successfully updated user profile');
       return DataSuccess(true);
-    } catch (e) {
-      print('Update user error: $e');
-      return DataFailed(
-        Exception('Failed to update user: $e'),
-        StackTrace.current,
-      );
+    } catch (e, stack) {
+      _talker.error('❌ Failed to update user', e, stack);
+      return DataFailed(Exception('Failed to update user: $e'), stack);
     }
   }
 }

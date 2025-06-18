@@ -8,11 +8,14 @@ import 'package:selo/features/add/data/datasources/categories_interface.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'dart:io';
 
+import 'package:talker_flutter/talker_flutter.dart';
+
 class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
+  final Talker _talker;
 
-  FirebaseDatasource(this._firestore, this._storage);
+  FirebaseDatasource(this._firestore, this._storage, this._talker);
 
   Future<String?> _uploadSingleImage(
     File file,
@@ -21,7 +24,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
   ) async {
     try {
       if (!file.existsSync()) {
-        print('File does not exist: $path');
+        _talker.error('❌ File does not exist: $path');
         return null;
       }
 
@@ -38,17 +41,19 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       final contentType = ext == 'png' ? 'image/png' : 'image/jpeg';
       final metadata = SettableMetadata(contentType: contentType);
 
+      _talker.debug('📤 Uploading image: $fileName');
       final bytes = await file.readAsBytes();
       final uploadTask = ref.putData(bytes, metadata);
 
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
+      _talker.debug('✅ Image uploaded successfully: $downloadUrl');
       return downloadUrl;
-    } on FirebaseException catch (e) {
-      print('Firebase error during upload: ${e.code} - ${e.message}');
+    } on FirebaseException catch (e, stack) {
+      _talker.error('❌ Firebase error during upload: ${e.code}', e, stack);
       return null;
-    } catch (e) {
-      print('Error uploading single image: $e');
+    } catch (e, stack) {
+      _talker.error('❌ Error uploading single image', e, stack);
       return null;
     }
   }
@@ -58,6 +63,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
     String advertId,
   ) async {
     final imageUrls = <String>[];
+    _talker.info('🔄 Starting image upload for advert: $advertId');
 
     try {
       for (var path in paths) {
@@ -65,17 +71,18 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
 
         final file = File(path);
         if (!await file.exists()) {
-          print('File does not exist: $path');
+          _talker.error('❌ File does not exist: $path');
           continue;
         }
 
-        // Try uploading with retries
         String? downloadUrl;
         int retryCount = 0;
         while (retryCount < 3 && downloadUrl == null) {
           if (retryCount > 0) {
-            print('Retrying upload for $path (attempt ${retryCount + 1})');
-            await Future.delayed(Duration(seconds: 1)); // Wait before retry
+            _talker.debug(
+              '🔄 Retrying upload for $path (attempt ${retryCount + 1})',
+            );
+            await Future.delayed(Duration(seconds: 1));
           }
 
           downloadUrl = await _uploadSingleImage(file, path, advertId);
@@ -84,43 +91,49 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
 
         if (downloadUrl != null) {
           imageUrls.add(downloadUrl);
+          _talker.debug('✅ Successfully uploaded image: $path');
+        } else {
+          _talker.error('❌ Failed to upload image after retries: $path');
         }
       }
 
       if (paths.isNotEmpty && imageUrls.isEmpty) {
+        _talker.error('❌ Failed to upload any images after retries');
         throw Exception('Failed to upload any images after retries');
       }
 
+      _talker.info('✅ Successfully uploaded ${imageUrls.length} images');
       return imageUrls;
-    } catch (e) {
-      print('Error in _uploadImages: $e');
+    } catch (e, stack) {
+      _talker.error('❌ Error in _uploadImages', e, stack);
       rethrow;
     }
   }
 
   @override
   Future<DataState<AdvertModel>> createAd(AdvertModel advert) async {
+    _talker.info('🔄 Creating new advert');
     try {
       final docRef = _firestore.collection(FirebaseCollections.adverts).doc();
       final now = Timestamp.now();
 
-      // Upload images first
       List<String> imageUrls = [];
       if (advert.images.isNotEmpty) {
+        _talker.debug(
+          '📤 Starting image upload for ${advert.images.length} images',
+        );
         try {
           imageUrls = await _uploadImages(advert.images, docRef.id);
           if (imageUrls.isEmpty) {
+            _talker.error('❌ Failed to upload images - no successful uploads');
             return DataFailed(
               Exception('Failed to upload images - no successful uploads'),
               StackTrace.current,
             );
           }
-        } catch (e) {
-          print('Error uploading images: $e');
-          return DataFailed(
-            Exception('Failed to upload images: $e'),
-            StackTrace.current,
-          );
+        } catch (e, stack) {
+          _talker.error('❌ Error uploading images', e, stack);
+          return DataFailed(Exception('Failed to upload images: $e'), stack);
         }
       }
 
@@ -131,43 +144,48 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
         updatedAt: now,
       );
 
+      _talker.debug('📝 Saving advert to Firestore: ${docRef.id}');
       await docRef.set(newAdvert.toMap());
+      _talker.info('✅ Successfully created advert: ${docRef.id}');
       return DataSuccess(newAdvert);
-    } catch (e, st) {
-      print('Error in createAd: $e');
-      print('Stack trace: $st');
-      return DataFailed(Exception(e.toString()), st);
+    } catch (e, stack) {
+      _talker.error('❌ Error in createAd', e, stack);
+      return DataFailed(Exception(e.toString()), stack);
     }
   }
 
   @override
   Future<DataState<List<AdCategory>>> getCategories() async {
+    _talker.info('🔄 Fetching categories');
     try {
       final ref = _firestore.collection(FirebaseCollections.categories);
       final snapshot = await ref.get();
 
-      // Log the raw data from Firestore
-      print('Raw Firestore data:');
+      _talker.debug('📋 Raw Firestore data:');
       for (var doc in snapshot.docs) {
-        print('Document ID: ${doc.id}');
-        print('Data: ${doc.data()}');
+        _talker.debug('📄 Document ID: ${doc.id}');
+        _talker.debug('📄 Data: ${doc.data()}');
       }
 
       final categories =
           snapshot.docs.map((doc) {
             try {
               return AdCategory.fromMap(doc.data());
-            } catch (e) {
-              print('Error parsing category document ${doc.id}: $e');
+            } catch (e, stack) {
+              _talker.error(
+                '❌ Error parsing category document ${doc.id}',
+                e,
+                stack,
+              );
               rethrow;
             }
           }).toList();
 
+      _talker.info('✅ Successfully fetched ${categories.length} categories');
       return DataSuccess(categories);
-    } catch (e, st) {
-      print('Error in getCategories: $e');
-      print('Stack trace: $st');
-      return DataFailed(Exception(e.toString()), st);
+    } catch (e, stack) {
+      _talker.error('❌ Error in getCategories', e, stack);
+      return DataFailed(Exception(e.toString()), stack);
     }
   }
 }

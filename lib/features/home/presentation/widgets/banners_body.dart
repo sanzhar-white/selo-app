@@ -70,18 +70,19 @@ class _CarouselItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
     return GestureDetector(
       onTap: banner.onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
-          borderRadius: ResponsiveRadius.screenBased(context),
+          borderRadius: radius,
           color: colorScheme.surface,
         ),
         child: Stack(
           children: [
             ClipRRect(
-              borderRadius: ResponsiveRadius.screenBased(context),
+              borderRadius: radius,
               child: buildImageWidget(
                 banner.imageUrl,
                 width: double.infinity,
@@ -99,7 +100,7 @@ class _CarouselItem extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
-                    borderRadius: ResponsiveRadius.screenBased(context),
+                    borderRadius: radius,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

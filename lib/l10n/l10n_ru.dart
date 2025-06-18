@@ -229,7 +229,7 @@ class L10nRu extends L10n {
   String get phone_number_required => 'Телефон обязателен';
 
   @override
-  String get region => 'Регион';
+  String get region => 'Область';
 
   @override
   String get region_required => 'Регион обязателен';
