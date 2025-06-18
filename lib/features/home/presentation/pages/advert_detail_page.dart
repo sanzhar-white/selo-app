@@ -25,7 +25,6 @@ class AdvertDetailsPage extends ConsumerStatefulWidget {
 
 class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     with SingleTickerProviderStateMixin {
-  bool isFavourite = false;
   bool _isTogglingFavourite = false;
   bool _isInitialized = false;
   late final AnimationController _animationController;
@@ -52,18 +51,6 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     super.didChangeDependencies();
     if (!_isInitialized) {
       _isInitialized = true;
-      _loadFavouriteStatus();
-    }
-  }
-
-  Future<void> _loadFavouriteStatus() async {
-    if (!mounted) return;
-
-    final favourites = ref.read(favouritesNotifierProvider).favouritesModel;
-    if (favourites != null) {
-      setState(() {
-        isFavourite = favourites.any((e) => e.uid == widget.advert.uid);
-      });
     }
   }
 
@@ -72,13 +59,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     if (user == null) return;
 
     setState(() {
-      isFavourite = !isFavourite;
       _isTogglingFavourite = true;
-      if (isFavourite) {
-        _animationController.forward().then(
-          (_) => _animationController.reverse(),
-        );
-      }
     });
 
     final notifier = ref.read(favouritesNotifierProvider.notifier);
@@ -88,16 +69,11 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
         advertUid: widget.advert.uid,
       );
       if (mounted) {
-        ref
-            .read(homeNotifierProvider.notifier)
-            .loadAllAdvertisements(refresh: true, page: 1, pageSize: 10);
+        _animationController.forward().then(
+          (_) => _animationController.reverse(),
+        );
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          isFavourite = !isFavourite;
-        });
-      }
       debugPrint('Error toggling favourite: $e');
     } finally {
       if (mounted) {
@@ -118,6 +94,9 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final categories = ref.watch(categoriesNotifierProvider).valueOrNull ?? [];
+    final isFavourite = ref
+        .watch(favouriteStatusProvider)
+        .contains(widget.advert.uid);
     final category = categories.firstWhere(
       (cat) => cat.id == widget.advert.category,
       orElse:
@@ -169,7 +148,6 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                             _animationController.forward().then((_) {
                               _animationController.reverse();
                               context.pop();
-                              ;
                             });
                           },
                         ),

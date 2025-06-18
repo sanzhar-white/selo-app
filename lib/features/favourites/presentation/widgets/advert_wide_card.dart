@@ -48,7 +48,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
       duration: const Duration(milliseconds: 300),
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+    _scaleAnimation = Tween<double>(begin: 1.2, end: 1.2).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
@@ -288,8 +288,8 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                                     alignment: Alignment.center,
                                     children: [
                                       Icon(
-                                        CupertinoIcons.heart,
-                                        color: colorScheme.primary,
+                                        CupertinoIcons.heart_fill,
+                                        color: colorScheme.error,
                                         size: 24,
                                       ),
                                       ClipRect(

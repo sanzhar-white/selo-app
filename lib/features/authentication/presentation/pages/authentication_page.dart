@@ -50,26 +50,13 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
     return Scaffold(
       body: Stack(
         children: [
+          // White background
+          Positioned.fill(child: Container(color: Colors.white)),
           // Background image
           Positioned.fill(
             child: Image.asset(
               'assets/images/authentication_page.png',
               fit: BoxFit.contain,
-            ),
-          ),
-          // Gradient overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    colorScheme.background.withOpacity(0.6),
-                  ],
-                ),
-              ),
             ),
           ),
           // Content

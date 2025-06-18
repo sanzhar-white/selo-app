@@ -95,14 +95,28 @@ class UserModel extends Equatable {
       }
     }
 
+    // Helper function to safely convert to int
+    int toInt(dynamic value) {
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value is String) {
+        try {
+          return int.parse(value);
+        } catch (e) {
+          return 0;
+        }
+      }
+      return 0;
+    }
+
     return UserModel(
       uid: map['uid'] as String? ?? '',
       phoneNumber: map['phoneNumber'] as String? ?? '',
       name: map['name'] as String? ?? '',
       lastName: map['lastName'] as String? ?? '',
       likes: List<String>.from(map['likes'] ?? []),
-      region: (map['region'] as num?)?.toInt() ?? 0,
-      district: (map['district'] as num?)?.toInt() ?? 0,
+      region: toInt(map['region']),
+      district: toInt(map['district']),
       profileImage: map['profileImage'] as String? ?? '',
       createdAt: toTimestamp(map['createdAt']),
       updatedAt: toTimestamp(map['updatedAt']),

@@ -55,17 +55,6 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
     _fillAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-
-    // Initialize favorite state
-    final favouritesState = ref.read(favouritesNotifierProvider);
-    _isFavourite =
-        favouritesState.favouritesModel?.any(
-          (e) => e.uid == widget.advert.uid,
-        ) ??
-        false;
-    if (_isFavourite) {
-      _animationController.value = 1.0;
-    }
   }
 
   @override
@@ -78,6 +67,19 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
     ).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+
+    // Слушаем изменения в избранном
+    final isFavourite = ref
+        .watch(favouriteStatusProvider)
+        .contains(widget.advert.uid);
+    if (isFavourite != _isFavourite) {
+      _isFavourite = isFavourite;
+      if (_isFavourite) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    }
   }
 
   @override
@@ -90,6 +92,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
     final user = ref.read(userNotifierProvider).user;
     if (user == null) return;
 
+    // Сразу запускаем анимацию
     setState(() {
       _isFavourite = !_isFavourite;
       if (_isFavourite) {
@@ -105,18 +108,26 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
         userUid: user.uid,
         advertUid: widget.advert.uid,
       );
+
+      // Обновляем favouriteStatusProvider
+      ref
+          .read(favouriteStatusProvider.notifier)
+          .toggleFavourite(widget.advert.uid);
+
+      // Обновляем данные на главной странице
+      await ref
+          .read(homeNotifierProvider.notifier)
+          .loadAllAdvertisements(refresh: true, page: 1, pageSize: 10);
     } catch (e) {
-      // Revert animation and state on error
-      if (mounted) {
-        setState(() {
-          _isFavourite = !_isFavourite;
-          if (_isFavourite) {
-            _animationController.forward();
-          } else {
-            _animationController.reverse();
-          }
-        });
-      }
+      // В случае ошибки возвращаем предыдущее состояние
+      setState(() {
+        _isFavourite = !_isFavourite;
+        if (_isFavourite) {
+          _animationController.forward();
+        } else {
+          _animationController.reverse();
+        }
+      });
       debugPrint('Error toggling favourite: $e');
     }
   }

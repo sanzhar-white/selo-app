@@ -178,28 +178,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     final homeState = ref.watch(homeNotifierProvider);
     final categories = ref.watch(categoriesNotifierProvider);
 
-    // Слушаем изменения в избранном
-    ref.listen(favouritesNotifierProvider, (previous, next) {
-      if (previous?.favouritesModel != next.favouritesModel && mounted) {
-        // Проверяем, действительно ли изменились избранные
-        final previousFavorites =
-            previous?.favouritesModel?.map((e) => e.uid).toSet() ?? {};
-        final nextFavorites =
-            next.favouritesModel?.map((e) => e.uid).toSet() ?? {};
-
-        if (!const SetEquality().equals(previousFavorites, nextFavorites)) {
-          // Обновляем только если действительно изменился набор избранных
-          ref
-              .read(homeNotifierProvider.notifier)
-              .loadAllAdvertisements(
-                refresh: true,
-                page: 1,
-                pageSize: _paginationModel.pageSize,
-              );
-        }
-      }
-    });
-
     _showError(homeState.error);
 
     if (!_isInitialized ||

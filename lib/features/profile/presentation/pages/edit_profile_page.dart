@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/core/constants/routes.dart';
+import 'package:selo/core/theme/phone_custom_formatter.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/features/authentication/presentation/provider/index.dart';
@@ -15,6 +16,7 @@ import 'package:selo/generated/l10n.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
 import 'package:selo/shared/widgets/location_picker.dart';
 import 'package:selo/core/utils/utils.dart';
+import 'package:flutter/services.dart';
 
 // Константы для отступов и размеров
 const _padding = EdgeInsets.all(16.0);
@@ -333,14 +335,16 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       theme: colorScheme,
                       style: contrastM(context),
                       hintText: S.of(context).phone_number_hint,
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.number,
                       error: _phoneError,
                       errorText:
                           _phoneError
                               ? S.of(context).phone_number_invalid
                               : null,
+                      formatters: [PhoneNumberFormatter()],
                       onChanged: (value) {
-                        final formatted = formatPhoneNumber(value);
+                        final cleaned = value.replaceAll(RegExp(r'\D'), '');
+                        final formatted = formatPhoneNumber(cleaned);
                         if (_phoneController.text != formatted) {
                           _phoneController.value = TextEditingValue(
                             text: formatted,
