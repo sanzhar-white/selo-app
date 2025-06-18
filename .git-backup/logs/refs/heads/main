@@ -1,0 +1,14 @@
+0000000000000000000000000000000000000000 77199babdb21f9eb3a0d1d312e0ac5fa8e57fcab muccurly <66302816+muccurly@users.noreply.github.com> 1750200831 +0500	clone: from https://github.com/sanzhar-white/selo-app.git
+77199babdb21f9eb3a0d1d312e0ac5fa8e57fcab f2ae46077aeac3aecf0c5a14fe31a68caabc9574 muccurly <66302816+muccurly@users.noreply.github.com> 1750201066 +0500	pull --tags origin main: Fast-forward
+f2ae46077aeac3aecf0c5a14fe31a68caabc9574 5a6056eb91d84c7584ac97f802a42bff6b786c4b muccurly <66302816+muccurly@users.noreply.github.com> 1750213933 +0500	commit: feat: add log system, DI for Optim; remove Hive/cache for adverts
+5a6056eb91d84c7584ac97f802a42bff6b786c4b 699df9b70849ebd68101e73f549a131a33b31f45 muccurly <66302816+muccurly@users.noreply.github.com> 1750213951 +0500	commit: feat: add log system, DI for Optim; remove Hive/cache for adverts
+699df9b70849ebd68101e73f549a131a33b31f45 949c71e7503bc54366252eda6dabe7a4b158dace muccurly <66302816+muccurly@users.noreply.github.com> 1750225839 +0500	commit: fix: sync all likes in like system; add phone number formatter to edit profile page
+949c71e7503bc54366252eda6dabe7a4b158dace 100fc0c047a41a3a6d2a7246e55355c61ff64cd5 sanzhar-white <sanzzzsanzhar@gmail.com> 1750225839 +0500	filter-branch: rewrite
+100fc0c047a41a3a6d2a7246e55355c61ff64cd5 77199babdb21f9eb3a0d1d312e0ac5fa8e57fcab sanzhar-white <sanzzzsanzhar@gmail.com> 1750226345 +0500	reset: moving to ORIG_HEAD
+77199babdb21f9eb3a0d1d312e0ac5fa8e57fcab 545d3d90045e34413b8d60fa3c1610a14bfe7200 sanzhar-white <sanzzzsanzhar@gmail.com> 1750226368 +0500	commit (amend): 0.0.1 version
+545d3d90045e34413b8d60fa3c1610a14bfe7200 949c71e7503bc54366252eda6dabe7a4b158dace sanzhar-white <sanzzzsanzhar@gmail.com> 1750226398 +0500	rebase (abort): returning to refs/heads/main
+949c71e7503bc54366252eda6dabe7a4b158dace 100fc0c047a41a3a6d2a7246e55355c61ff64cd5 sanzhar-white <sanzzzsanzhar@gmail.com> 1750225839 +0500	filter-branch: rewrite
+100fc0c047a41a3a6d2a7246e55355c61ff64cd5 ee777f8d11fffac68f9a69006d7649c39aea1ae7 sanzhar-white <sanzzzsanzhar@gmail.com> 1750226588 +0500	reset: moving to ee777f8
+ee777f8d11fffac68f9a69006d7649c39aea1ae7 238300f8de08a977dd456b0f123a1d58fb110478 sanzhar-white <sanzzzsanzhar@gmail.com> 1750226610 +0500	commit (amend): first commit
+238300f8de08a977dd456b0f123a1d58fb110478 100fc0c047a41a3a6d2a7246e55355c61ff64cd5 sanzhar-white <sanzzzsanzhar@gmail.com> 1750226659 +0500	reset: moving to 100fc0c
+100fc0c047a41a3a6d2a7246e55355c61ff64cd5 949c71e7503bc54366252eda6dabe7a4b158dace sanzhar-white <sanzzzsanzhar@gmail.com> 1750226683 +0500	reset: moving to origin/main

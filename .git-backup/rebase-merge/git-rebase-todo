@@ -1,0 +1,61 @@
+pick ee777f8 first commit
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 0ea9236 Creating base architecture of project
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 26b9cf4 Update README.md
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 8edb455 language/theme/bottom_navigation
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 8c72d3c searchbar making
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 326e4de fixing some thing and still doing home, started make ad advert system, firebase.
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 63d1cfc refactor: restructure project and integrate Firebase features
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick c9873df feat: enhance ad creation, authentication, and caching with Hive
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick b3cbfb4 Adding missing libraries in pubspec.
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 0724887 feat: localization, all pages, UI updates, and structural improvements
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick e3eb55b 0.0.1 version
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick c9ea708 fix: UI updates, migrated from Navigator to GoRouter, fixed shimmer in advert and filter pages
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 5cd739c feat: add log system, DI for Optim; remove Hive/cache for adverts
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 6531e96 feat: add log system, DI for Optim; remove Hive/cache for adverts
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+pick 100fc0c fix: sync all likes in like system; add phone number formatter to edit profile page
+exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+
+# Rebase 100fc0c onto 509ec1a (30 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup [-C | -c] <commit> = like "squash" but keep only the previous
+#                    commit's log message, unless -C is used, in which case
+#                    keep only this commit's message; -c is same as -C but
+#                    opens the editor
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+#         create a merge commit using the original merge commit's
+#         message (or the oneline, if no original merge commit was
+#         specified); use -c <commit> to reword the commit message
+# u, update-ref <ref> = track a placeholder for the <ref> to be updated
+#                       to this position in the new commits. The <ref> is
+#                       updated at the end of the rebase
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+#
+# However, if you remove everything, the rebase will be aborted.
+#

@@ -1,0 +1,25 @@
+fix: sync all likes in like system; add phone number formatter to edit profile page
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Wed Jun 18 10:50:39 2025 +0500
+#
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# No commands done.
+# Next commands to do (30 remaining commands):
+#    pick ee777f8 first commit
+#    exec git commit --amend --author="sanzhar-white <sanzzzsanzhar@gmail.com>" --no-edit
+# You are currently editing a commit while rebasing branch 'main' on '509ec1a'.
+#
+# Changes to be committed:
+#	modified:   lib/features/authentication/presentation/pages/authentication_page.dart
+#	modified:   lib/features/favourites/presentation/widgets/advert_wide_card.dart
+#	modified:   lib/features/home/presentation/pages/advert_detail_page.dart
+#	modified:   lib/features/home/presentation/pages/home_page.dart
+#	modified:   lib/features/home/presentation/widgets/advert_mini_card.dart
+#	modified:   lib/features/profile/presentation/pages/edit_profile_page.dart
+#	modified:   lib/shared/models/user_model.dart
+#
