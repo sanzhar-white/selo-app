@@ -11,10 +11,9 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger_observer.dart';
 import 'package:selo/core/di/di.dart';
 
-Future<void> main() async {
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-
+/// Класс для инициализации всех сервисов приложения
+class AppInitializer {
+  static Future<void> initialize() async {
     // Configure system UI
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
@@ -37,15 +36,22 @@ Future<void> main() async {
 
     // Initialize Hive after path_provider
     await LocalStorageService.init();
+  }
+}
+
+Future<void> main() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    await AppInitializer.initialize();
     runApp(
       ProviderScope(
-        child: SeloApp(),
+        child: const SeloApp(),
         observers: [TalkerRiverpodObserver(talker: di<Talker>())],
       ),
     );
   } catch (e, stackTrace) {
-    debugPrint('Error during initialization: $e');
-    debugPrint('Stack trace: $stackTrace');
+    di<Talker>().debug('Error during initialization: $e');
+    di<Talker>().debug('Stack trace: $stackTrace');
     // Rethrow if in debug mode
     if (kDebugMode) {
       rethrow;
@@ -53,7 +59,7 @@ Future<void> main() async {
     // In production, try to run the app anyway
     runApp(
       ProviderScope(
-        child: SeloApp(),
+        child: const SeloApp(),
         observers: [TalkerRiverpodObserver(talker: di<Talker>())],
       ),
     );
