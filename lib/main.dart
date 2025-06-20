@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:selo/core/services/local_storage_service.dart';
 import 'package:selo/seloapp.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:talker_flutter/talker_flutter.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger_observer.dart';
 import 'package:selo/core/di/di.dart';
 
 Future<void> main() async {
@@ -27,18 +29,20 @@ Future<void> main() async {
       await Firebase.initializeApp();
     }
 
-    if (kDebugMode) {
-      FirebaseAuth.instance.setSettings(
-        appVerificationDisabledForTesting: true,
-      );
-    }
-
-    // Initialize dependencies
     initDependencies();
+
+    if (kDebugMode) {
+      di<FirebaseAuth>().setSettings(appVerificationDisabledForTesting: true);
+    }
 
     // Initialize Hive after path_provider
     await LocalStorageService.init();
-    runApp(ProviderScope(child: SeloApp()));
+    runApp(
+      ProviderScope(
+        child: SeloApp(),
+        observers: [TalkerRiverpodObserver(talker: di<Talker>())],
+      ),
+    );
   } catch (e, stackTrace) {
     debugPrint('Error during initialization: $e');
     debugPrint('Stack trace: $stackTrace');
@@ -47,6 +51,11 @@ Future<void> main() async {
       rethrow;
     }
     // In production, try to run the app anyway
-    runApp(ProviderScope(child: SeloApp()));
+    runApp(
+      ProviderScope(
+        child: SeloApp(),
+        observers: [TalkerRiverpodObserver(talker: di<Talker>())],
+      ),
+    );
   }
 }

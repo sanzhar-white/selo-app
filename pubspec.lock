@@ -13,10 +13,10 @@ packages:
     dependency: transitive
     description:
       name: _flutterfire_internals
-      sha256: "214e6f07e2a44f45972e0365c7b537eaeaddb4598db0778dd4ac64b4acd3f5b1"
+      sha256: dda4fd7909a732a014239009aa52537b136f8ce568de23c212587097887e2307
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.55"
+    version: "1.3.56"
   _macros:
     dependency: transitive
     description: dart
@@ -442,10 +442,10 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_core
-      sha256: "8cfe3c900512399ce8d50fcc817e5758ff8615eeb6fa5c846a4cc47bbf6353b6"
+      sha256: "420d9111dcf095341f1ea8fdce926eef750cf7b9745d21f38000de780c94f608"
       url: "https://pub.dev"
     source: hosted
-    version: "3.13.1"
+    version: "3.14.0"
   firebase_core_platform_interface:
     dependency: transitive
     description:
@@ -466,18 +466,18 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_crashlytics
-      sha256: "49d20b1dd87bb42746e27b5c72c1e3a3d84ae6415d062f8b31ecb71a35d36d0c"
+      sha256: "8cf18604255e964b568e572f1a155b4e3cec9ea31f9043fc51414d33aa444393"
       url: "https://pub.dev"
     source: hosted
-    version: "4.3.6"
+    version: "4.3.7"
   firebase_crashlytics_platform_interface:
     dependency: transitive
     description:
       name: firebase_crashlytics_platform_interface
-      sha256: "0a5b2c9a662db7563482547b31da06a3951277cbfb42af12c5b52a15456ea951"
+      sha256: aa81684a68a00c41510070b3c2689fb32264f9b31ad50e62e6c7d6aca483a424
       url: "https://pub.dev"
     source: hosted
-    version: "3.8.6"
+    version: "3.8.7"
   firebase_database:
     dependency: "direct main"
     description:
@@ -1224,13 +1224,13 @@ packages:
     source: hosted
     version: "3.3.1"
   talker:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: talker
-      sha256: "67db779915a9d5ca3b7d9deb39e737c357de3a8f4e31489937b02ea3d7c43e97"
+      sha256: "82083d0b22f6dd8a060809fa818ec7e0c1b260ac14d570b6c005e36bc6c05bba"
       url: "https://pub.dev"
     source: hosted
-    version: "4.8.3"
+    version: "4.9.0"
   talker_flutter:
     dependency: "direct main"
     description:
@@ -1243,10 +1243,18 @@ packages:
     dependency: transitive
     description:
       name: talker_logger
-      sha256: c86dc593faba34d59c8419ac05f6cf5fe850b09bbbf4b048f85129ff59ac5070
+      sha256: "4c8fea848ebaa22495eac61923aea74af2e9735ee19d2e28b44694fc0e1775ba"
       url: "https://pub.dev"
     source: hosted
-    version: "4.8.3"
+    version: "4.9.0"
+  talker_riverpod_logger:
+    dependency: "direct main"
+    description:
+      name: talker_riverpod_logger
+      sha256: "49e83efeb6a602608ced8668c6de17750d6ea6582f79eafa1431c70bd2c9c49e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.9.0"
   term_glyph:
     dependency: transitive
     description:

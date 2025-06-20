@@ -22,6 +22,31 @@ import 'package:selo/shared/models/advert_model.dart';
 // Ключ для root-навигации
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
+// Универсальный красивый fade+scale transition для всех страниц
+Widget defaultTransitionBuilder(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  final fadeAnimation = CurvedAnimation(
+    parent: animation,
+    curve: Curves.easeOutExpo,
+  );
+  return FadeTransition(
+    opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: animation,
+        curve: const Interval(0.0, 0.65, curve: Curves.easeInOut),
+      ),
+    ),
+    child: ScaleTransition(
+      scale: Tween<double>(begin: 0.96, end: 1.0).animate(fadeAnimation),
+      child: child,
+    ),
+  );
+}
+
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: Routes.initPage,
@@ -43,33 +68,7 @@ final router = GoRouter(
             child: const InitPage(),
             transitionDuration: const Duration(milliseconds: 1000),
             reverseTransitionDuration: const Duration(milliseconds: 1000),
-            transitionsBuilder: (
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-            ) {
-              final fadeAnimation = CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutExpo,
-              );
-
-              return FadeTransition(
-                opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-                  CurvedAnimation(
-                    parent: animation,
-                    curve: const Interval(0.0, 0.65, curve: Curves.easeInOut),
-                  ),
-                ),
-                child: ScaleTransition(
-                  scale: Tween<double>(
-                    begin: 0.85,
-                    end: 1.0,
-                  ).animate(fadeAnimation),
-                  child: child,
-                ),
-              );
-            },
+            transitionsBuilder: defaultTransitionBuilder,
           ),
     ),
     GoRoute(
@@ -78,9 +77,7 @@ final router = GoRouter(
           (context, state) => CustomTransitionPage(
             key: state.pageKey,
             child: const AuthenticationFeature(),
-            transitionsBuilder:
-                (context, animation, _, child) =>
-                    FadeTransition(opacity: animation, child: child),
+            transitionsBuilder: defaultTransitionBuilder,
           ),
     ),
     GoRoute(
@@ -89,9 +86,7 @@ final router = GoRouter(
           (context, state) => CustomTransitionPage(
             key: state.pageKey,
             child: const PhonePage(),
-            transitionsBuilder:
-                (context, animation, _, child) =>
-                    FadeTransition(opacity: animation, child: child),
+            transitionsBuilder: defaultTransitionBuilder,
           ),
     ),
     GoRoute(
@@ -100,9 +95,7 @@ final router = GoRouter(
           (context, state) => CustomTransitionPage(
             key: state.pageKey,
             child: OTPPage(authStatus: state.extra as AuthStatusModel?),
-            transitionsBuilder:
-                (context, animation, _, child) =>
-                    FadeTransition(opacity: animation, child: child),
+            transitionsBuilder: defaultTransitionBuilder,
           ),
     ),
     StatefulShellRoute.indexedStack(
@@ -118,9 +111,7 @@ final router = GoRouter(
                   (context, state) => CustomTransitionPage(
                     key: state.pageKey,
                     child: const HomeFeature(),
-                    transitionsBuilder:
-                        (context, animation, _, child) =>
-                            FadeTransition(opacity: animation, child: child),
+                    transitionsBuilder: defaultTransitionBuilder,
                   ),
               routes: [
                 GoRoute(
@@ -131,11 +122,7 @@ final router = GoRouter(
                         child: AdvertDetailsPage(
                           advert: state.extra as AdvertModel,
                         ),
-                        transitionsBuilder:
-                            (context, animation, _, child) => FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
+                        transitionsBuilder: defaultTransitionBuilder,
                       ),
                 ),
                 GoRoute(
@@ -156,12 +143,7 @@ final router = GoRouter(
                                       >)['initialCategoryId']
                                   as int?,
                         ),
-
-                        transitionsBuilder:
-                            (context, animation, _, child) => FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
+                        transitionsBuilder: defaultTransitionBuilder,
                       ),
                 ),
               ],
@@ -176,9 +158,7 @@ final router = GoRouter(
                   (context, state) => CustomTransitionPage(
                     key: state.pageKey,
                     child: const FavouritesFeature(),
-                    transitionsBuilder:
-                        (context, animation, _, child) =>
-                            FadeTransition(opacity: animation, child: child),
+                    transitionsBuilder: defaultTransitionBuilder,
                   ),
             ),
           ],
@@ -191,9 +171,7 @@ final router = GoRouter(
                   (context, state) => CustomTransitionPage(
                     key: state.pageKey,
                     child: const AddFeature(),
-                    transitionsBuilder:
-                        (context, animation, _, child) =>
-                            FadeTransition(opacity: animation, child: child),
+                    transitionsBuilder: defaultTransitionBuilder,
                   ),
               routes: [
                 GoRoute(
@@ -204,11 +182,7 @@ final router = GoRouter(
                         child: CreateAdvertPage(
                           category: state.extra as AdCategory,
                         ),
-                        transitionsBuilder:
-                            (context, animation, _, child) => FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
+                        transitionsBuilder: defaultTransitionBuilder,
                       ),
                 ),
               ],
@@ -223,9 +197,7 @@ final router = GoRouter(
                   (context, state) => CustomTransitionPage(
                     key: state.pageKey,
                     child: const ProfileFeature(),
-                    transitionsBuilder:
-                        (context, animation, _, child) =>
-                            FadeTransition(opacity: animation, child: child),
+                    transitionsBuilder: defaultTransitionBuilder,
                   ),
               routes: [
                 GoRoute(
@@ -234,11 +206,7 @@ final router = GoRouter(
                       (context, state) => CustomTransitionPage(
                         key: state.pageKey,
                         child: const EditProfilePage(),
-                        transitionsBuilder:
-                            (context, animation, _, child) => FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
+                        transitionsBuilder: defaultTransitionBuilder,
                       ),
                 ),
                 GoRoute(
@@ -247,11 +215,7 @@ final router = GoRouter(
                       (context, state) => CustomTransitionPage(
                         key: state.pageKey,
                         child: const MyAdsPage(),
-                        transitionsBuilder:
-                            (context, animation, _, child) => FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
+                        transitionsBuilder: defaultTransitionBuilder,
                       ),
                 ),
               ],

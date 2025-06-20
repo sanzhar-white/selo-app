@@ -20,6 +20,8 @@ import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'dart:io';
+import 'package:selo/core/di/di.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class CreateAdvertPage extends ConsumerStatefulWidget {
   const CreateAdvertPage({super.key, required this.category});
@@ -57,6 +59,8 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   final ImagePicker _picker = ImagePicker();
   List<XFile?> _images = [];
 
+  Talker get _talker => di<Talker>();
+
   @override
   void initState() {
     super.initState();
@@ -68,7 +72,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       }
     }
     _validationState = {};
-    print('🔍 Category settings: ${widget.category.settings}');
+    _talker.info('🔍 Category settings: ${widget.category.settings}');
   }
 
   @override
@@ -95,9 +99,11 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     final newValidationState = <String, bool>{};
     _showValidation = true;
 
-    print('🔧 Validating fields for category: ${widget.category.id}');
+    _talker.info('🔧 Validating fields for category: ${widget.category.id}');
+    _talker.debug(
+      'Current field values: title=${titleController.text}, region=$_region, district=$_district, description=${descriptionController.text}, phone=${phoneController.text}',
+    );
 
-    // Required fields for all categories
     newValidationState['title'] = titleController.text.trim().isNotEmpty;
     newValidationState['region'] = _region.isNotEmpty;
     newValidationState['district'] = _district.isNotEmpty;
@@ -105,25 +111,22 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         descriptionController.text.trim().isNotEmpty;
     newValidationState['phoneNumber'] = phoneController.text.trim().isNotEmpty;
 
-    // Price validation (always required unless negotiable)
-    print('🔍 Validating price fields');
+    _talker.debug('🔍 Validating price fields');
     if (_isPriceFixed) {
       newValidationState['price'] = priceController.text.trim().isNotEmpty;
       if (widget.category.settings['maxPrice'] == true) {
         newValidationState['maxPrice'] =
             maxPriceController.text.trim().isNotEmpty;
       } else {
-        newValidationState['maxPrice'] =
-            true; // Not required if maxPrice is not enabled
+        newValidationState['maxPrice'] = true;
       }
     } else {
-      newValidationState['price'] = true; // No validation for negotiable
+      newValidationState['price'] = true;
       newValidationState['maxPrice'] = true;
     }
 
-    // Quantity validation (only if explicitly enabled)
     if (widget.category.settings['quantity'] == true) {
-      print('🔍 Validating quantity fields');
+      _talker.debug('🔍 Validating quantity fields');
       if (_isQuantityFixed) {
         newValidationState['quantity'] =
             quantityController.text.trim().isNotEmpty;
@@ -131,21 +134,18 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
           newValidationState['maxQuantity'] =
               maxQuantityController.text.trim().isNotEmpty;
         } else {
-          newValidationState['maxQuantity'] =
-              true; // Not required if maxQuantity is not enabled
+          newValidationState['maxQuantity'] = true;
         }
       } else {
-        newValidationState['quantity'] = true; // No validation for negotiable
+        newValidationState['quantity'] = true;
         newValidationState['maxQuantity'] = true;
       }
     } else {
-      print('ℹ️ Quantity fields not applicable for this category');
-      newValidationState['quantity'] =
-          true; // Ensure quantity is valid if not required
+      _talker.debug('ℹ️ Quantity fields not applicable for this category');
+      newValidationState['quantity'] = true;
       newValidationState['maxQuantity'] = true;
     }
 
-    // Additional fields validation
     if (widget.category.settings['companyName'] == true) {
       newValidationState['companyName'] =
           settingsControllers['companyName']?.text.trim().isNotEmpty ?? false;
@@ -158,7 +158,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       newValidationState['year'] = _year > 1900;
     }
 
-    print('✅ Validation state: $newValidationState');
+    _talker.info('✅ Validation state: $newValidationState');
     setState(() => _validationState = newValidationState);
   }
 
@@ -170,8 +170,11 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     final now = Timestamp.now();
     _validateFields();
 
+    _talker.info('🟢 User tapped create advert button');
+    _talker.debug('Current validation state: $_validationState');
+
     if (!_isFormValid) {
-      print('❌ Form validation failed: $_validationState');
+      _talker.error('❌ Form validation failed: $_validationState');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(S.of(context).fill_all_fields),
@@ -182,7 +185,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     }
 
     try {
-      print('🔄 Creating advert...');
+      _talker.info('🔄 Creating advert...');
       int price = 0;
       int maxPrice = 0;
       String priceUnit = _pricePerUnit;
@@ -259,6 +262,9 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                 : 0,
       );
 
+      _talker.debug('📦 Advert params: $advert');
+      _talker.debug('📷 Images: ${_images.map((e) => e?.path).toList()}');
+
       final success = await ref
           .read(advertNotifierProvider.notifier)
           .createAdvert(advert);
@@ -266,7 +272,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       if (!mounted) return;
 
       if (success) {
-        print('✅ Advert created successfully');
+        _talker.info('✅ Advert created successfully');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Advertisement created successfully'),
@@ -276,7 +282,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         Navigator.of(context).pop();
       } else {
         final error = ref.read(advertNotifierProvider).error;
-        print('❌ Failed to create advert: $error');
+        _talker.error('❌ Failed to create advert: $error');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(error ?? 'Failed to create advertisement'),
@@ -285,7 +291,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         );
       }
     } catch (e, st) {
-      print('💥 Error creating advert: $e\n$st');
+      _talker.error('💥 Error creating advert', e, st);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error creating advert: ${e.toString()}'),
@@ -297,6 +303,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
 
   Future<void> _pickImage() async {
     if (_images.length >= 10) {
+      _talker.warning('⚠️ User tried to add more than 10 images');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Maximum 10 images allowed'),
@@ -314,6 +321,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       if (image != null) {
         final file = File(image.path);
         if (!await file.exists()) {
+          _talker.error('❌ Selected image file not found: ${image.path}');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Selected image file not found'),
@@ -324,6 +332,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         }
         final fileSize = await file.length();
         if (fileSize > 5 * 1024 * 1024) {
+          _talker.warning('⚠️ Image size too large: $fileSize bytes');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Image size should be less than 5MB'),
@@ -333,9 +342,12 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
           return;
         }
         setState(() => _images.add(image));
+        _talker.info('🖼️ Image added: ${image.path}');
+      } else {
+        _talker.info('ℹ️ Image picking cancelled by user');
       }
     } catch (e, st) {
-      print('💥 Error selecting image: $e\n$st');
+      _talker.error('💥 Error selecting image', e, st);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error selecting image: ${e.toString()}'),
@@ -346,7 +358,10 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   }
 
   void _removeImage(int index) {
-    setState(() => _images.removeAt(index));
+    if (index >= 0 && index < _images.length) {
+      _talker.info('🗑️ User removed image: ${_images[index]?.path}');
+      setState(() => _images.removeAt(index));
+    }
   }
 
   @override
@@ -356,6 +371,10 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     final radius = ResponsiveRadius.screenBased(context);
     final advertState = ref.watch(advertNotifierProvider);
     final List<String> units = [S.of(context).unit_kg, S.of(context).unit_ton];
+
+    if (advertState.isLoading) {
+      _talker.info('⏳ Advert creation/loading in progress...');
+    }
 
     return Scaffold(
       body: Stack(

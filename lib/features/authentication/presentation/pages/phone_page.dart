@@ -11,6 +11,8 @@ import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
 import 'package:flutter/services.dart';
+import 'package:selo/core/di/di.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class PhonePage extends ConsumerStatefulWidget {
   const PhonePage({super.key});
@@ -25,6 +27,8 @@ class _PhonePageState extends ConsumerState<PhonePage> {
   bool? isLogin;
   String completePhoneNumber = '';
   final nameController = TextEditingController();
+
+  Talker get _talker => di<Talker>();
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +109,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                               '',
                             );
                             isPhoneValid = number.length >= 11;
-                            print(
+                            _talker.debug(
                               '📞 Formatted phone number: $completePhoneNumber',
                             );
 
@@ -127,11 +131,11 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                   GestureDetector(
                     onTap: () {
                       if (isLogin == true) {
-                        print('👆 Login button tapped');
+                        _talker.info('👆 Login button tapped');
                         loginUser();
                       } else if (isLogin == false &&
                           nameController.text.isNotEmpty) {
-                        print('👆 Signup button tapped');
+                        _talker.info('👆 Signup button tapped');
                         signupUser();
                       }
                     },
@@ -170,71 +174,73 @@ class _PhonePageState extends ConsumerState<PhonePage> {
   Future<void> checkUserStatus() async {
     try {
       final formattedNumber = completePhoneNumber.trim();
-      print('📞 Checking user with formatted number: $formattedNumber');
+      _talker.info('📞 Checking user with formatted number: $formattedNumber');
 
       final result = await ref
           .read(checkUserUseCaseProvider)
           .call(params: PhoneNumberModel(phoneNumber: formattedNumber));
-      print('📱 CheckUser result: $result');
+      _talker.debug('📱 CheckUser result: $result');
 
       if (result is DataSuccess<bool>) {
-        print('✅ DataSuccess: ${result.data}');
+        _talker.info('✅ DataSuccess: ${result.data}');
         setState(() {
           if (result.data == true) {
-            print('👤 User exists');
+            _talker.info('👤 User exists');
             isLogin = true;
           } else {
-            print('❌ User does not exist');
+            _talker.info('❌ User does not exist');
             isLogin = false;
           }
         });
       } else {
-        print('❌ Error in checkUser: $result');
+        _talker.error('❌ Error in checkUser: $result');
       }
-    } catch (e) {
-      print('💥 Exception in checkUser: $e');
+    } catch (e, stack) {
+      _talker.error('💥 Exception in checkUser', e, stack);
     }
   }
 
   Future<void> loginUser() async {
     try {
-      print('🔐 Starting login process with number: $completePhoneNumber');
+      _talker.info(
+        '🔐 Starting login process with number: $completePhoneNumber',
+      );
       final formattedNumber = completePhoneNumber.trim();
-      print('📞 Login with formatted number: $formattedNumber');
+      _talker.debug('📞 Login with formatted number: $formattedNumber');
 
       final result = await ref
           .read(logInUseCaseProvider)
           .call(params: PhoneNumberModel(phoneNumber: formattedNumber));
 
-      print('🔑 Login result: $result');
+      _talker.debug('🔑 Login result: $result');
       if (result is DataSuccess<AuthStatusModel>) {
-        print('✅ Login successful: ${result.data}');
+        _talker.info('✅ Login successful: ${result.data}');
         if (mounted) {
           context.push(Routes.otpPage, extra: result.data);
         }
       } else {
-        print('❌ Login failed: $result');
+        _talker.error('❌ Login failed: $result');
       }
-    } catch (e) {
-      print('💥 Exception in login: $e');
+    } catch (e, stack) {
+      _talker.error('💥 Exception in login', e, stack);
     }
   }
 
   Future<void> signupUser() async {
     try {
-      print('📝 Starting signup process');
-      print('📞 Phone: $completePhoneNumber');
-      print('👤 Name: ${nameController.text}');
+      _talker.info('📝 Starting signup process');
+      _talker.debug('📞 Phone: $completePhoneNumber');
+      _talker.debug('👤 Name: ${nameController.text}');
 
       if (nameController.text.trim().isEmpty) {
-        print('❌ Name is empty');
+        _talker.error('❌ Name is empty');
         // TODO: Show error to user
         return;
       }
 
       final formattedNumber = completePhoneNumber.trim();
       if (!formattedNumber.startsWith('+')) {
-        print('❌ Invalid phone number format');
+        _talker.error('❌ Invalid phone number format');
         // TODO: Show error to user
         return;
       }
@@ -248,18 +254,18 @@ class _PhonePageState extends ConsumerState<PhonePage> {
             ),
           );
 
-      print('📋 Signup result: $result');
+      _talker.debug('📋 Signup result: $result');
       if (result is DataSuccess<AuthStatusModel>) {
-        print('✅ Signup successful: ${result.data}');
+        _talker.info('✅ Signup successful: ${result.data}');
         if (mounted) {
           context.push(Routes.otpPage, extra: result.data);
         }
       } else if (result is DataFailed) {
-        print('❌ Signup failed: ${result.error}');
+        _talker.error('❌ Signup failed: ${result.error}');
         // TODO: Show error to user
       }
-    } catch (e) {
-      print('💥 Exception in signup: $e');
+    } catch (e, stack) {
+      _talker.error('💥 Exception in signup', e, stack);
       // TODO: Show error to user
     }
   }

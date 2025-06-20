@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:selo/core/di/di.dart';
 import 'package:selo/shared/models/local_user_model.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/shared/models/local_advert_model.dart';
 import 'package:selo/features/home/data/models/local_banner_model.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class LocalStorageService {
   static const String _userBoxName = 'userBox';
@@ -21,6 +23,8 @@ class LocalStorageService {
   static Box<LocalUserModel>? _userBox;
   static Box<List<dynamic>>? _adsBox;
 
+  static final Talker _talker = di<Talker>();
+
   static Future<void> init() async {
     try {
       await Hive.initFlutter();
@@ -33,10 +37,9 @@ class LocalStorageService {
       _adsBox = await Hive.openBox<List<dynamic>>(_adsBoxName);
       await Hive.openBox(_settingsBoxName);
 
-      debugPrint('LocalStorageService initialized successfully');
+      _talker.info('LocalStorageService initialized successfully');
     } catch (e, stackTrace) {
-      debugPrint('Error initializing LocalStorageService: $e');
-      debugPrint('Stack trace: $stackTrace');
+      _talker.error('Error initializing LocalStorageService', e, stackTrace);
       rethrow;
     }
   }
@@ -45,8 +48,8 @@ class LocalStorageService {
     try {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.put(_userKey, user);
-    } catch (e) {
-      debugPrint('Error saving user: $e');
+    } catch (e, stack) {
+      _talker.error('Error saving user', e, stack);
       rethrow;
     }
   }
@@ -55,8 +58,8 @@ class LocalStorageService {
     try {
       final box = _userBox ?? Hive.box<LocalUserModel>(_userBoxName);
       return box.get(_userKey);
-    } catch (e) {
-      debugPrint('Error getting user: $e');
+    } catch (e, stack) {
+      _talker.error('Error getting user', e, stack);
       return null;
     }
   }
@@ -65,8 +68,8 @@ class LocalStorageService {
     try {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.delete(_userKey);
-    } catch (e) {
-      debugPrint('Error deleting user: $e');
+    } catch (e, stack) {
+      _talker.error('Error deleting user', e, stack);
       rethrow;
     }
   }
@@ -74,8 +77,8 @@ class LocalStorageService {
   static bool isUserLoggedIn() {
     try {
       return getUser() != null;
-    } catch (e) {
-      debugPrint('Error checking user login status: $e');
+    } catch (e, stack) {
+      _talker.error('Error checking user login status', e, stack);
       return false;
     }
   }
@@ -84,8 +87,8 @@ class LocalStorageService {
     try {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.clear();
-    } catch (e) {
-      debugPrint('Error clearing all data: $e');
+    } catch (e, stack) {
+      _talker.error('Error clearing all data', e, stack);
       rethrow;
     }
   }
@@ -116,9 +119,9 @@ class LocalStorageService {
         _bannersKey,
         banners.map((e) => LocalBannerModel.fromBannerModel(e)).toList(),
       );
-      debugPrint('Cached ${banners.length} banners');
-    } catch (e) {
-      debugPrint('Error caching banners: $e');
+      _talker.info('Cached [32m${banners.length}[0m banners');
+    } catch (e, stack) {
+      _talker.error('Error caching banners', e, stack);
       rethrow;
     }
   }
@@ -127,15 +130,15 @@ class LocalStorageService {
     try {
       final cached = _adsBox?.get(_bannersKey);
       if (cached == null) {
-        debugPrint('No cached banners found');
+        _talker.info('No cached banners found');
         return null;
       }
       final banners =
           cached.cast<LocalBannerModel>().map((e) => e.banner).toList();
-      debugPrint('Retrieved ${banners.length} cached banners');
+      _talker.info('Retrieved ${banners.length} cached banners');
       return banners;
-    } catch (e) {
-      debugPrint('Error getting cached banners: $e');
+    } catch (e, stack) {
+      _talker.error('Error getting cached banners', e, stack);
       return null;
     }
   }
@@ -149,9 +152,9 @@ class LocalStorageService {
         '$_pagePrefix$page',
         ads.map((e) => LocalAdvertModel.fromAdvertModel(e)).toList(),
       );
-      debugPrint('Cached ${ads.length} advertisements for page $page');
-    } catch (e) {
-      debugPrint('Error caching advertisements: $e');
+      _talker.info('Cached ${ads.length} advertisements for page $page');
+    } catch (e, stack) {
+      _talker.error('Error caching advertisements', e, stack);
       rethrow;
     }
   }
@@ -160,7 +163,7 @@ class LocalStorageService {
     try {
       final cached = _adsBox?.get('$_pagePrefix$page');
       if (cached == null) {
-        debugPrint('No cached ads found for page $page');
+        _talker.info('No cached ads found for page $page');
         return null;
       }
       final ads =
@@ -170,33 +173,33 @@ class LocalStorageService {
                 try {
                   return e.advert;
                 } catch (e) {
-                  debugPrint('Error deserializing advert: $e');
+                  _talker.error('Error deserializing advert', e);
                   return null;
                 }
               })
               .where((e) => e != null)
               .cast<AdvertModel>()
               .toList();
-      debugPrint('Retrieved ${ads.length} cached ads for page $page');
+      _talker.info('Retrieved ${ads.length} cached ads for page $page');
       return ads.isEmpty ? null : ads;
-    } catch (e) {
-      debugPrint('Error getting cached ads: $e');
+    } catch (e, stack) {
+      _talker.error('Error getting cached ads', e, stack);
       return null;
     }
   }
 
   static Future<bool> hasPageInCache(int page) async {
     final hasKey = _adsBox?.containsKey('$_pagePrefix$page') ?? false;
-    debugPrint('Page $page in cache: $hasKey');
+    _talker.info('Page $page in cache: $hasKey');
     return hasKey;
   }
 
   static Future<void> clearAdsCache() async {
     try {
       await _adsBox?.clear();
-      debugPrint('Cleared ads cache');
-    } catch (e) {
-      debugPrint('Error clearing ads cache: $e');
+      _talker.info('Cleared ads cache');
+    } catch (e, stack) {
+      _talker.error('Error clearing ads cache', e, stack);
       rethrow;
     }
   }
@@ -211,9 +214,9 @@ class LocalStorageService {
         filterKey,
         ads.map((e) => LocalAdvertModel.fromAdvertModel(e)).toList(),
       );
-      debugPrint('Cached ${ads.length} filtered ads for key $filterKey');
-    } catch (e) {
-      debugPrint('Error caching filtered ads: $e');
+      _talker.info('Cached ${ads.length} filtered ads for key $filterKey');
+    } catch (e, stack) {
+      _talker.error('Error caching filtered ads', e, stack);
       rethrow;
     }
   }
@@ -225,7 +228,7 @@ class LocalStorageService {
       final filterKey = _getFilterKey(filterParams);
       final cached = _adsBox?.get(filterKey);
       if (cached == null) {
-        debugPrint('No cached filtered ads found for key $filterKey');
+        _talker.info('No cached filtered ads found for key $filterKey');
         return null;
       }
       final ads =
@@ -235,19 +238,19 @@ class LocalStorageService {
                 try {
                   return e.advert;
                 } catch (e) {
-                  debugPrint('Error deserializing filtered advert: $e');
+                  _talker.error('Error deserializing filtered advert', e);
                   return null;
                 }
               })
               .where((e) => e != null)
               .cast<AdvertModel>()
               .toList();
-      debugPrint(
+      _talker.info(
         'Retrieved ${ads.length} cached filtered ads for key $filterKey',
       );
       return ads.isEmpty ? null : ads;
-    } catch (e) {
-      debugPrint('Error getting cached filtered ads: $e');
+    } catch (e, stack) {
+      _talker.error('Error getting cached filtered ads', e, stack);
       return null;
     }
   }
@@ -257,7 +260,7 @@ class LocalStorageService {
   ) async {
     final filterKey = _getFilterKey(filterParams);
     final hasKey = _adsBox?.containsKey(filterKey) ?? false;
-    debugPrint('Filtered results in cache for key $filterKey: $hasKey');
+    _talker.info('Filtered results in cache for key $filterKey: $hasKey');
     return hasKey;
   }
 
@@ -274,10 +277,10 @@ class LocalStorageService {
 
   static void debugCache() {
     final box = _adsBox ?? Hive.box<List<dynamic>>(_adsBoxName);
-    debugPrint('Cache keys: ${box.keys}');
+    _talker.info('Cache keys: ${box.keys}');
     for (var key in box.keys) {
       final items = box.get(key);
-      debugPrint('Key $key: ${items?.length ?? 0} items');
+      _talker.info('Key $key: ${items?.length ?? 0} items');
     }
   }
 
@@ -290,11 +293,11 @@ class LocalStorageService {
               .toList();
       for (var key in filterKeys) {
         await box.delete(key);
-        debugPrint('🧹 Deleted filtered ads cache for key $key');
+        _talker.info('🧹 Deleted filtered ads cache for key $key');
       }
-      debugPrint('Cleared all filtered ads cache');
-    } catch (e) {
-      debugPrint('Error clearing filtered ads cache: $e');
+      _talker.info('Cleared all filtered ads cache');
+    } catch (e, stack) {
+      _talker.error('Error clearing filtered ads cache', e, stack);
       rethrow;
     }
   }

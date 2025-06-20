@@ -20,21 +20,13 @@ class UserRepositoryImpl extends UserRepository implements UserInterface {
 
   @override
   Future<DataState<bool>> checkUser(PhoneNumberModel phoneNumber) {
-    print(
-      '📚 Repository: checkUser called with number: ${phoneNumber.phoneNumber}',
-    );
     final result = _userInteface.checkUser(phoneNumber as PhoneNumberModel);
-    print('📚 Repository: returning result');
     return result;
   }
 
   @override
   Future<DataState<AuthStatusModel>> logIn(PhoneNumberModel phoneNumber) {
-    print(
-      '📚 Repository: login called with number: ${phoneNumber.phoneNumber}',
-    );
     final result = _userInteface.logIn(phoneNumber as PhoneNumberModel);
-    print('📚 Repository: forwarding login result');
     return result;
   }
 

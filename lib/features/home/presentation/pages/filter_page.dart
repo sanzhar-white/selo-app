@@ -18,6 +18,8 @@ import 'package:selo/generated/l10n.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/shared/widgets/shimmer_effect.dart';
 import 'package:selo/core/models/category.dart';
+import 'package:selo/core/di/di.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class FilterPage extends ConsumerStatefulWidget {
   const FilterPage({
@@ -47,6 +49,8 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     refresh: true,
   );
 
+  Talker get _talker => di<Talker>();
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +65,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
       );
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _talker.info('🔄 Initializing FilterPage with filters: $currentFilters');
       _initializeData();
     });
     _scrollController.addListener(_onScroll);
@@ -74,6 +79,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
   }
 
   Future<void> _initializeData() async {
+    _talker.info('🔄 Calling _refreshContent from _initializeData');
     await _refreshContent();
   }
 
@@ -81,7 +87,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     if (!mounted || _isRefreshing) return;
     setState(() => _isRefreshing = true);
 
-    print('🔄 Refreshing content with filters: $currentFilters');
+    _talker.info(
+      '🔄 Refreshing content with filters: $currentFilters, pagination: $_paginationModel',
+    );
 
     final homeNotifier = ref.read(homeNotifierProvider.notifier);
     final categoriesNotifier = ref.read(categoriesNotifierProvider.notifier);
@@ -101,25 +109,25 @@ class _FilterPageState extends ConsumerState<FilterPage> {
 
     if (_isFilterEmpty(currentFilters)) {
       currentFilters = null;
-
+      _talker.info('🌐 Loading all advertisements (no filters)');
       await homeNotifier.loadAllAdvertisements(
         refresh: true,
         page: _paginationModel.currentPage,
         pageSize: _paginationModel.pageSize,
       );
-      print('🌐 Loaded all advertisements');
     } else {
+      _talker.info('🔍 Loading filtered advertisements: $currentFilters');
       await homeNotifier.loadFilteredAdvertisements(
         filter: currentFilters,
         refresh: true,
         page: _paginationModel.currentPage,
         pageSize: _paginationModel.pageSize,
       );
-      print('🔍 Loaded filtered advertisements');
     }
 
     final user = ref.read(userNotifierProvider).user;
     if (user != null) {
+      _talker.debug('⭐ Loading favourites for user: ${user.uid}');
       await favouritesNotifier.getFavourites(UserUidModel(uid: user.uid));
     }
     isAnonymous = await userNotifier.isAnonymous();
@@ -131,7 +139,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
       });
     }
 
-    print('✅ Refresh completed. Current filters: $currentFilters');
+    _talker.info(
+      '✅ Refresh completed. Current filters: $currentFilters, pagination: $_paginationModel',
+    );
   }
 
   bool _isFilterEmpty(SearchModel? filters) {
@@ -151,12 +161,18 @@ class _FilterPageState extends ConsumerState<FilterPage> {
         !ref.read(homeNotifierProvider).isLoading &&
         !_isRefreshing) {
       final homeState = ref.read(homeNotifierProvider);
+      _talker.debug(
+        '🖱️ User scrolled near end. homeState: $homeState, currentFilters: $currentFilters',
+      );
       if (currentFilters != null && homeState.hasMoreFiltered) {
         setState(() {
           _paginationModel = _paginationModel.copyWith(
             currentPage: homeState.currentPageFiltered + 1,
           );
         });
+        _talker.info(
+          '🔄 Loading more filtered advertisements. Page: ${_paginationModel.currentPage}, Filters: $currentFilters',
+        );
         ref
             .read(homeNotifierProvider.notifier)
             .loadFilteredAdvertisements(
@@ -171,6 +187,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
             currentPage: homeState.currentPageAll + 1,
           );
         });
+        _talker.info(
+          '🔄 Loading more all advertisements. Page: ${_paginationModel.currentPage}',
+        );
         ref
             .read(homeNotifierProvider.notifier)
             .loadAllAdvertisements(
@@ -186,6 +205,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     if (error == null || !mounted || error == _lastError) return;
 
     _lastError = error;
+    _talker.error('❌ Showing error to user: $error');
 
     Future.microtask(() {
       if (!mounted) return;
@@ -229,7 +249,10 @@ class _FilterPageState extends ConsumerState<FilterPage> {
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: _refreshContent,
+        onRefresh: () {
+          _talker.info('🔄 User triggered pull-to-refresh');
+          return _refreshContent();
+        },
         child: CustomScrollView(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
@@ -240,6 +263,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
               pinned: true,
               floating: false,
               onSearchSubmitted: (value) {
+                _talker.info('🔍 User submitted search: $value');
                 setState(() {
                   currentFilters =
                       currentFilters?.copyWith(
@@ -251,6 +275,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                 _refreshContent();
               },
               onFilterPressed: (value) async {
+                _talker.info('🔽 User opened filter bottom sheet');
                 _searchController.text = value;
                 await ref
                     .read(categoriesNotifierProvider.notifier)
@@ -262,6 +287,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   categories: categoriesList,
                   currentFilters: currentFilters,
                   onApply: (result) {
+                    _talker.info('✅ User applied filter: $result');
                     setState(() {
                       currentFilters = result?.copyWith(
                         category:
@@ -300,6 +326,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                               _isRefreshing
                                   ? null
                                   : () {
+                                    _talker.info(
+                                      '🗑️ User cleared search query. Filters before: $currentFilters',
+                                    );
                                     setState(() {
                                       _searchController.clear();
                                       currentFilters = currentFilters?.copyWith(
@@ -309,9 +338,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                                         currentFilters = null;
                                       }
                                     });
-                                    print(
-                                      '🗑️ Cleared search query. Filters: $currentFilters',
-                                    );
                                     _refreshContent();
                                   },
                         ),
@@ -324,7 +350,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                               categoriesList.firstWhere(
                                 (cat) => cat.id == currentFilters!.category!,
                                 orElse: () {
-                                  print(
+                                  _talker.warning(
                                     '⚠️ Category not found for ID: ${currentFilters!.category}',
                                   );
                                   return AdCategory(
@@ -351,6 +377,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                               _isRefreshing
                                   ? null
                                   : () {
+                                    _talker.info(
+                                      '🗑️ User cleared category. Filters before: $currentFilters',
+                                    );
                                     setState(() {
                                       currentFilters = currentFilters!.copyWith(
                                         category: null,
@@ -359,9 +388,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                                         currentFilters = null;
                                       }
                                     });
-                                    print(
-                                      '🗑️ Cleared category. Filters: $currentFilters',
-                                    );
                                     _refreshContent();
                                   },
                         ),
@@ -381,6 +407,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                               _isRefreshing
                                   ? null
                                   : () {
+                                    _talker.info(
+                                      '🗑️ User cleared priceFrom. Filters before: $currentFilters',
+                                    );
                                     setState(() {
                                       currentFilters = currentFilters!.copyWith(
                                         priceFrom: null,
@@ -389,9 +418,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                                         currentFilters = null;
                                       }
                                     });
-                                    print(
-                                      '🗑️ Cleared priceFrom. Filters: $currentFilters',
-                                    );
                                     _refreshContent();
                                   },
                         ),
@@ -411,6 +437,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                               _isRefreshing
                                   ? null
                                   : () {
+                                    _talker.info(
+                                      '🗑️ User cleared priceTo. Filters before: $currentFilters',
+                                    );
                                     setState(() {
                                       currentFilters = currentFilters!.copyWith(
                                         priceTo: null,
@@ -419,9 +448,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                                         currentFilters = null;
                                       }
                                     });
-                                    print(
-                                      '🗑️ Cleared priceTo. Filters: $currentFilters',
-                                    );
                                     _refreshContent();
                                   },
                         ),
@@ -490,6 +516,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   ),
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final advert = adverts[index];
+                    _talker.debug('🖼️ Rendering advert card: ${advert.uid}');
                     return RepaintBoundary(
                       child: Container(
                         decoration: BoxDecoration(
@@ -521,6 +548,8 @@ class _FilterPageState extends ConsumerState<FilterPage> {
   Widget _buildShimmerCard(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final radius = ResponsiveRadius.screenBased(context);
+
+    _talker.debug('✨ Showing shimmer card (loading placeholder)');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

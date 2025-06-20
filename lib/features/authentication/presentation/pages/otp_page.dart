@@ -10,6 +10,8 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:selo/shared/models/user_model.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:flutter/services.dart';
+import 'package:selo/core/di/di.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class OTPPage extends ConsumerStatefulWidget {
   final AuthStatusModel? authStatus;
@@ -31,6 +33,8 @@ class _OTPPageState extends ConsumerState<OTPPage> {
   bool isActive = false;
   bool isLoading = false;
   bool _mounted = true;
+
+  Talker get _talker => di<Talker>();
 
   @override
   void initState() {
@@ -70,7 +74,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
   Future<void> verifyOTP() async {
     if (!_mounted || !isActive || widget.authStatus == null) {
-      print(
+      _talker.error(
         '❌ Cannot verify OTP: ${!isActive
             ? 'inactive'
             : !_mounted
@@ -82,7 +86,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
     _capturedCode = codeController.text;
     if (_capturedCode == null || _capturedCode!.isEmpty) {
-      print('❌ No verification code entered');
+      _talker.error('❌ No verification code entered');
       return;
     }
 
@@ -90,9 +94,9 @@ class _OTPPageState extends ConsumerState<OTPPage> {
     setState(() => isLoading = true);
 
     try {
-      print('🔐 Starting OTP verification');
-      print('📝 Verification ID: ${widget.authStatus!.value}');
-      print('📱 SMS Code: $_capturedCode');
+      _talker.info('🔐 Starting OTP verification');
+      _talker.debug('📝 Verification ID: ${widget.authStatus!.value}');
+      _talker.debug('📱 SMS Code: $_capturedCode');
 
       if (!_mounted) return;
       final result = await ref
@@ -109,7 +113,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
       if (result is DataSuccess<bool>) {
         final success = result.data;
-        print('✅ OTP verification result: $success');
+        _talker.info('✅ OTP verification result: $success');
         if (success! && _mounted) {
           context.go(Routes.homePage);
         } else {
@@ -123,11 +127,11 @@ class _OTPPageState extends ConsumerState<OTPPage> {
               ),
             );
           }
-          print('❌ OTP verification failed: success was false');
+          _talker.error('❌ OTP verification failed: success was false');
         }
       } else if (result is DataFailed<bool>) {
         final error = result.error.toString();
-        print('❌ OTP verification failed with error: $error');
+        _talker.error('❌ OTP verification failed with error: $error');
         if (_mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -140,8 +144,8 @@ class _OTPPageState extends ConsumerState<OTPPage> {
           );
         }
       }
-    } catch (e) {
-      print('💥 Exception in OTP verification: $e');
+    } catch (e, stack) {
+      _talker.error('💥 Exception in OTP verification', e, stack);
       if (_mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
