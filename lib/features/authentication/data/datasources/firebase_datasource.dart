@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:selo/core/constants/firebase.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/core/services/local_storage_service.dart';
@@ -31,9 +32,9 @@ class FirebaseDatasource implements UserInterface {
               .get();
 
       if (userSnapshot.docs.isNotEmpty) {
-        _talker.error('❌ Phone number already registered');
+        _talker.error(ErrorMessages.phoneNumberAlreadyRegistered);
         return DataFailed(
-          Exception('Phone number already registered'),
+          Exception(ErrorMessages.phoneNumberAlreadyRegistered),
           StackTrace.current,
         );
       }
@@ -76,12 +77,12 @@ class FirebaseDatasource implements UserInterface {
               ),
             );
           } catch (e, st) {
-            _talker.error('❌ Auto-verification sign-in error', e, st);
+            _talker.error(ErrorMessages.autoVerificationSignInError, e, st);
             completer.complete(DataFailed(Exception(e), st));
           }
         },
         verificationFailed: (FirebaseAuthException e) {
-          _talker.error('❌ Verification failed', e);
+          _talker.error(ErrorMessages.verificationFailed, e);
           completer.complete(DataFailed(e, StackTrace.current));
         },
         codeSent: (String verificationId, int? resendToken) {
@@ -114,7 +115,7 @@ class FirebaseDatasource implements UserInterface {
           if (!completer.isCompleted) {
             completer.complete(
               DataFailed(
-                Exception('Auto-verification timeout'),
+                Exception(ErrorMessages.autoVerificationTimeout),
                 StackTrace.current,
               ),
             );
@@ -124,7 +125,7 @@ class FirebaseDatasource implements UserInterface {
 
       return await completer.future;
     } catch (e, st) {
-      _talker.error('❌ SignUp error', e, st);
+      _talker.error(ErrorMessages.signUpError, e, st);
       return DataFailed(Exception(e), st);
     }
   }
@@ -149,8 +150,8 @@ class FirebaseDatasource implements UserInterface {
         '',
       );
       if (!cleanNumber.startsWith('+')) {
-        _talker.error('❌ Invalid phone number format');
-        throw Exception('Phone number must start with +');
+        _talker.error(ErrorMessages.invalidPhoneNumberFormat);
+        throw Exception(ErrorMessages.phoneNumberMustStartWithPlus);
       }
 
       _talker.debug('🔍 Querying Firestore with cleaned number: $cleanNumber');
@@ -166,7 +167,7 @@ class FirebaseDatasource implements UserInterface {
       completer.complete(DataSuccess(userSnapshot.docs.isNotEmpty));
       return await completer.future;
     } catch (e, st) {
-      _talker.error('❌ Check user error', e, st);
+      _talker.error(ErrorMessages.checkUserError, e, st);
       completer.complete(DataFailed(Exception(e), st));
       return await completer.future;
     }
@@ -192,9 +193,9 @@ class FirebaseDatasource implements UserInterface {
               .get();
 
       if (userSnapshot.docs.isEmpty) {
-        _talker.error('❌ User not found in Firestore');
+        _talker.error(ErrorMessages.userNotFoundInFirestore);
         return DataFailed(
-          Exception('Phone number is not registered'),
+          Exception(ErrorMessages.phoneNumberNotRegistered),
           StackTrace.current,
         );
       }
@@ -207,8 +208,11 @@ class FirebaseDatasource implements UserInterface {
         userModel = UserModel.fromFirestoreMap(userData);
         _talker.debug('👤 User data parsed: ${userModel.phoneNumber}');
       } catch (e, st) {
-        _talker.error('❌ Failed to parse user data', e, st);
-        return DataFailed(Exception('Failed to parse user data: $e'), st);
+        _talker.error(ErrorMessages.failedToParseUserData, e, st);
+        return DataFailed(
+          Exception('${ErrorMessages.failedToParseUserData}: $e'),
+          st,
+        );
       }
 
       try {
@@ -235,21 +239,21 @@ class FirebaseDatasource implements UserInterface {
                   ),
                 );
               } else {
-                _talker.error('❌ Auto-sign in failed - no user returned');
+                _talker.error(ErrorMessages.autoSignInFailedNoUserReturned);
                 completer.complete(
                   DataFailed(
-                    Exception('Authentication failed'),
+                    Exception(ErrorMessages.authenticationFailed),
                     StackTrace.current,
                   ),
                 );
               }
             } catch (e, st) {
-              _talker.error('❌ Auto-sign in error', e, st);
+              _talker.error(ErrorMessages.autoSignInError, e, st);
               completer.complete(DataFailed(Exception(e), st));
             }
           },
           verificationFailed: (FirebaseAuthException e) {
-            _talker.error('❌ Verification failed: ${e.code}', e);
+            _talker.error('${ErrorMessages.verificationFailed}: ${e.code}', e);
             completer.complete(DataFailed(e, StackTrace.current));
           },
           codeSent: (String verificationId, int? resendToken) {
@@ -282,11 +286,11 @@ class FirebaseDatasource implements UserInterface {
 
         return await completer.future;
       } catch (e, st) {
-        _talker.error('❌ Phone verification error', e, st);
+        _talker.error(ErrorMessages.phoneVerificationError, e, st);
         return DataFailed(Exception(e), st);
       }
     } catch (e, st) {
-      _talker.error('❌ Login process error', e, st);
+      _talker.error(ErrorMessages.loginProcessError, e, st);
       return DataFailed(Exception(e), st);
     }
   }
@@ -303,16 +307,16 @@ class FirebaseDatasource implements UserInterface {
           _talker.info('✅ Reused anonymous account');
           return const DataSuccess(true);
         } catch (e, st) {
-          _talker.error('❌ Failed to reuse anonymous account', e, st);
+          _talker.error(ErrorMessages.failedToReuseAnonymousAccount, e, st);
         }
       }
 
       _talker.debug('🔄 Creating new anonymous account');
       final userCredential = await _auth.signInAnonymously();
       if (userCredential.user == null) {
-        _talker.error('❌ Failed to create anonymous user');
+        _talker.error(ErrorMessages.failedToCreateAnonymousUser);
         return DataFailed(
-          Exception('Failed to create anonymous user'),
+          Exception(ErrorMessages.failedToCreateAnonymousUser),
           StackTrace.current,
         );
       }
@@ -344,7 +348,7 @@ class FirebaseDatasource implements UserInterface {
 
       return const DataSuccess(true);
     } catch (e, st) {
-      _talker.error('❌ Anonymous login error', e, st);
+      _talker.error(ErrorMessages.anonymousLoginError, e, st);
       return DataFailed(Exception(e), st);
     }
   }
@@ -356,9 +360,9 @@ class FirebaseDatasource implements UserInterface {
     try {
       _talker.info('🔐 Starting credential verification');
       if (signInWithCredential.verificationId.isEmpty) {
-        _talker.error('❌ Empty verification ID');
+        _talker.error(ErrorMessages.emptyVerificationId);
         return DataFailed(
-          Exception('Invalid verification ID'),
+          Exception(ErrorMessages.invalidVerificationId),
           StackTrace.current,
         );
       }
@@ -366,10 +370,10 @@ class FirebaseDatasource implements UserInterface {
       if (signInWithCredential.smsCode.isEmpty ||
           signInWithCredential.smsCode.length != 6) {
         _talker.error(
-          '❌ Invalid SMS code length: ${signInWithCredential.smsCode.length}',
+          '${ErrorMessages.invalidSmsCodeLength}: ${signInWithCredential.smsCode.length}',
         );
         return DataFailed(
-          Exception('Invalid SMS code format'),
+          Exception(ErrorMessages.invalidSmsCodeFormat),
           StackTrace.current,
         );
       }
@@ -384,9 +388,9 @@ class FirebaseDatasource implements UserInterface {
       _talker.debug('👤 Sign in attempt completed');
 
       if (userCredential.user == null) {
-        _talker.error('❌ No user returned after sign in');
+        _talker.error(ErrorMessages.noUserReturnedAfterSignIn);
         return DataFailed(
-          Exception('Authentication failed - no user returned'),
+          Exception(ErrorMessages.authenticationFailedNoUser),
           StackTrace.current,
         );
       }
@@ -412,7 +416,7 @@ class FirebaseDatasource implements UserInterface {
       _talker.info('✅ Authentication process completed successfully');
       return const DataSuccess(true);
     } catch (e, st) {
-      _talker.error('❌ Sign in with credential error', e, st);
+      _talker.error(ErrorMessages.signInWithCredentialError, e, st);
       return DataFailed(Exception(e), st);
     }
   }
@@ -426,7 +430,7 @@ class FirebaseDatasource implements UserInterface {
       _talker.info('✅ Logout successful');
       return const DataSuccess(true);
     } catch (e, st) {
-      _talker.error('❌ Logout error', e, st);
+      _talker.error(ErrorMessages.logoutError, e, st);
       return DataFailed(Exception(e), st);
     }
   }

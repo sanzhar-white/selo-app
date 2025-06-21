@@ -15,7 +15,7 @@
   "signin": "Sign in",
   "welcome": "Welcome to Selo",
   "withoutregistor": "Continue without registration",
-
+  "error_verification": "Error during verification",
   "nav_add": "Add",
   "nav_favourites": "Favorites",
   "nav_home": "Home",
@@ -94,6 +94,8 @@
   "images_hint": "Add images",
   "images_optional": "optional",
   "select_image_source": "Select Image Source",
+  "image_less_size": "Image size should be less than 25MB",
+  "max_images": "Maximum 10 images allowed",
 
   "condition": "Condition",
   "condition_new": "New",
@@ -156,7 +158,7 @@
   "required": "Required",
   "unknown": "Unknown",
   "call": "Call",
-  "views": "Views"
-
-
+  "views": "Views",
+  "advertisement_created": "Advertisement created successfully",
+  "failed_to_created_advertisement": "Failed to create advertisement"
 }

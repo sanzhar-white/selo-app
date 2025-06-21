@@ -7,6 +7,7 @@ import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/features/profile/presentation/providers/index.dart';
 import 'package:selo/features/favourites/presentation/widgets/advert_wide_card.dart';
 import 'package:selo/generated/l10n.dart';
+import 'package:selo/core/utils/auth_navigation_handler.dart';
 
 class MyAdsPage extends ConsumerStatefulWidget {
   const MyAdsPage({super.key});
@@ -16,109 +17,152 @@ class MyAdsPage extends ConsumerStatefulWidget {
 }
 
 class _MyAdsPageState extends ConsumerState<MyAdsPage> {
+  late final AuthNavigationHandler _authNavigationHandler;
+
   @override
   void initState() {
     super.initState();
-    _loadMyAds();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadMyAds();
+    _authNavigationHandler = AuthNavigationHandler();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadMyAds();
+      }
+    });
   }
 
   void _loadMyAds() {
     final user = ref.read(userNotifierProvider).user;
-    if (user != null) {
-      Future.microtask(() {
-        ref.read(profileNotifierProvider.notifier).getMyAdverts(uid: user.uid);
-      });
+    if (user?.uid != null) {
+      ref.read(profileNotifierProvider.notifier).getMyAdverts(uid: user!.uid);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final user = ref.watch(userNotifierProvider).user;
-    final profileState = ref.watch(profileNotifierProvider);
+    ref.listen<ProfileState>(profileNotifierProvider, (previous, next) {
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.error!, style: contrastBoldM(context))),
+        );
+      }
+    });
 
-    if (user == null) {
-      return Scaffold(
-        body: Center(
+    final colorScheme = Theme.of(context).colorScheme;
+    final userState = ref.watch(userNotifierProvider);
+
+    return Scaffold(
+      body: _buildBody(context, userState, colorScheme),
+      floatingActionButton: _buildFloatingActionButton(context, userState),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    UserState userState,
+    ColorScheme colorScheme,
+  ) {
+    if (_authNavigationHandler.isAnonymous(userState)) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Text(
-            S.of(context).edit_anonymous_window,
+            S.of(context)!.edit_anonymous_window,
             style: contrastM(context),
+            textAlign: TextAlign.center,
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: const Icon(Icons.add),
         ),
       );
     }
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            title: Text(
-              S.of(context).my_ads_title,
-              style: contrastBoldL(context),
+    return CustomScrollView(
+      slivers: [_buildAppBar(context, colorScheme), _buildContent(context)],
+    );
+  }
+
+  SliverAppBar _buildAppBar(BuildContext context, ColorScheme colorScheme) {
+    return SliverAppBar(
+      title: Text(S.of(context)!.my_ads_title, style: contrastBoldL(context)),
+      iconTheme: IconThemeData(color: colorScheme.inversePrimary),
+      centerTitle: true,
+      elevation: 0,
+      floating: true,
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    final profileState = ref.watch(profileNotifierProvider);
+
+    if (profileState.isLoading) {
+      return const SliverToBoxAdapter(
+        child: Center(child: CircularProgressIndicator.adaptive()),
+      );
+    }
+
+    if (profileState.error != null && profileState.myAdverts == null) {
+      return _buildErrorState(context);
+    }
+
+    if (profileState.myAdverts == null || profileState.myAdverts!.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
+    return _buildAdsList(context, profileState);
+  }
+
+  Widget _buildErrorState(BuildContext context) {
+    return SliverFillRemaining(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(S.of(context)!.error, style: contrastM(context)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadMyAds,
+              child: Text(S.of(context)!.retry),
             ),
-            iconTheme: IconThemeData(color: colorScheme.inversePrimary),
-            centerTitle: true,
-            elevation: 0,
-            floating: true,
-          ),
-          if (profileState.isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (profileState.error != null)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SelectableText(
-                      'Error: ${profileState.error}',
-                      style: contrastM(context),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _loadMyAds,
-                      child: Text(S.of(context).retry),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else if (profileState.myAdverts == null ||
-              profileState.myAdverts!.isEmpty)
-            SliverFillRemaining(
-              child: Center(
-                child: Text(
-                  S.of(context).no_ads_found,
-                  style: contrastM(context),
-                ),
-              ),
-            )
-          else
-            SliverGrid(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final advert = profileState.myAdverts![index];
-                return AdvertWideCard(advert: advert);
-              }, childCount: profileState.myAdverts!.length),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 1,
-                childAspectRatio: 2,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return SliverFillRemaining(
+      child: Center(
+        child: Text(S.of(context)!.no_ads_found, style: contrastM(context)),
+      ),
+    );
+  }
+
+  Widget _buildAdsList(BuildContext context, ProfileState profileState) {
+    final adverts = profileState.myAdverts!;
+    return SliverPadding(
+      padding: const EdgeInsets.all(8.0),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final advert = adverts[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: RepaintBoundary(
+              child: AdvertWideCard(key: ValueKey(advert.uid), advert: advert),
+            ),
+          );
+        }, childCount: adverts.length),
+      ),
+    );
+  }
+
+  Widget _buildFloatingActionButton(BuildContext context, UserState userState) {
+    return FloatingActionButton(
+      onPressed:
+          () => _authNavigationHandler.navigateIfAuthenticated(
+            context,
+            Routes.addPage,
+            userState,
+            ref,
+          ),
+      child: const Icon(Icons.add),
     );
   }
 }

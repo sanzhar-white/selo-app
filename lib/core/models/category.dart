@@ -42,7 +42,7 @@ class AdCategory extends BaseCategory {
   }) : super(id: id);
 
   String getLocalizedCategory(BuildContext context) {
-    final s = S.of(context);
+    final s = S.of(context)!;
     if (s.language_code == 'en') {
       return nameEn;
     } else if (s.language_code == 'ru') {

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:selo/core/constants/firebase.dart';
 import 'package:selo/core/models/category.dart';
 import 'package:selo/core/resources/data_state.dart';
@@ -24,7 +25,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
   ) async {
     try {
       if (!file.existsSync()) {
-        _talker.error('❌ File does not exist: $path');
+        _talker.error('${ErrorMessages.fileDoesNotExist}: $path');
         return null;
       }
 
@@ -50,10 +51,14 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       _talker.debug('✅ Image uploaded successfully: $downloadUrl');
       return downloadUrl;
     } on FirebaseException catch (e, stack) {
-      _talker.error('❌ Firebase error during upload: ${e.code}', e, stack);
+      _talker.error(
+        '${ErrorMessages.firebaseErrorDuringUpload}: ${e.code}',
+        e,
+        stack,
+      );
       return null;
     } catch (e, stack) {
-      _talker.error('❌ Error uploading single image', e, stack);
+      _talker.error(ErrorMessages.errorUploadingSingleImage, e, stack);
       return null;
     }
   }
@@ -71,7 +76,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
 
         final file = File(path);
         if (!await file.exists()) {
-          _talker.error('❌ File does not exist: $path');
+          _talker.error('${ErrorMessages.fileDoesNotExist}: $path');
           continue;
         }
 
@@ -93,19 +98,21 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
           imageUrls.add(downloadUrl);
           _talker.debug('✅ Successfully uploaded image: $path');
         } else {
-          _talker.error('❌ Failed to upload image after retries: $path');
+          _talker.error(
+            '${ErrorMessages.failedToUploadImageAfterRetries}: $path',
+          );
         }
       }
 
       if (paths.isNotEmpty && imageUrls.isEmpty) {
-        _talker.error('❌ Failed to upload any images after retries');
-        throw Exception('Failed to upload any images after retries');
+        _talker.error(ErrorMessages.failedToUploadAnyImages);
+        throw Exception(ErrorMessages.failedToUploadAnyImages);
       }
 
       _talker.info('✅ Successfully uploaded ${imageUrls.length} images');
       return imageUrls;
     } catch (e, stack) {
-      _talker.error('❌ Error in _uploadImages', e, stack);
+      _talker.error(ErrorMessages.errorInUploadImages, e, stack);
       rethrow;
     }
   }
@@ -125,15 +132,18 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
         try {
           imageUrls = await _uploadImages(advert.images, docRef.id);
           if (imageUrls.isEmpty) {
-            _talker.error('❌ Failed to upload images - no successful uploads');
+            _talker.error(ErrorMessages.failedToUploadImagesNoSuccess);
             return DataFailed(
-              Exception('Failed to upload images - no successful uploads'),
+              Exception(ErrorMessages.failedToUploadImagesNoSuccess),
               StackTrace.current,
             );
           }
         } catch (e, stack) {
-          _talker.error('❌ Error uploading images', e, stack);
-          return DataFailed(Exception('Failed to upload images: $e'), stack);
+          _talker.error(ErrorMessages.errorUploadingImages, e, stack);
+          return DataFailed(
+            Exception('${ErrorMessages.errorUploadingImages}: $e'),
+            stack,
+          );
         }
       }
 
@@ -149,7 +159,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       _talker.info('✅ Successfully created advert: ${docRef.id}');
       return DataSuccess(newAdvert);
     } catch (e, stack) {
-      _talker.error('❌ Error in createAd', e, stack);
+      _talker.error(ErrorMessages.errorInCreateAd, e, stack);
       return DataFailed(Exception(e.toString()), stack);
     }
   }
@@ -173,7 +183,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
               return AdCategory.fromMap(doc.data());
             } catch (e, stack) {
               _talker.error(
-                '❌ Error parsing category document ${doc.id}',
+                '${ErrorMessages.errorParsingCategory} ${doc.id}',
                 e,
                 stack,
               );
@@ -184,7 +194,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       _talker.info('✅ Successfully fetched ${categories.length} categories');
       return DataSuccess(categories);
     } catch (e, stack) {
-      _talker.error('❌ Error in getCategories', e, stack);
+      _talker.error(ErrorMessages.errorInGetCategories, e, stack);
       return DataFailed(Exception(e.toString()), stack);
     }
   }

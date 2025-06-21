@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:selo/features/init/presentation/provider/init_provider.dart';
+import 'package:selo/generated/l10n.dart';
 
 class InitPage extends ConsumerWidget {
   const InitPage({super.key});
@@ -37,8 +38,10 @@ class InitPage extends ConsumerWidget {
               Column(
                 children: [
                   SelectableText(
-                    'Error: ${initState.error}, ${initState.stackTrace?.toString()}',
-                    style: const TextStyle(color: Colors.red),
+                    '${S.of(context)!.error}: ${initState.error}, ${initState.stackTrace?.toString()}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -46,7 +49,7 @@ class InitPage extends ConsumerWidget {
                     onPressed: () {
                       ref.read(initStateProvider.notifier).initialize();
                     },
-                    child: const Text('Retry'),
+                    child: Text(S.of(context)!.retry),
                   ),
                 ],
               ),

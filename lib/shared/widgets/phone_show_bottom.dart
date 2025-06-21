@@ -44,7 +44,7 @@ void showPhoneBottomSheet(BuildContext context, String phoneNumber) {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Text(S.of(context).phone_number, style: contrastBoldM(context)),
+              Text(S.of(context)!.phone_number, style: contrastBoldM(context)),
               const SizedBox(height: 8),
               Text(
                 formatPhoneNumber(phoneNumber),
@@ -93,7 +93,7 @@ void showPhoneBottomSheet(BuildContext context, String phoneNumber) {
                       color: colorScheme.primaryContainer,
                     ),
                     child: Text(
-                      S.of(context).call,
+                      S.of(context)!.call,
                       style: overGreenBoldM(context),
                     ),
                   ),

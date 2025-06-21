@@ -35,9 +35,14 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
     if (result) {
       context.push(Routes.homePage);
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to log in anonymously')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to log in anonymously',
+            style: contrastBoldM(context),
+          ),
+        ),
+      );
     }
   }
 
@@ -78,11 +83,14 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          S.of(context).welcome,
+                          S.of(context)!.welcome,
                           style: contrastBoldL(context),
                         ),
                         SizedBox(height: screenSize.height * 0.01),
-                        Text(S.of(context).greeting, style: contrastM(context)),
+                        Text(
+                          S.of(context)!.greeting,
+                          style: contrastM(context),
+                        ),
                       ],
                     ),
                   ),
@@ -93,7 +101,7 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                     child: Column(
                       children: [
                         Semantics(
-                          label: S.of(context).signin,
+                          label: S.of(context)!.signin,
                           child: ElevatedButton(
                             onPressed:
                                 _isLoading
@@ -111,7 +119,7 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                               ),
                             ),
                             child: Text(
-                              S.of(context).signin,
+                              S.of(context)!.signin,
                               style: overGreenBoldM(
                                 context,
                               ).copyWith(height: 1.2),
@@ -120,7 +128,7 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                         ),
                         SizedBox(height: screenSize.height * 0.02),
                         Semantics(
-                          label: S.of(context).withoutregistor,
+                          label: S.of(context)!.withoutregistor,
                           child: OutlinedButton(
                             onPressed: _isLoading ? null : _anonymousLogin,
                             style: OutlinedButton.styleFrom(
@@ -142,7 +150,7 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                                       strokeWidth: 2,
                                     )
                                     : Text(
-                                      S.of(context).withoutregistor,
+                                      S.of(context)!.withoutregistor,
                                       style: greenBoldM(
                                         context,
                                       ).copyWith(height: 1.2),

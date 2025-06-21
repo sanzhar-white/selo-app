@@ -20,17 +20,17 @@ class LayoutScaffold extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
 
     final destinations = [
-      Destination(label: S.of(context).nav_home, icon: CupertinoIcons.home),
+      Destination(label: S.of(context)!.nav_home, icon: CupertinoIcons.home),
       Destination(
-        label: S.of(context).nav_favourites,
+        label: S.of(context)!.nav_favourites,
         icon: CupertinoIcons.heart,
       ),
       Destination(
-        label: S.of(context).nav_add,
+        label: S.of(context)!.nav_add,
         icon: CupertinoIcons.add_circled,
       ),
       Destination(
-        label: S.of(context).nav_profile,
+        label: S.of(context)!.nav_profile,
         icon: CupertinoIcons.person_crop_circle,
       ),
     ];

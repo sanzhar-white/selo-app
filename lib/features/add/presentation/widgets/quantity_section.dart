@@ -48,7 +48,7 @@ class QuantitySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(S.of(context).volume_quantity, style: contrastBoldM(context)),
+        Text(S.of(context)!.volume_quantity, style: contrastBoldM(context)),
         const SizedBox(height: 12),
         Container(
           width: double.infinity,
@@ -72,8 +72,8 @@ class QuantitySection extends StatelessWidget {
                 isSelected: [isQuantityFixed, !isQuantityFixed],
                 onPressed: (index) => onQuantityTypeChanged(index == 0),
                 children: [
-                  Text(S.of(context).fixed),
-                  Text(S.of(context).negotiable),
+                  Text(S.of(context)!.fixed),
+                  Text(S.of(context)!.negotiable),
                 ],
               );
             },
@@ -101,7 +101,7 @@ class QuantitySection extends StatelessWidget {
       controller: quantityController,
       theme: colorScheme,
       style: contrastM(context),
-      hintText: S.of(context).volume_quantity,
+      hintText: S.of(context)!.volume_quantity,
       formatters: [
         FilteringTextInputFormatter.digitsOnly,
         ThousandsSeparatorInputFormatter(),
@@ -126,7 +126,7 @@ class QuantitySection extends StatelessWidget {
               controller: quantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).from,
+              hintText: S.of(context)!.from,
               textAlign: TextAlign.center,
               error: quantityError,
               errorText: quantityErrorText,
@@ -143,7 +143,7 @@ class QuantitySection extends StatelessWidget {
               controller: maxQuantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).to,
+              hintText: S.of(context)!.to,
               textAlign: TextAlign.center,
               error: maxQuantityError,
               errorText: maxQuantityErrorText,
@@ -177,7 +177,7 @@ class QuantitySection extends StatelessWidget {
               controller: quantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).volume_quantity,
+              hintText: S.of(context)!.volume_quantity,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 ThousandsSeparatorInputFormatter(),

@@ -29,11 +29,11 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
   int selectedSorting = currentFilters?.sortBy ?? 0;
 
   final sortingOptions = {
-    0: S.of(context).default_sorting,
-    1: S.of(context).cheapest_first,
-    2: S.of(context).most_expensive_first,
-    3: S.of(context).newest_first,
-    4: S.of(context).oldest_first,
+    0: S.of(context)!.default_sorting,
+    1: S.of(context)!.cheapest_first,
+    2: S.of(context)!.most_expensive_first,
+    3: S.of(context)!.newest_first,
+    4: S.of(context)!.oldest_first,
   };
 
   SearchModel? result;
@@ -63,7 +63,10 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(S.of(context).filter, style: contrastBoldL(context)),
+                      Text(
+                        S.of(context)!.filter,
+                        style: contrastBoldL(context),
+                      ),
                       TextButton(
                         onPressed: () {
                           setState(() {
@@ -76,7 +79,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                           });
                         },
                         child: Text(
-                          S.of(context).reset,
+                          S.of(context)!.reset,
                           style: TextStyle(color: colorScheme.primary),
                         ),
                       ),
@@ -84,7 +87,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    S.of(context).category,
+                    S.of(context)!.category,
                     style: contrastBoldM(context),
                   ), // Updated label to singular
                   const SizedBox(height: 10),
@@ -129,7 +132,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                         }).toList(),
                   ),
                   const SizedBox(height: 20),
-                  Text(S.of(context).price, style: contrastBoldM(context)),
+                  Text(S.of(context)!.price, style: contrastBoldM(context)),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -137,7 +140,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                         child: CustomTextField(
                           style: contrastBoldL(context),
                           controller: priceFromController,
-                          hintText: S.of(context).from,
+                          hintText: S.of(context)!.from,
                           keyboardType: TextInputType.number,
                           theme: colorScheme,
                         ),
@@ -147,7 +150,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                         child: CustomTextField(
                           style: contrastBoldL(context),
                           controller: priceToController,
-                          hintText: S.of(context).to,
+                          hintText: S.of(context)!.to,
                           keyboardType: TextInputType.number,
                           theme: colorScheme,
                         ),
@@ -155,14 +158,14 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Text(S.of(context).location, style: contrastBoldM(context)),
+                  Text(S.of(context)!.location, style: contrastBoldM(context)),
                   const SizedBox(height: 10),
                   LocationPicker(
                     locations: regions,
                     region: selectedRegion,
                     district: selectedCity,
-                    regionLabel: S.of(context).region,
-                    districtLabel: S.of(context).district,
+                    regionLabel: S.of(context)!.region,
+                    districtLabel: S.of(context)!.district,
                     showDistrict: true,
                     onRegionChanged: (region) {
                       setState(() {
@@ -177,7 +180,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                     },
                   ),
                   const SizedBox(height: 20),
-                  Text(S.of(context).sort, style: contrastBoldM(context)),
+                  Text(S.of(context)!.sort, style: contrastBoldM(context)),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<int>(
                     value: selectedSorting,
@@ -225,7 +228,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                         shape: RoundedRectangleBorder(borderRadius: radius),
                       ),
                       child: Text(
-                        S.of(context).apply,
+                        S.of(context)!.apply,
                         style: TextStyle(color: colorScheme.onPrimary),
                       ),
                     ),

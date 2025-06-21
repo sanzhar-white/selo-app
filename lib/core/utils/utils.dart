@@ -5,7 +5,7 @@ import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/core/constants/conditions.dart';
 
 String getLocalizedCategory(AdCategory category, BuildContext context) {
-  final s = S.of(context);
+  final s = S.of(context)!;
   if (s.language_code == 'en') {
     return category.nameEn;
   } else if (s.language_code == 'ru') {
@@ -43,7 +43,7 @@ String getDistrictName(int id, int regionID) {
 }
 
 String getConditionName(int id, BuildContext context) {
-  final s = S.of(context);
+  final s = S.of(context)!;
   if (s.language_code == 'en') {
     return conditions.firstWhere((element) => element.id == id).nameEn;
   } else if (s.language_code == 'ru') {

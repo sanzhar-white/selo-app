@@ -24,6 +24,106 @@ import 'package:selo/core/theme/responsive_radius.dart';
 
 import 'package:selo/core/utils/utils.dart';
 
+class HomePageController extends ChangeNotifier {
+  final WidgetRef ref;
+  final ScrollController scrollController = ScrollController();
+  PaginationModel paginationModel = PaginationModel(
+    pageSize: 10,
+    currentPage: 1,
+    refresh: false,
+  );
+  bool isInitialized = false;
+  bool isAnonymous = false;
+  String? lastError;
+
+  HomePageController(this.ref) {
+    scrollController.addListener(_onScroll);
+  }
+
+  Future<void> initializeData() async {
+    final homeNotifier = ref.read(homeNotifierProvider.notifier);
+    await Future.wait([
+      homeNotifier.loadAllAdvertisements(
+        refresh: false,
+        page: paginationModel.currentPage,
+        pageSize: paginationModel.pageSize,
+      ),
+      homeNotifier.loadBanners(),
+      ref.read(categoriesNotifierProvider.notifier).loadCategories(),
+    ]);
+    final user = ref.read(userNotifierProvider).user;
+    if (user != null) {
+      await ref
+          .read(favouritesNotifierProvider.notifier)
+          .getFavourites(UserUidModel(uid: user.uid));
+    }
+    isAnonymous = await ref.read(userNotifierProvider.notifier).isAnonymous();
+    isInitialized = true;
+    notifyListeners();
+  }
+
+  Future<void> refreshContent() async {
+    final homeNotifier = ref.read(homeNotifierProvider.notifier);
+    paginationModel = paginationModel.copyWith(refresh: true, currentPage: 1);
+    notifyListeners();
+    await Future.wait([
+      homeNotifier.loadAllAdvertisements(
+        refresh: true,
+        page: paginationModel.currentPage,
+        pageSize: paginationModel.pageSize,
+      ),
+      homeNotifier.loadBanners(),
+      ref.read(categoriesNotifierProvider.notifier).loadCategories(),
+    ]);
+    final user = ref.read(userNotifierProvider).user;
+    if (user != null) {
+      await ref
+          .read(favouritesNotifierProvider.notifier)
+          .getFavourites(UserUidModel(uid: user.uid));
+    }
+    paginationModel = paginationModel.copyWith(refresh: false);
+    notifyListeners();
+  }
+
+  void _onScroll() {
+    if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent * 0.9 &&
+        !ref.read(homeNotifierProvider).isLoading) {
+      final homeState = ref.read(homeNotifierProvider);
+      if (homeState.hasMoreAll) {
+        paginationModel = paginationModel.copyWith(
+          currentPage: homeState.currentPageAll + 1,
+        );
+        notifyListeners();
+        ref
+            .read(homeNotifierProvider.notifier)
+            .loadAllAdvertisements(
+              refresh: false,
+              page: paginationModel.currentPage,
+              pageSize: paginationModel.pageSize,
+            );
+      }
+    }
+  }
+
+  void showError(BuildContext context, String? error) {
+    if (error != null && error != lastError) {
+      lastError = error;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error, style: contrastBoldM(context))),
+        );
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+}
+
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -32,143 +132,23 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  final ScrollController _scrollController = ScrollController();
-  bool isAnonymous = false;
+  late final HomePageController controller;
   final TextEditingController searchQuery = TextEditingController();
-  String? _lastError;
-  bool _isInitialized = false;
-
-  PaginationModel _paginationModel = PaginationModel(
-    pageSize: 10,
-    currentPage: 1,
-    refresh: false,
-  );
 
   @override
   void initState() {
     super.initState();
+    controller = HomePageController(ref);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeData();
+      controller.initializeData();
     });
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    controller.dispose();
     searchQuery.dispose();
     super.dispose();
-  }
-
-  Future<void> _initializeData() async {
-    final homeNotifier = ref.read(homeNotifierProvider.notifier);
-
-    // Load all data in parallel
-    await Future.wait([
-      homeNotifier.loadAllAdvertisements(
-        refresh: false,
-        page: _paginationModel.currentPage,
-        pageSize: _paginationModel.pageSize,
-      ),
-      homeNotifier.loadBanners(),
-      ref.read(categoriesNotifierProvider.notifier).loadCategories(),
-    ]);
-
-    if (!mounted) return;
-
-    final user = ref.read(userNotifierProvider).user;
-    if (user != null) {
-      await ref
-          .read(favouritesNotifierProvider.notifier)
-          .getFavourites(UserUidModel(uid: user.uid));
-    }
-
-    isAnonymous = await ref.read(userNotifierProvider.notifier).isAnonymous();
-    if (mounted) {
-      setState(() {
-        _isInitialized = true;
-      });
-    }
-
-    if (ref.read(homeNotifierProvider).allAdvertisements == null ||
-        ref.read(homeNotifierProvider).allAdvertisements!.isEmpty) {
-      await _refreshContent();
-    }
-  }
-
-  Future<void> _refreshContent() async {
-    final homeNotifier = ref.read(homeNotifierProvider.notifier);
-
-    setState(() {
-      _paginationModel = _paginationModel.copyWith(
-        refresh: true,
-        currentPage: 1,
-      );
-    });
-
-    // Load all data in parallel
-    await Future.wait([
-      homeNotifier.loadAllAdvertisements(
-        refresh: true,
-        page: _paginationModel.currentPage,
-        pageSize: _paginationModel.pageSize,
-      ),
-      homeNotifier.loadBanners(),
-      ref.read(categoriesNotifierProvider.notifier).loadCategories(),
-    ]);
-
-    if (!mounted) return;
-
-    final user = ref.read(userNotifierProvider).user;
-    if (user != null) {
-      await ref
-          .read(favouritesNotifierProvider.notifier)
-          .getFavourites(UserUidModel(uid: user.uid));
-    }
-
-    setState(() {
-      _paginationModel = _paginationModel.copyWith(refresh: false);
-    });
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent * 0.9 &&
-        !ref.read(homeNotifierProvider).isLoading) {
-      final homeState = ref.read(homeNotifierProvider);
-      if (homeState.hasMoreAll) {
-        setState(() {
-          _paginationModel = _paginationModel.copyWith(
-            currentPage: homeState.currentPageAll + 1,
-          );
-        });
-        ref
-            .read(homeNotifierProvider.notifier)
-            .loadAllAdvertisements(
-              refresh: false,
-              page: _paginationModel.currentPage,
-              pageSize: _paginationModel.pageSize,
-            );
-      }
-    }
-  }
-
-  void _showError(String? error) {
-    if (error != null && mounted && error != _lastError) {
-      _lastError = error;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(error)));
-        }
-      });
-    }
   }
 
   @override
@@ -178,23 +158,24 @@ class _HomePageState extends ConsumerState<HomePage> {
     final homeState = ref.watch(homeNotifierProvider);
     final categories = ref.watch(categoriesNotifierProvider);
 
-    _showError(homeState.error);
+    controller.showError(context, homeState.error);
 
-    if (!_isInitialized ||
-        (homeState.isLoading && homeState.allAdvertisements == null)) {
+    if (homeState.isLoading && homeState.allAdvertisements == null) {
       return const HomePageShimmer();
     }
 
-    final adverts = homeState.allAdvertisements ?? [];
+    final List<AdvertModel> adverts = homeState.allAdvertisements ?? [];
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: _refreshContent,
+        onRefresh: controller.refreshContent,
         child: CustomScrollView(
-          controller: _scrollController,
+          key: const Key('home_scroll_view'),
+          controller: controller.scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SearchAppBarWidget(
+              key: const Key('search_app_bar'),
               searchQuery: searchQuery,
               onSearchSubmitted: (value) {
                 if (value.isNotEmpty) {
@@ -212,6 +193,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               },
             ),
             BannersBodyWidget(
+              key: const Key('banners_body'),
               banners:
                   homeState.banners
                       ?.map((banner) => BannerModel(imageUrl: banner))
@@ -225,7 +207,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   vertical: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context).all_categories,
+                  S.of(context)!.all_categories,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -237,17 +219,20 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                  (context, index) => CategoryCard(
-                    category:
-                        categories.valueOrNull?[index] ??
-                        AdCategory(
-                          id: 0,
-                          nameEn: '',
-                          nameRu: '',
-                          nameKk: '',
-                          imageUrl: '',
-                          settings: {},
-                        ),
+                  (context, index) => RepaintBoundary(
+                    key: Key('category_card_$index'),
+                    child: CategoryCard(
+                      category:
+                          categories.valueOrNull?[index] ??
+                          AdCategory(
+                            id: 0,
+                            nameEn: '',
+                            nameRu: '',
+                            nameKk: '',
+                            imageUrl: '',
+                            settings: {},
+                          ),
+                    ),
                   ),
                   childCount: categories.valueOrNull?.length ?? 0,
                 ),
@@ -266,7 +251,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   top: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context).all_ads,
+                  S.of(context)!.all_ads,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -277,7 +262,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   child: Padding(
                     padding: EdgeInsets.all(screenSize.width * 0.04),
                     child: Text(
-                      S.of(context).no_ads_found,
+                      S.of(context)!.no_ads_found,
                       style: contrastBoldM(context),
                     ),
                   ),
@@ -292,7 +277,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                 sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final advert = adverts[index];
-                    return AdvertMiniCard(advert: advert);
+                    return RepaintBoundary(
+                      key: Key('advert_card_$index'),
+                      child: AdvertMiniCard(advert: advert),
+                    );
                   }, childCount: adverts.length),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: screenSize.width > 600 ? 3 : 2,

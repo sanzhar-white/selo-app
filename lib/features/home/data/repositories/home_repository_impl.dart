@@ -1,22 +1,36 @@
 import 'package:selo/core/resources/data_state.dart';
+import 'package:selo/core/services/cache_manager.dart';
+import 'package:selo/core/services/local_storage_service.dart';
 import 'package:selo/features/home/data/datasources/home_interface.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
 import 'package:selo/features/home/domain/repositories/home_repository.dart';
 import 'package:selo/shared/models/advert_model.dart';
 
-class HomeRepositoryImpl extends HomeRepository
-    implements HomeScreenRemoteDataSourceInterface {
+class HomeRepositoryImpl extends HomeRepository {
   final HomeScreenRemoteDataSourceInterface _homeInterface;
+  final CacheManager _cacheManager;
 
-  HomeRepositoryImpl(this._homeInterface);
+  HomeRepositoryImpl(this._homeInterface, this._cacheManager);
 
   @override
   Future<DataState<List<String>>> getBanners() async {
     try {
+      if (!_cacheManager.shouldRefresh()) {
+        final cachedBanners = await LocalStorageService.getCachedBanners();
+        if (cachedBanners != null && cachedBanners.isNotEmpty) {
+          final bannerUrls = cachedBanners.map((e) => e.imageUrl).toList();
+          return DataSuccess(bannerUrls);
+        }
+      }
+
       final result = await _homeInterface.getBanners();
       if (result is DataSuccess) {
-        final banners = result.data?.map((banner) => banner).toList();
-        return DataSuccess(banners ?? []);
+        final banners = result.data ?? [];
+        final bannerModels =
+            banners.map((e) => BannerModel(imageUrl: e)).toList();
+        await LocalStorageService.cacheBanners(bannerModels);
+        _cacheManager.updateLastFetchTime();
+        return DataSuccess(banners);
       }
       return result;
     } catch (e, stackTrace) {
@@ -29,7 +43,21 @@ class HomeRepositoryImpl extends HomeRepository
     PaginationModel paginationModel,
   ) async {
     try {
-      return await _homeInterface.getAllAdvertisements(paginationModel);
+      final cachedAds = await LocalStorageService.getCachedAdvertisements(
+        paginationModel.currentPage,
+      );
+      if (cachedAds != null && cachedAds.isNotEmpty) {
+        return DataSuccess(cachedAds);
+      }
+
+      final result = await _homeInterface.getAllAdvertisements(paginationModel);
+      if (result is DataSuccess) {
+        await LocalStorageService.cacheAdvertisements(
+          result.data!,
+          paginationModel.currentPage,
+        );
+      }
+      return result;
     } catch (e, stackTrace) {
       return DataFailed(Exception(e), stackTrace);
     }
@@ -52,12 +80,27 @@ class HomeRepositoryImpl extends HomeRepository
     }
 
     try {
-      return await _homeInterface.getFilteredAdvertisements(
+      final filterParams = searchModel.toMap().map(
+        (key, value) => MapEntry(key, value.toString()),
+      );
+      final cachedFilteredAds = await LocalStorageService.getCachedFilteredAds(
+        filterParams,
+      );
+      if (cachedFilteredAds != null && cachedFilteredAds.isNotEmpty) {
+        return DataSuccess(cachedFilteredAds);
+      }
+
+      final result = await _homeInterface.getFilteredAdvertisements(
         searchModel.copyWith(
           category: searchModel.category == null ? null : searchModel.category,
         ),
         paginationModel,
       );
+
+      if (result is DataSuccess) {
+        await LocalStorageService.cacheFilteredAds(result.data!, filterParams);
+      }
+      return result;
     } catch (e, stackTrace) {
       return DataFailed(Exception(e), stackTrace);
     }

@@ -5,8 +5,8 @@ import 'l10n.dart';
 // ignore_for_file: type=lint
 
 /// The translations for English (`en`).
-class L10nEn extends L10n {
-  L10nEn([String locale = 'en']) : super(locale);
+class SEn extends S {
+  SEn([String locale = 'en']) : super(locale);
 
   @override
   String get language => 'English';
@@ -46,6 +46,9 @@ class L10nEn extends L10n {
 
   @override
   String get withoutregistor => 'Continue without registration';
+
+  @override
+  String get error_verification => 'Error during verification';
 
   @override
   String get nav_add => 'Add';
@@ -267,6 +270,12 @@ class L10nEn extends L10n {
   String get select_image_source => 'Select Image Source';
 
   @override
+  String get image_less_size => 'Image size should be less than 25MB';
+
+  @override
+  String get max_images => 'Maximum 10 images allowed';
+
+  @override
   String get condition => 'Condition';
 
   @override
@@ -435,4 +444,11 @@ class L10nEn extends L10n {
 
   @override
   String get views => 'Views';
+
+  @override
+  String get advertisement_created => 'Advertisement created successfully';
+
+  @override
+  String get failed_to_created_advertisement =>
+      'Failed to create advertisement';
 }

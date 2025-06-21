@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'package:selo/features/add/presentation/providers/categories_provider.dart';
@@ -27,6 +28,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     with SingleTickerProviderStateMixin {
   bool _isTogglingFavourite = false;
   bool _isInitialized = false;
+  bool _isDescriptionExpanded = false;
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _rotationAnimation;
@@ -84,6 +86,23 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     }
   }
 
+  void _onShare(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Share functionality coming soon!',
+          style: contrastBoldM(context),
+        ),
+      ),
+    );
+  }
+
+  void _toggleDescription() {
+    setState(() {
+      _isDescriptionExpanded = !_isDescriptionExpanded;
+    });
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -112,7 +131,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
 
     return Scaffold(
       body: CustomScrollView(
-        physics: ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         slivers: [
           // Image section
           SliverToBoxAdapter(
@@ -133,23 +152,26 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                             curve: Curves.easeOut,
                           ),
                         ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.arrow_back,
-                            color: colorScheme.surface,
-                            shadows: [
-                              BoxShadow(
-                                color: colorScheme.inversePrimary,
-                                blurRadius: 50,
-                              ),
-                            ],
+                        child: Semantics(
+                          label: 'Back',
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                              shadows: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 50,
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              _animationController.forward().then((_) {
+                                _animationController.reverse();
+                                context.pop();
+                              });
+                            },
                           ),
-                          onPressed: () {
-                            _animationController.forward().then((_) {
-                              _animationController.reverse();
-                              context.pop();
-                            });
-                          },
                         ),
                       ),
                     ),
@@ -164,51 +186,70 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                             scale: _scaleAnimation,
                             child: RotationTransition(
                               turns: _rotationAnimation,
-                              child: IconButton(
-                                onPressed:
-                                    _isTogglingFavourite
-                                        ? null
-                                        : _toggleFavourite,
-                                icon:
-                                    _isTogglingFavourite
-                                        ? const SizedBox(
-                                          width: 28,
-                                          height: 28,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                        : Icon(
-                                          isFavourite
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color:
-                                              isFavourite
-                                                  ? Colors.red
-                                                  : colorScheme.surface,
-                                          size: 28,
-                                          shadows: [
-                                            BoxShadow(
-                                              color: colorScheme.inversePrimary,
-                                              blurRadius: 50,
-                                            ),
-                                          ],
-                                        ),
+                              child: Consumer(
+                                builder: (context, ref, _) {
+                                  final isFavourite = ref
+                                      .watch(favouriteStatusProvider)
+                                      .contains(widget.advert.uid);
+                                  return Semantics(
+                                    label:
+                                        isFavourite
+                                            ? 'Remove from favourites'
+                                            : 'Add to favourites',
+                                    child: IconButton(
+                                      onPressed:
+                                          _isTogglingFavourite
+                                              ? null
+                                              : _toggleFavourite,
+                                      icon:
+                                          _isTogglingFavourite
+                                              ? const SizedBox(
+                                                width: 28,
+                                                height: 28,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      color: Colors.white,
+                                                    ),
+                                              )
+                                              : Icon(
+                                                isFavourite
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color:
+                                                    isFavourite
+                                                        ? Theme.of(
+                                                          context,
+                                                        ).colorScheme.error
+                                                        : Colors.white,
+                                                size: 28,
+                                                shadows: const [
+                                                  BoxShadow(
+                                                    color: Colors.black26,
+                                                    blurRadius: 50,
+                                                  ),
+                                                ],
+                                              ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.share,
-                              color: colorScheme.surface,
-                              shadows: [
-                                BoxShadow(
-                                  color: colorScheme.inversePrimary,
-                                  blurRadius: 50,
-                                ),
-                              ],
+                          Semantics(
+                            label: 'Share',
+                            child: IconButton(
+                              onPressed: () => _onShare(context),
+                              icon: const Icon(
+                                Icons.share,
+                                color: Colors.white,
+                                shadows: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 50,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -234,21 +275,22 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                     Text(
                       widget.advert.title,
                       style: contrastBoldM(context).copyWith(fontSize: 22),
-                      semanticsLabel: S.of(context).title_of_ad,
+                      semanticsLabel: S.of(context)!.title_of_ad,
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.location_on,
                           size: 16,
-                          color: colorScheme.secondary,
+                          color: Colors.grey,
+                          semanticLabel: 'Location',
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(
                           '${getRegionName(widget.advert.region ?? 0)}, ${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
                           style: grayM(context),
-                          semanticsLabel: S.of(context).location,
+                          semanticsLabel: S.of(context)!.location,
                         ),
                       ],
                     ),
@@ -296,6 +338,8 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                     _DescriptionCard(
                       advert: widget.advert,
                       colorScheme: colorScheme,
+                      expanded: _isDescriptionExpanded,
+                      onToggle: _toggleDescription,
                     ),
                     const SizedBox(height: 12),
                     // Stats
@@ -321,87 +365,115 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
 }
 
 // Image carousel
-class _ImageCarousel extends StatelessWidget {
+class _ImageCarousel extends StatefulWidget {
   final List<String> images;
+  const _ImageCarousel({required this.images, super.key});
 
-  const _ImageCarousel({required this.images});
+  @override
+  State<_ImageCarousel> createState() => _ImageCarouselState();
+}
+
+class _ImageCarouselState extends State<_ImageCarousel> {
+  int _currentPage = 0;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-
-    return images.isEmpty
-        ? Container(
-          color: colorScheme.onSurface.withOpacity(0.1),
-          child: const Center(
-            child: Icon(
-              Icons.image_not_supported,
-              size: 48,
-              color: Colors.grey,
-            ),
+    final images = widget.images;
+    if (images.isEmpty) {
+      return Container(
+        color: colorScheme.onSurface.withOpacity(0.1),
+        child: const Center(
+          child: Icon(
+            Icons.image_not_supported,
+            size: 48,
+            color: Colors.grey,
+            semanticLabel: 'No image',
           ),
-        )
-        : Stack(
-          children: [
-            PageView.builder(
-              itemCount: images.length,
-              itemBuilder:
-                  (context, index) => CachedNetworkImage(
-                    imageUrl: images[index],
-                    fit: BoxFit.cover,
-                    placeholder:
-                        (context, url) => Container(
-                          color: colorScheme.onSurface.withOpacity(0.1),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.grey,
-                              ),
-                            ),
+        ),
+      );
+    }
+    return Stack(
+      children: [
+        PageView.builder(
+          controller: _pageController,
+          itemCount: images.length,
+          onPageChanged: (index) => setState(() => _currentPage = index),
+          itemBuilder:
+              (context, index) => CachedNetworkImage(
+                key: Key('carousel_image_$index'),
+                imageUrl: images[index],
+                fit: BoxFit.cover,
+                placeholder:
+                    (context, url) => Container(
+                      color: colorScheme.onSurface.withOpacity(0.1),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.grey,
                           ),
                         ),
-                    errorWidget:
-                        (context, url, error) => Container(
-                          color: colorScheme.onSurface.withOpacity(0.1),
-                          child: const Center(
-                            child: Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                    fadeInDuration: const Duration(milliseconds: 300),
-                    fadeOutDuration: const Duration(milliseconds: 300),
-                    memCacheWidth:
-                        (MediaQuery.of(context).size.width * 1.5).toInt(),
-                    memCacheHeight:
-                        (MediaQuery.of(context).size.height * 0.4 * 1.5)
-                            .toInt(),
-                  ),
-            ),
-            Positioned(
-              bottom: 16,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  images.length,
-                  (index) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.8),
+                      ),
                     ),
-                  ),
+                errorWidget:
+                    (context, url, error) => Container(
+                      color: colorScheme.onSurface.withOpacity(0.1),
+                      child: Center(
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.error,
+                          semanticLabel: ErrorMessages.imageLoadError,
+                        ),
+                      ),
+                    ),
+                fadeInDuration: const Duration(milliseconds: 300),
+                fadeOutDuration: const Duration(milliseconds: 300),
+                memCacheWidth:
+                    (MediaQuery.of(context).size.width * 1.5).toInt(),
+                memCacheHeight:
+                    (MediaQuery.of(context).size.height * 0.4 * 1.5).toInt(),
+              ),
+        ),
+        Positioned(
+          bottom: 16,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              images.length,
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: _currentPage == index ? 12 : 8,
+                height: _currentPage == index ? 12 : 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color:
+                      _currentPage == index
+                          ? colorScheme.primary
+                          : Colors.white.withOpacity(0.8),
                 ),
               ),
             ),
-          ],
-        );
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -431,14 +503,14 @@ class _PriceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).price,
+              S.of(context)!.price,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).price,
+              semanticsLabel: S.of(context)!.price,
             ),
             const SizedBox(height: 8),
             if (advert.price == 0)
               Text(
-                S.of(context).negotiable,
+                S.of(context)!.negotiable,
                 style: grayM(context).copyWith(fontSize: 16),
               )
             else ...[
@@ -451,9 +523,9 @@ class _PriceCard extends StatelessWidget {
                   category.settings['tradeable'] == true) ...[
                 const SizedBox(height: 8),
                 Text(
-                  S.of(context).trade_possible,
+                  S.of(context)!.trade_possible,
                   style: grayS(context).copyWith(color: colorScheme.secondary),
-                  semanticsLabel: S.of(context).trade_possible,
+                  semanticsLabel: S.of(context)!.trade_possible,
                 ),
               ],
             ],
@@ -479,7 +551,7 @@ class _PriceRange extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '${S.of(context).from}: ${minPrice.toStringAsFixed(0)} ₸\n${S.of(context).to}: ${maxPrice.toStringAsFixed(0)} ₸',
+      '${S.of(context)!.from}: ${minPrice.toStringAsFixed(0)} ₸\n${S.of(context)!.to}: ${maxPrice.toStringAsFixed(0)} ₸',
       style: contrastBoldM(context),
     );
   }
@@ -511,54 +583,54 @@ class _DetailsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).details,
+              S.of(context)!.details,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).details,
+              semanticsLabel: S.of(context)!.details,
             ),
             const SizedBox(height: 12),
             _InfoRow(
-              title: S.of(context).phone_number,
+              title: S.of(context)!.phone_number,
               value:
                   advert.phoneNumber.isNotEmpty
                       ? advert.phoneNumber
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: true,
               icon: Icons.phone,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).phone_number,
+              semanticsLabel: S.of(context)!.phone_number,
             ),
             _InfoRow(
-              title: S.of(context).category,
+              title: S.of(context)!.category,
               value:
                   getLocalizedCategory(category, context).isNotEmpty
                       ? getLocalizedCategory(category, context)
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: true,
               icon: Icons.category,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).category,
+              semanticsLabel: S.of(context)!.category,
             ),
             _InfoRow(
-              title: S.of(context).contact_person,
+              title: S.of(context)!.contact_person,
               value:
                   advert.contactPerson?.isNotEmpty == true
                       ? advert.contactPerson!
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: category.settings['contactPerson'] == true,
               icon: Icons.person,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).contact_person,
+              semanticsLabel: S.of(context)!.contact_person,
             ),
             _InfoRow(
-              title: S.of(context).company,
+              title: S.of(context)!.company,
               value:
                   advert.companyName?.isNotEmpty == true
                       ? advert.companyName!
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: category.settings['companyName'] == true,
               icon: Icons.business,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).company,
+              semanticsLabel: S.of(context)!.company,
             ),
           ],
         ),
@@ -594,9 +666,9 @@ class _QuantityCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).quantity,
+              S.of(context)!.quantity,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).quantity,
+              semanticsLabel: S.of(context)!.quantity,
             ),
             const SizedBox(height: 12),
             if (category.settings['quantity'] == true &&
@@ -607,7 +679,7 @@ class _QuantityCard extends StatelessWidget {
                 advert.maxQuantity! > 0)
               _QuantityTag(
                 value:
-                    '${S.of(context).from} ${advert.quantity} $unit \n${S.of(context).to} ${advert.maxQuantity} $unit',
+                    '${S.of(context)!.from} ${advert.quantity} $unit \n${S.of(context)!.to} ${advert.maxQuantity} $unit',
                 colorScheme: colorScheme,
               )
             else if (category.settings['quantity'] == true &&
@@ -626,7 +698,7 @@ class _QuantityCard extends StatelessWidget {
               )
             else
               Text(
-                S.of(context).unknown,
+                S.of(context)!.unknown,
                 style: grayM(context).copyWith(fontSize: 16),
               ),
           ],
@@ -680,32 +752,32 @@ class _ItemDetailsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).item_details,
+              S.of(context)!.item_details,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).item_details,
+              semanticsLabel: S.of(context)!.item_details,
             ),
             const SizedBox(height: 12),
             _InfoRow(
-              title: S.of(context).condition,
+              title: S.of(context)!.condition,
               value:
                   advert.condition != null && advert.condition != 0
                       ? getConditionName(advert.condition!, context)
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: category.settings['condition'] == true,
               icon: Icons.build,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).condition,
+              semanticsLabel: S.of(context)!.condition,
             ),
             _InfoRow(
-              title: S.of(context).year_of_release,
+              title: S.of(context)!.year_of_release,
               value:
                   advert.year != null && advert.year! > 0
                       ? advert.year.toString()
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: category.settings['year'] == true,
               icon: Icons.calendar_today,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).year_of_release,
+              semanticsLabel: S.of(context)!.year_of_release,
             ),
           ],
         ),
@@ -718,12 +790,24 @@ class _ItemDetailsCard extends StatelessWidget {
 class _DescriptionCard extends StatelessWidget {
   final AdvertModel advert;
   final ColorScheme colorScheme;
+  final bool expanded;
+  final VoidCallback onToggle;
 
-  const _DescriptionCard({required this.advert, required this.colorScheme});
+  const _DescriptionCard({
+    required this.advert,
+    required this.colorScheme,
+    this.expanded = false,
+    required this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
     final radius = ResponsiveRadius.screenBased(context);
+    final description =
+        advert.description.isNotEmpty
+            ? advert.description
+            : S.of(context)!.unknown;
+    final isLong = description.length > 180;
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
@@ -735,18 +819,23 @@ class _DescriptionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).description,
+              S.of(context)!.description,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).description,
+              semanticsLabel: S.of(context)!.description,
             ),
             const SizedBox(height: 12),
             Text(
-              advert.description.isNotEmpty
-                  ? advert.description
-                  : S.of(context).unknown,
+              isLong && !expanded
+                  ? description.substring(0, 180) + '...'
+                  : description,
               style: grayM(context).copyWith(fontSize: 14, height: 1.6),
-              semanticsLabel: S.of(context).description,
+              semanticsLabel: S.of(context)!.description,
             ),
+            if (isLong)
+              TextButton(
+                onPressed: onToggle,
+                child: Text(expanded ? 'Show less' : 'Show more'),
+              ),
           ],
         ),
       ),
@@ -783,9 +872,9 @@ class _StatsCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Semantics(
-                  label: S.of(context).views,
+                  label: S.of(context)!.views,
                   child: Text(
-                    '${advert.views} ${S.of(context).views}',
+                    '${advert.views} ${S.of(context)!.views}',
                     style: grayS(context),
                   ),
                 ),
@@ -796,9 +885,9 @@ class _StatsCard extends StatelessWidget {
                 Icon(Icons.favorite, size: 16, color: colorScheme.secondary),
                 const SizedBox(width: 4),
                 Semantics(
-                  label: S.of(context).likes,
+                  label: S.of(context)!.likes,
                   child: Text(
-                    '${advert.likes} ${S.of(context).likes}',
+                    '${advert.likes} ${S.of(context)!.likes}',
                     style: grayS(context),
                   ),
                 ),
@@ -822,7 +911,7 @@ class _ActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _ActionButton(
       icon: Icons.call,
-      label: S.of(context).call,
+      label: S.of(context)!.call,
       onTap: onCall,
       colorScheme: colorScheme,
     );

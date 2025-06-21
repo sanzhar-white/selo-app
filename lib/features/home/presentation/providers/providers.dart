@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:selo/core/services/cache_manager.dart';
 import 'package:selo/features/home/data/datasources/home_interface.dart';
 import 'package:selo/features/home/data/datasources/firebase_datasource.dart';
 import 'package:selo/features/home/data/repositories/home_repository_impl.dart';
@@ -10,6 +11,8 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'home/home_notifier.dart';
 import 'home/home_state.dart';
 
+final cacheManagerProvider = Provider<CacheManager>((ref) => CacheManager());
+
 final firebaseDatasourceProvider =
     Provider<HomeScreenRemoteDataSourceInterface>(
       (ref) => FirebaseHomeScreenRemoteDataSource(
@@ -19,7 +22,10 @@ final firebaseDatasourceProvider =
     );
 
 final homeRepositoryProvider = Provider<HomeRepository>(
-  (ref) => HomeRepositoryImpl(ref.watch(firebaseDatasourceProvider)),
+  (ref) => HomeRepositoryImpl(
+    ref.watch(firebaseDatasourceProvider),
+    ref.watch(cacheManagerProvider),
+  ),
 );
 
 final getBannersUseCaseProvider = Provider<GetBannersUseCase>(

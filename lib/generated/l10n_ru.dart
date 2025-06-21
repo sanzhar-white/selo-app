@@ -5,8 +5,8 @@ import 'l10n.dart';
 // ignore_for_file: type=lint
 
 /// The translations for Russian (`ru`).
-class L10nRu extends L10n {
-  L10nRu([String locale = 'ru']) : super(locale);
+class SRu extends S {
+  SRu([String locale = 'ru']) : super(locale);
 
   @override
   String get language => 'Русский';
@@ -15,26 +15,26 @@ class L10nRu extends L10n {
   String get language_code => 'ru';
 
   @override
-  String get language_display_code => 'РУС';
+  String get language_display_code => 'RUS';
 
   @override
   String get language_title => 'Язык';
 
   @override
-  String get theme_light => 'Светлая';
+  String get theme_light => 'Светлая тема';
 
   @override
-  String get theme_dark => 'Тёмная';
+  String get theme_dark => 'Тёмная тема';
 
   @override
   String get continue_ => 'Продолжить';
 
   @override
   String get greeting =>
-      'Пройдите быструю регистрацию\nи найдите клиентов уже сегодня';
+      'Пройди быструю регистрацию\nи начинай находить клиентов уже сегодня';
 
   @override
-  String get login => 'Войти';
+  String get login => 'Вход';
 
   @override
   String get register => 'Регистрация';
@@ -47,6 +47,9 @@ class L10nRu extends L10n {
 
   @override
   String get withoutregistor => 'Продолжить без регистрации';
+
+  @override
+  String get error_verification => 'Ошибка во время проверки';
 
   @override
   String get nav_add => 'Добавить';
@@ -70,7 +73,7 @@ class L10nRu extends L10n {
   String get category => 'Категория';
 
   @override
-  String get no_ads_found => 'Объявления не найдены';
+  String get no_ads_found => 'Объявлений не найдено';
 
   @override
   String get search_hint => 'Поиск по Казахстану';
@@ -112,10 +115,10 @@ class L10nRu extends L10n {
   String get from => 'От';
 
   @override
-  String get max_price => 'Макс. цена';
+  String get max_price => 'Максимальная цена';
 
   @override
-  String get max_price_required => 'Укажите максимальную цену';
+  String get max_price_required => 'Укажи максимальную цену';
 
   @override
   String get negotiable => 'Договорная';
@@ -124,13 +127,13 @@ class L10nRu extends L10n {
   String get price => 'Цена';
 
   @override
-  String get price_hint => 'Введите цену';
+  String get price_hint => 'Укажи цену';
 
   @override
   String get price_per_unit => 'Цена за единицу';
 
   @override
-  String get price_range => 'Ценовой диапазон';
+  String get price_range => 'Диапазон цен';
 
   @override
   String get price_required => 'Цена обязательна';
@@ -148,10 +151,10 @@ class L10nRu extends L10n {
   String get trade_possible => 'Обмен возможен';
 
   @override
-  String get add_appbar_pick_category => 'Выберите категорию объявления';
+  String get add_appbar_pick_category => 'Выбери категорию';
 
   @override
-  String get add_appbar_title => 'Создание объявления';
+  String get add_appbar_title => 'Новое объявление';
 
   @override
   String get create_advert => 'Создать объявление';
@@ -160,7 +163,7 @@ class L10nRu extends L10n {
   String get description => 'Описание';
 
   @override
-  String get description_hint => 'Подробно опишите объявление';
+  String get description_hint => 'Подробно опиши объявление';
 
   @override
   String get description_required => 'Описание обязательно';
@@ -169,10 +172,10 @@ class L10nRu extends L10n {
   String get label_new_advert => 'НОВОЕ!';
 
   @override
-  String get title_of_ad => 'Заголовок объявления';
+  String get title_of_ad => 'Заголовок';
 
   @override
-  String get title_of_ad_hint => 'Введите заголовок';
+  String get title_of_ad_hint => 'Введи заголовок';
 
   @override
   String get title_of_ad_required => 'Заголовок обязателен';
@@ -181,7 +184,7 @@ class L10nRu extends L10n {
   String get address => 'Адрес';
 
   @override
-  String get address_hint => 'Введите адрес';
+  String get address_hint => 'Введи адрес';
 
   @override
   String get company => 'Компания';
@@ -190,7 +193,7 @@ class L10nRu extends L10n {
   String get company_hint => 'Пример: ТОО \'WWW\'';
 
   @override
-  String get company_required => 'Укажите компанию';
+  String get company_required => 'Укажи компанию';
 
   @override
   String get contact_person => 'Контактное лицо';
@@ -199,46 +202,46 @@ class L10nRu extends L10n {
   String get contact_person_hint => 'Пример: Иван Иванов';
 
   @override
-  String get contact_person_required => 'Контактное лицо обязательно';
+  String get contact_person_required => 'Контакт обязателен';
 
   @override
   String get district => 'Район';
 
   @override
-  String get district_required => 'Район обязателен';
+  String get district_required => 'Укажи район';
 
   @override
-  String get district_select => 'Выберите район';
+  String get district_select => 'Выбери район';
 
   @override
   String get location => 'Местоположение';
 
   @override
-  String get location_hint => 'Введите местоположение';
+  String get location_hint => 'Укажи местоположение';
 
   @override
   String get phone_number => 'Телефон';
 
   @override
-  String get phone_number_hint => 'Введите номер телефона';
+  String get phone_number_hint => 'Введи номер';
 
   @override
-  String get phone_number_invalid => 'Неверный номер телефона';
+  String get phone_number_invalid => 'Неверный номер';
 
   @override
-  String get phone_number_required => 'Телефон обязателен';
+  String get phone_number_required => 'Номер обязателен';
 
   @override
-  String get region => 'Область';
+  String get region => 'Регион';
 
   @override
   String get region_required => 'Регион обязателен';
 
   @override
-  String get region_select => 'Выберите регион';
+  String get region_select => 'Выбери регион';
 
   @override
-  String get your_phone_number => 'Ваш номер телефона';
+  String get your_phone_number => 'Твой номер телефона';
 
   @override
   String get add_photo => 'Добавить фото';
@@ -250,22 +253,28 @@ class L10nRu extends L10n {
   String get camera => 'Камера';
 
   @override
-  String get image_picker_error => 'Ошибка выбора изображения';
+  String get image_picker_error => 'Ошибка при выборе фото';
 
   @override
-  String get image_upload_error => 'Ошибка загрузки изображения';
+  String get image_upload_error => 'Ошибка загрузки фото';
 
   @override
-  String get images => 'Изображения';
+  String get images => 'Фотографии';
 
   @override
-  String get images_hint => 'Добавьте изображения';
+  String get images_hint => 'Добавь фото';
 
   @override
   String get images_optional => 'необязательно';
 
   @override
-  String get select_image_source => 'Выберите источник изображения';
+  String get select_image_source => 'Выбери источник';
+
+  @override
+  String get image_less_size => 'Размер до 25 МБ';
+
+  @override
+  String get max_images => 'Максимум 10 фото';
 
   @override
   String get condition => 'Состояние';
@@ -280,19 +289,19 @@ class L10nRu extends L10n {
   String get max_quantity => 'Макс. количество';
 
   @override
-  String get max_quantity_hint => 'Введите макс. количество';
+  String get max_quantity_hint => 'Введи максимум';
 
   @override
-  String get max_quantity_required => 'Макс. количество обязательно';
+  String get max_quantity_required => 'Укажи макс. количество';
 
   @override
   String get quantity => 'Количество';
 
   @override
-  String get quantity_hint => 'Введите количество';
+  String get quantity_hint => 'Введи количество';
 
   @override
-  String get quantity_required => 'Количество обязательно';
+  String get quantity_required => 'Укажи количество';
 
   @override
   String get unit => 'Единица';
@@ -304,28 +313,28 @@ class L10nRu extends L10n {
   String get unit_ton => 'тонна';
 
   @override
-  String get volume_quantity => 'Объём / Количество';
+  String get volume_quantity => 'Объём / Кол-во';
 
   @override
   String get year_of_release => 'Год выпуска';
 
   @override
-  String get change_profile_photo => 'Изменить фото профиля';
+  String get change_profile_photo => 'Сменить фото профиля';
 
   @override
-  String get change_saved => 'Изменения успешно сохранены';
+  String get change_saved => 'Изменения сохранены';
 
   @override
   String get lastname => 'Фамилия';
 
   @override
-  String get lastname_hint => 'Введите фамилию';
+  String get lastname_hint => 'Введи фамилию';
 
   @override
   String get name => 'Имя';
 
   @override
-  String get name_hint => 'Введите имя';
+  String get name_hint => 'Введи имя';
 
   @override
   String get profile_title => 'Профиль';
@@ -334,11 +343,10 @@ class L10nRu extends L10n {
   String get profile_update_error => 'Ошибка обновления профиля';
 
   @override
-  String get favourites_anonymous_window =>
-      'Войдите, чтобы просматривать избранное';
+  String get favourites_anonymous_window => 'Войди, чтобы видеть избранное';
 
   @override
-  String get favourites_empty => 'У вас нет избранных объявлений';
+  String get favourites_empty => 'У тебя пока нет избранного';
 
   @override
   String get favourites_title => 'Избранные объявления';
@@ -347,10 +355,10 @@ class L10nRu extends L10n {
   String get my_ads => 'Мои объявления';
 
   @override
-  String get my_ads_empty => 'У вас нет объявлений';
+  String get my_ads_empty => 'Пока нет объявлений';
 
   @override
-  String get my_ads_title => 'Ваши объявления';
+  String get my_ads_title => 'Мои объявления';
 
   @override
   String get account_deleted => 'Аккаунт удалён';
@@ -362,23 +370,22 @@ class L10nRu extends L10n {
   String get delete_account => 'Удалить аккаунт';
 
   @override
-  String get delete_account_confirmation =>
-      'Вы уверены, что хотите удалить аккаунт?';
+  String get delete_account_confirmation => 'Точно хочешь удалить аккаунт?';
 
   @override
-  String get logged_out => 'Вы вышли из аккаунта';
+  String get logged_out => 'Ты вышел из аккаунта';
 
   @override
   String get logout => 'Выйти';
 
   @override
-  String get terms_and_conditions => 'Условия и соглашения';
+  String get terms_and_conditions => 'Условия использования';
 
   @override
-  String get add_anonymous_window => 'Войдите, чтобы создать объявление';
+  String get add_anonymous_window => 'Войди, чтобы создать объявление';
 
   @override
-  String get edit_anonymous_window => 'Войдите, чтобы изменить профиль';
+  String get edit_anonymous_window => 'Войди, чтобы изменить профиль';
 
   @override
   String get no_phone_number => '+7 (XXX) XXX XXXX';
@@ -393,16 +400,16 @@ class L10nRu extends L10n {
   String get delete => 'Удалить';
 
   @override
-  String get details => 'Детали';
+  String get details => 'Подробнее';
 
   @override
   String get edit_profile => 'Редактировать профиль';
 
   @override
-  String get fill_all_fields => 'Заполните все обязательные поля';
+  String get fill_all_fields => 'Заполни все поля';
 
   @override
-  String get item_details => 'Дополнительная информация';
+  String get item_details => 'Доп. информация';
 
   @override
   String get likes => 'Лайки';
@@ -420,7 +427,7 @@ class L10nRu extends L10n {
   String get error => 'Ошибка';
 
   @override
-  String get no_internet_connection => 'Нет подключения к интернету';
+  String get no_internet_connection => 'Нет соединения';
 
   @override
   String get optional => 'Необязательно';
@@ -436,4 +443,10 @@ class L10nRu extends L10n {
 
   @override
   String get views => 'Просмотры';
+
+  @override
+  String get advertisement_created => 'Объявление создано';
+
+  @override
+  String get failed_to_created_advertisement => 'Не удалось создать объявление';
 }

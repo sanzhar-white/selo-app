@@ -58,7 +58,10 @@ class LocationPicker extends StatelessWidget {
 
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: Colors.red, content: Text(message)),
+      SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.error,
+        content: Text(message, style: contrastBoldM(context)),
+      ),
     );
   }
 
@@ -142,7 +145,9 @@ class LocationPicker extends StatelessWidget {
 
     final textStyle =
         error
-            ? contrastM(context).copyWith(color: Colors.red)
+            ? contrastM(
+              context,
+            ).copyWith(color: Theme.of(context).colorScheme.error)
             : contrastM(context);
 
     final effectiveTextStyle =
@@ -152,7 +157,7 @@ class LocationPicker extends StatelessWidget {
 
     final iconColor =
         error
-            ? Colors.red
+            ? Theme.of(context).colorScheme.error
             : (enabled
                 ? colorScheme.inversePrimary
                 : colorScheme.onSurface.withOpacity(0.5));
@@ -173,7 +178,10 @@ class LocationPicker extends StatelessWidget {
             ),
             side:
                 error
-                    ? const BorderSide(color: Colors.red, width: 1.0)
+                    ? BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                      width: 1.0,
+                    )
                     : BorderSide.none,
             disabledBackgroundColor: colorScheme.onSurface.withOpacity(0.1),
           ),
@@ -190,7 +198,10 @@ class LocationPicker extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             errorText,
-            style: const TextStyle(color: Colors.red, fontSize: 12.0),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontSize: 12.0,
+            ),
           ),
         ],
       ],

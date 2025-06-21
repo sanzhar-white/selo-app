@@ -394,26 +394,26 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_app_check
-      sha256: a1a5255b8d19e22f2d7e9ff1a1138268cd74d2c12b31dcb487612a371d7a21e9
+      sha256: "09dccc2f132312d9749dd2fe887e307b413066e664aac45cce3d95cebe50e8ae"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.2+6"
+    version: "0.3.2+7"
   firebase_app_check_platform_interface:
     dependency: transitive
     description:
       name: firebase_app_check_platform_interface
-      sha256: "26c0eca776d5d5ffb727435b71243a00e74000bd2760792921999b04564aaf59"
+      sha256: a468aba05b43f7e427fe8151aa61d97d24812ef4dd5d6bd175473c8881be46af
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1+6"
+    version: "0.1.1+7"
   firebase_app_check_web:
     dependency: transitive
     description:
       name: firebase_app_check_web
-      sha256: "889838c053f024572ba8077cb5a380ff8b224827090a1e5878f004290303ae0e"
+      sha256: "8c9ef22679402e1cecdcfd4d20e87a6dd7e1c99cfc4f0a8abf38db625d39a9a6"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0+10"
+    version: "0.2.0+11"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -502,6 +502,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.6+12"
+  firebase_messaging:
+    dependency: "direct main"
+    description:
+      name: firebase_messaging
+      sha256: "758461f67b96aa5ad27625aaae39882fd6d1961b1c7e005301f9a74b6336100b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "15.2.7"
+  firebase_messaging_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_messaging_platform_interface
+      sha256: "614db1b0df0f53e541e41cc182b6d7ede5763c400f6ba232a5f8d0e1b5e5de32"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.6.7"
+  firebase_messaging_web:
+    dependency: transitive
+    description:
+      name: firebase_messaging_web
+      sha256: b5fbbcdd3e0e7f3fde72b0c119410f22737638fed5fc428b54bba06bc1455d81
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.10.7"
   firebase_storage:
     dependency: "direct main"
     description:
@@ -1042,6 +1066,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
+  recaptcha_enterprise_flutter:
+    dependency: "direct main"
+    description:
+      name: recaptcha_enterprise_flutter
+      sha256: "1b825306c700ff937a37475f5cbbceaa8bc0ff4ac7f1c4bcdbb24e47268ced44"
+      url: "https://pub.dev"
+    source: hosted
+    version: "18.7.1"
   riverpod:
     dependency: transitive
     description:

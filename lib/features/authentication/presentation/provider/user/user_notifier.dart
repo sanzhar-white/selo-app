@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:selo/core/di/di.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/core/services/local_storage_service.dart';
@@ -43,7 +44,7 @@ class UserNotifier extends StateNotifier<UserState> {
       }
       return false;
     } catch (e) {
-      talker.error('Error in use case: $e');
+      talker.error('${ErrorMessages.errorInUseCase}: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
     }
@@ -115,13 +116,26 @@ class UserNotifier extends StateNotifier<UserState> {
       }
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to get user data',
+        error: ErrorMessages.failedToGetUserData,
       );
       return false;
     } catch (e) {
-      talker.error('Error in anonymousLogIn: $e');
+      talker.error('${ErrorMessages.errorInAnonymousLogIn}: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
+    }
+  }
+
+  Future<void> logoutAndClearData() async {
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await ref.read(logOutUseCaseProvider).call();
+    await LocalStorageService.deleteUser();
+    if (result is DataSuccess) {
+      state = const UserState(user: null, isLoading: false, error: null);
+    } else if (result is DataFailed) {
+      state = state.copyWith(isLoading: false, error: result.error.toString());
+    } else {
+      state = state.copyWith(isLoading: false);
     }
   }
 

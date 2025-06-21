@@ -64,13 +64,19 @@ class CustomTextField extends StatelessWidget {
               borderRadius:
                   borderRadius ?? ResponsiveRadius.screenBased(context),
               borderSide: BorderSide(
-                color: error ? Colors.red : Colors.transparent,
+                color:
+                    error
+                        ? Theme.of(context).colorScheme.error
+                        : Colors.transparent,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: error ? Colors.red : Colors.transparent,
+                color:
+                    error
+                        ? Theme.of(context).colorScheme.error
+                        : Colors.transparent,
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -78,13 +84,16 @@ class CustomTextField extends StatelessWidget {
               borderSide: BorderSide(
                 color:
                     error
-                        ? Colors.red
+                        ? Theme.of(context).colorScheme.error
                         : (border ? theme.primary : Colors.transparent),
                 width: 2.0,
               ),
             ),
             errorText: error ? errorText : null,
-            errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
+            errorStyle: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontSize: 12.0,
+            ),
           ),
         ),
       ],

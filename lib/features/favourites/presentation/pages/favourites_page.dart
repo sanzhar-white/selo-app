@@ -6,6 +6,8 @@ import 'package:selo/features/favourites/data/model/favourites_model.dart';
 import 'package:selo/features/favourites/presentation/providers/index.dart';
 import 'package:selo/features/favourites/presentation/widgets/advert_wide_card.dart';
 import 'package:selo/generated/l10n.dart';
+import 'package:selo/shared/models/advert_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FavouritesPage extends ConsumerStatefulWidget {
   const FavouritesPage({super.key});
@@ -48,7 +50,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
       return Scaffold(
         body: Center(
           child: Text(
-            S.of(context).favourites_anonymous_window,
+            S.of(context)!.favourites_anonymous_window,
             style: contrastM(context),
           ),
         ),
@@ -60,7 +62,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
         slivers: [
           SliverAppBar(
             title: Text(
-              S.of(context).favourites_title,
+              S.of(context)!.favourites_title,
               style: contrastBoldL(context),
             ),
             iconTheme: IconThemeData(color: colorScheme.inversePrimary),
@@ -69,8 +71,30 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
             floating: true,
           ),
           if (favouritesState.isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
+            SliverGrid(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return AdvertWideCard(
+                  isLoading: true,
+                  advert: AdvertModel(
+                    uid: '',
+                    ownerUid: '',
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now(),
+                    title: '',
+                    price: 0,
+                    phoneNumber: '',
+                    category: 0,
+                    images: [],
+                    description: '',
+                  ),
+                );
+              }, childCount: 5),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 1,
+                childAspectRatio: 2.2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
             )
           else if (favouritesState.error != null)
             SliverFillRemaining(
@@ -86,7 +110,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
                     ElevatedButton(
                       onPressed: _loadFavourites,
                       child: Text(
-                        S.of(context).retry,
+                        S.of(context)!.retry,
                         style: contrastM(context),
                       ),
                     ),
@@ -99,7 +123,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
             SliverFillRemaining(
               child: Center(
                 child: Text(
-                  S.of(context).favourites_empty,
+                  S.of(context)!.favourites_empty,
                   style: contrastM(context),
                 ),
               ),
@@ -112,7 +136,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
               }, childCount: favouritesState.favouritesModel!.length),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 1,
-                childAspectRatio: 2,
+                childAspectRatio: 2.2,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),

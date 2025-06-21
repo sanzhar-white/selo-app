@@ -36,7 +36,10 @@ class ImageSection extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             errorText!,
-            style: const TextStyle(color: Colors.red, fontSize: 12.0),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontSize: 12.0,
+            ),
           ),
         ],
         SizedBox(height: screenSize.height * 0.015),
@@ -48,9 +51,9 @@ class ImageSection extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Text(S.of(context).images, style: contrastBoldM(context)),
+        Text(S.of(context)!.images, style: contrastBoldM(context)),
         const SizedBox(width: 8),
-        Text('(${S.of(context).images_optional})', style: grayM(context)),
+        Text('(${S.of(context)!.images_optional})', style: grayM(context)),
       ],
     );
   }
@@ -183,7 +186,7 @@ class _AddImagePlaceholder extends StatelessWidget {
               ),
               if (withText) ...[
                 const SizedBox(height: 8),
-                Text(S.of(context).add_photo, style: greenM(context)),
+                Text(S.of(context)!.add_photo, style: greenM(context)),
               ],
             ],
           ),

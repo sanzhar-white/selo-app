@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:selo/core/services/local_storage_service.dart';
 import 'package:selo/core/di/di.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
@@ -21,16 +22,18 @@ class LocaleNotifier extends StateNotifier<Locale> {
       if (languageCode != null && ['en', 'ru', 'kk'].contains(languageCode)) {
         state = Locale(languageCode);
       } else {
-        _talker.warning('⚠️ Invalid or no saved locale, defaulting to en');
+        _talker.warning(ErrorMessages.invalidOrNoSavedLocale);
       }
     } catch (e, stack) {
-      _talker.error('💥 Error loading locale', e, stack);
+      _talker.error(ErrorMessages.errorLoadingLocale, e, stack);
     }
   }
 
   Future<void> setLocale(Locale locale) async {
     if (!['en', 'ru', 'kk'].contains(locale.languageCode)) {
-      _talker.warning('⚠️ Unsupported locale: ${locale.languageCode}');
+      _talker.warning(
+        '${ErrorMessages.unsupportedLocale}: ${locale.languageCode}',
+      );
       return;
     }
     try {
@@ -38,7 +41,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
       await LocalStorageService.saveLocale(locale.languageCode);
       _talker.info('🌐 Locale set to ${locale.languageCode}');
     } catch (e, stack) {
-      _talker.error('💥 Error saving locale', e, stack);
+      _talker.error(ErrorMessages.errorSavingLocale, e, stack);
     }
   }
 }

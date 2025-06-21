@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:selo/core/di/di.dart';
 import 'package:selo/shared/models/local_user_model.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
@@ -39,7 +40,7 @@ class LocalStorageService {
 
       _talker.info('LocalStorageService initialized successfully');
     } catch (e, stackTrace) {
-      _talker.error('Error initializing LocalStorageService', e, stackTrace);
+      _talker.error(ErrorMessages.errorInitializingLocalStorage, e, stackTrace);
       rethrow;
     }
   }
@@ -49,7 +50,7 @@ class LocalStorageService {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.put(_userKey, user);
     } catch (e, stack) {
-      _talker.error('Error saving user', e, stack);
+      _talker.error(ErrorMessages.errorSavingUser, e, stack);
       rethrow;
     }
   }
@@ -59,7 +60,7 @@ class LocalStorageService {
       final box = _userBox ?? Hive.box<LocalUserModel>(_userBoxName);
       return box.get(_userKey);
     } catch (e, stack) {
-      _talker.error('Error getting user', e, stack);
+      _talker.error(ErrorMessages.errorGettingUser, e, stack);
       return null;
     }
   }
@@ -69,7 +70,7 @@ class LocalStorageService {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.delete(_userKey);
     } catch (e, stack) {
-      _talker.error('Error deleting user', e, stack);
+      _talker.error(ErrorMessages.errorDeletingUser, e, stack);
       rethrow;
     }
   }
@@ -78,7 +79,7 @@ class LocalStorageService {
     try {
       return getUser() != null;
     } catch (e, stack) {
-      _talker.error('Error checking user login status', e, stack);
+      _talker.error(ErrorMessages.errorCheckingUserLoginStatus, e, stack);
       return false;
     }
   }
@@ -88,7 +89,7 @@ class LocalStorageService {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.clear();
     } catch (e, stack) {
-      _talker.error('Error clearing all data', e, stack);
+      _talker.error(ErrorMessages.errorClearingAllData, e, stack);
       rethrow;
     }
   }
@@ -121,7 +122,7 @@ class LocalStorageService {
       );
       _talker.info('Cached [32m${banners.length}[0m banners');
     } catch (e, stack) {
-      _talker.error('Error caching banners', e, stack);
+      _talker.error(ErrorMessages.errorCachingBanners, e, stack);
       rethrow;
     }
   }
@@ -138,7 +139,7 @@ class LocalStorageService {
       _talker.info('Retrieved ${banners.length} cached banners');
       return banners;
     } catch (e, stack) {
-      _talker.error('Error getting cached banners', e, stack);
+      _talker.error(ErrorMessages.errorGettingCachedBanners, e, stack);
       return null;
     }
   }
@@ -154,7 +155,7 @@ class LocalStorageService {
       );
       _talker.info('Cached ${ads.length} advertisements for page $page');
     } catch (e, stack) {
-      _talker.error('Error caching advertisements', e, stack);
+      _talker.error(ErrorMessages.errorCachingAdvertisements, e, stack);
       rethrow;
     }
   }
@@ -173,7 +174,7 @@ class LocalStorageService {
                 try {
                   return e.advert;
                 } catch (e) {
-                  _talker.error('Error deserializing advert', e);
+                  _talker.error(ErrorMessages.errorDeserializingAdvert, e);
                   return null;
                 }
               })
@@ -183,7 +184,7 @@ class LocalStorageService {
       _talker.info('Retrieved ${ads.length} cached ads for page $page');
       return ads.isEmpty ? null : ads;
     } catch (e, stack) {
-      _talker.error('Error getting cached ads', e, stack);
+      _talker.error(ErrorMessages.errorGettingCachedAds, e, stack);
       return null;
     }
   }
@@ -199,7 +200,7 @@ class LocalStorageService {
       await _adsBox?.clear();
       _talker.info('Cleared ads cache');
     } catch (e, stack) {
-      _talker.error('Error clearing ads cache', e, stack);
+      _talker.error(ErrorMessages.errorClearingAdsCache, e, stack);
       rethrow;
     }
   }
@@ -216,7 +217,7 @@ class LocalStorageService {
       );
       _talker.info('Cached ${ads.length} filtered ads for key $filterKey');
     } catch (e, stack) {
-      _talker.error('Error caching filtered ads', e, stack);
+      _talker.error(ErrorMessages.errorCachingFilteredAds, e, stack);
       rethrow;
     }
   }
@@ -238,7 +239,10 @@ class LocalStorageService {
                 try {
                   return e.advert;
                 } catch (e) {
-                  _talker.error('Error deserializing filtered advert', e);
+                  _talker.error(
+                    ErrorMessages.errorDeserializingFilteredAdvert,
+                    e,
+                  );
                   return null;
                 }
               })
@@ -250,7 +254,7 @@ class LocalStorageService {
       );
       return ads.isEmpty ? null : ads;
     } catch (e, stack) {
-      _talker.error('Error getting cached filtered ads', e, stack);
+      _talker.error(ErrorMessages.errorGettingCachedFilteredAds, e, stack);
       return null;
     }
   }
@@ -297,7 +301,7 @@ class LocalStorageService {
       }
       _talker.info('Cleared all filtered ads cache');
     } catch (e, stack) {
-      _talker.error('Error clearing filtered ads cache', e, stack);
+      _talker.error(ErrorMessages.errorClearingCacheFilteredAds, e, stack);
       rethrow;
     }
   }

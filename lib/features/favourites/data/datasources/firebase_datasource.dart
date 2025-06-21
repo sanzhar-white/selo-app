@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:selo/core/constants/firebase.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/features/favourites/data/model/favourites_model.dart';
@@ -26,14 +27,22 @@ class FirebaseDatasource implements FavouritesInterface {
       _talker.debug('📥 Fetching user document...');
       final userDoc = await user.get();
       if (!userDoc.exists) {
-        _talker.error('❌ User not found: ${userUidModel.uid}');
-        return DataFailed(Exception('User not found'), StackTrace.current);
+        _talker.error('${ErrorMessages.userNotFound} ${userUidModel.uid}');
+        return DataFailed(
+          Exception(ErrorMessages.userNotFound),
+          StackTrace.current,
+        );
       }
 
       final userData = userDoc.data();
       if (userData == null) {
-        _talker.error('❌ User data is null for user: ${userUidModel.uid}');
-        return DataFailed(Exception('User data is null'), StackTrace.current);
+        _talker.error(
+          '${ErrorMessages.userDataIsNullForUser} ${userUidModel.uid}',
+        );
+        return DataFailed(
+          Exception(ErrorMessages.userDataIsNull),
+          StackTrace.current,
+        );
       }
 
       final likes = userData['likes'] as List<dynamic>? ?? [];
@@ -57,14 +66,14 @@ class FirebaseDatasource implements FavouritesInterface {
             _talker.debug('✅ Successfully loaded advert: $likeUid');
           }
         } else {
-          _talker.warning('⚠️ Advert not found: $likeUid');
+          _talker.warning('Advert not found: $likeUid');
         }
       }
 
       _talker.info('✅ Successfully retrieved ${adverts.length} favourites');
       return DataSuccess(adverts);
     } catch (e, stack) {
-      _talker.error('❌ Error in getFavourites', e, stack);
+      _talker.error(ErrorMessages.errorInGetFavourites, e, stack);
       return DataFailed(Exception(e), stack);
     }
   }
@@ -84,16 +93,24 @@ class FirebaseDatasource implements FavouritesInterface {
       _talker.debug('📥 Fetching user document...');
       final userDoc = await userRef.get();
       if (!userDoc.exists) {
-        _talker.error('❌ User not found: ${favouritesModel.userUid.uid}');
-        return DataFailed(Exception('User not found'), StackTrace.current);
+        _talker.error(
+          '${ErrorMessages.userNotFound} ${favouritesModel.userUid.uid}',
+        );
+        return DataFailed(
+          Exception(ErrorMessages.userNotFound),
+          StackTrace.current,
+        );
       }
 
       final userData = userDoc.data();
       if (userData == null) {
         _talker.error(
-          '❌ User data is null for user: ${favouritesModel.userUid.uid}',
+          '${ErrorMessages.userDataIsNullForUser} ${favouritesModel.userUid.uid}',
         );
-        return DataFailed(Exception('User data is null'), StackTrace.current);
+        return DataFailed(
+          Exception(ErrorMessages.userDataIsNull),
+          StackTrace.current,
+        );
       }
 
       final likes =
@@ -103,7 +120,7 @@ class FirebaseDatasource implements FavouritesInterface {
 
       if (likes.contains(favouritesModel.advertUid.uid)) {
         _talker.warning(
-          '⚠️ Advert already in favourites: ${favouritesModel.advertUid.uid}',
+          'Advert already in favourites: ${favouritesModel.advertUid.uid}',
         );
         return DataFailed(
           Exception('Advert already in favourites'),
@@ -123,7 +140,7 @@ class FirebaseDatasource implements FavouritesInterface {
       _talker.info('✅ Successfully added to favourites');
       return DataSuccess(true);
     } catch (e, stack) {
-      _talker.error('❌ Error in addToFavourites', e, stack);
+      _talker.error(ErrorMessages.errorInAddToFavourites, e, stack);
       return DataFailed(Exception(e), stack);
     }
   }
@@ -143,16 +160,24 @@ class FirebaseDatasource implements FavouritesInterface {
       _talker.debug('📥 Fetching user document...');
       final userDoc = await userRef.get();
       if (!userDoc.exists) {
-        _talker.error('❌ User not found: ${favouritesModel.userUid.uid}');
-        return DataFailed(Exception('User not found'), StackTrace.current);
+        _talker.error(
+          '${ErrorMessages.userNotFound} ${favouritesModel.userUid.uid}',
+        );
+        return DataFailed(
+          Exception(ErrorMessages.userNotFound),
+          StackTrace.current,
+        );
       }
 
       final userData = userDoc.data();
       if (userData == null) {
         _talker.error(
-          '❌ User data is null for user: ${favouritesModel.userUid.uid}',
+          '${ErrorMessages.userDataIsNullForUser} ${favouritesModel.userUid.uid}',
         );
-        return DataFailed(Exception('User data is null'), StackTrace.current);
+        return DataFailed(
+          Exception(ErrorMessages.userDataIsNull),
+          StackTrace.current,
+        );
       }
 
       final likes =
@@ -162,7 +187,7 @@ class FirebaseDatasource implements FavouritesInterface {
 
       if (!likes.contains(favouritesModel.advertUid.uid)) {
         _talker.warning(
-          '⚠️ Advert not in favourites: ${favouritesModel.advertUid.uid}',
+          'Advert not in favourites: ${favouritesModel.advertUid.uid}',
         );
         return DataFailed(
           Exception('Advert not in favourites'),
@@ -182,7 +207,7 @@ class FirebaseDatasource implements FavouritesInterface {
       _talker.info('✅ Successfully removed from favourites');
       return DataSuccess(true);
     } catch (e, stack) {
-      _talker.error('❌ Error in removeFromFavourites', e, stack);
+      _talker.error(ErrorMessages.errorInRemoveFromFavourites, e, stack);
       return DataFailed(Exception(e), stack);
     }
   }
@@ -205,16 +230,24 @@ class FirebaseDatasource implements FavouritesInterface {
       _talker.debug('📥 Fetching user document...');
       final userDoc = await userRef.get();
       if (!userDoc.exists) {
-        _talker.error('❌ User not found: ${favouritesModel.userUid.uid}');
-        return DataFailed(Exception('User not found'), StackTrace.current);
+        _talker.error(
+          '${ErrorMessages.userNotFound} ${favouritesModel.userUid.uid}',
+        );
+        return DataFailed(
+          Exception(ErrorMessages.userNotFound),
+          StackTrace.current,
+        );
       }
 
       final userData = userDoc.data();
       if (userData == null) {
         _talker.error(
-          '❌ User data is null for user: ${favouritesModel.userUid.uid}',
+          '${ErrorMessages.userDataIsNullForUser} ${favouritesModel.userUid.uid}',
         );
-        return DataFailed(Exception('User data is null'), StackTrace.current);
+        return DataFailed(
+          Exception(ErrorMessages.userDataIsNull),
+          StackTrace.current,
+        );
       }
 
       final likes =
@@ -226,18 +259,18 @@ class FirebaseDatasource implements FavouritesInterface {
       if (likes.contains(favouritesModel.advertUid.uid)) {
         likes.remove(favouritesModel.advertUid.uid);
         await advertRef.update({'likes': FieldValue.increment(-1)});
-        _talker.debug('➖ Removed from favourites');
+        _talker.debug('Removed from favourites');
       } else {
         likes.add(favouritesModel.advertUid.uid);
         await advertRef.update({'likes': FieldValue.increment(1)});
-        _talker.debug('➕ Added to favourites');
+        _talker.debug('Added to favourites');
       }
 
       await userRef.update({'likes': likes});
       _talker.info('✅ Successfully toggled favourite status');
       return DataSuccess(true);
     } catch (e, stack) {
-      _talker.error('❌ Error in toggleFavourite', e, stack);
+      _talker.error(ErrorMessages.errorInToggleFavourite, e, stack);
       return DataFailed(Exception(e), stack);
     }
   }

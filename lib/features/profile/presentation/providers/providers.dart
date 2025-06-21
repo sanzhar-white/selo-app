@@ -10,17 +10,27 @@ import 'package:selo/features/profile/domain/usecases/delete_advert_usecase.dart
 import 'package:selo/features/profile/domain/usecases/delete_user_usecase.dart';
 import 'package:selo/features/profile/domain/usecases/get_my_adverts_usecase.dart';
 import 'package:selo/features/profile/domain/usecases/update_user_usecase.dart';
+import 'package:selo/core/services/cache_manager.dart';
 import 'package:talker_flutter/talker_flutter.dart';
-import 'profile/profile_notifier.dart';
-import 'profile/profile_state.dart';
+import 'index.dart';
+import 'package:image_picker/image_picker.dart';
 
 final firebaseDatasourceProvider = Provider<ProfileInterface>(
   (ref) => FirebaseProfileRemoteDataSource(
-    di<FirebaseFirestore>(),
-    di<FirebaseStorage>(),
-    di<Talker>(),
+    firestore: di<FirebaseFirestore>(),
+    storage: di<FirebaseStorage>(),
+    talker: di<Talker>(),
   ),
 );
+final cacheManagerProvider = Provider<CacheManager>((ref) => CacheManager());
+
+final selectedImageProvider = StateProvider<XFile?>((ref) => null);
+
+// Provider для ImagePicker, чтобы его можно было легко мокировать в тестах
+final imagePickerProvider = Provider((_) => ImagePicker());
+
+final editProfileNotifierProvider =
+    AsyncNotifierProvider<EditProfileNotifier, void>(EditProfileNotifier.new);
 
 final profileRepositoryProvider = Provider<ProfileRepository>(
   (ref) => ProfileRepositoryImpl(ref.watch(firebaseDatasourceProvider)),
@@ -43,6 +53,10 @@ final updateUserUseCaseProvider = Provider<UpdateUserUseCase>(
 );
 
 final profileNotifierProvider =
-    StateNotifierProvider<ProfileNotifier, ProfileState>(
-      (ref) => ProfileNotifier(ref),
-    );
+    StateNotifierProvider<ProfileNotifier, ProfileState>((ref) {
+      return ProfileNotifier(
+        ref: ref,
+        logger: di<Talker>(),
+        cacheManager: ref.read(cacheManagerProvider),
+      );
+    });

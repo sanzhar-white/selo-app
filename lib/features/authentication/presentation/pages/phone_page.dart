@@ -13,6 +13,7 @@ import 'package:selo/shared/widgets/custom_text_field.dart';
 import 'package:flutter/services.dart';
 import 'package:selo/core/di/di.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:selo/core/constants/error_message.dart';
 
 class PhonePage extends ConsumerStatefulWidget {
   const PhonePage({super.key});
@@ -36,6 +37,15 @@ class _PhonePageState extends ConsumerState<PhonePage> {
     final screenSize = MediaQuery.of(context).size;
     final radius = ResponsiveRadius.screenBased(context);
 
+    ref.listen<UserState>(userNotifierProvider, (previous, next) {
+      if (next.error != null) {
+        _talker.error('Error from UserNotifier: ${next.error}');
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.error!)));
+      }
+    });
+
     return Stack(
       children: [
         Scaffold(
@@ -58,7 +68,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        S.of(context).your_phone_number,
+                        S.of(context)!.your_phone_number,
                         style: contrastBoldL(context),
                       ),
                       SizedBox(height: screenSize.height * 0.015),
@@ -93,7 +103,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                           fillColor: colorScheme.onSurface,
                         ),
                         invalidNumberMessage:
-                            S.of(context).phone_number_invalid,
+                            S.of(context)!.phone_number_invalid,
                         initialCountryCode: 'KZ',
                         controller: phoneController,
                         inputFormatters: [
@@ -124,7 +134,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                           controller: nameController,
                           theme: colorScheme,
                           style: contrastM(context),
-                          hintText: S.of(context).name_hint,
+                          hintText: S.of(context)!.name_hint,
                         ),
                     ],
                   ),
@@ -151,7 +161,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                       ),
                       child: Center(
                         child: Text(
-                          S.of(context).continue_,
+                          S.of(context)!.continue_,
                           style: overGreenBoldM(context).copyWith(
                             color:
                                 isLogin != null
@@ -193,10 +203,10 @@ class _PhonePageState extends ConsumerState<PhonePage> {
           }
         });
       } else {
-        _talker.error('❌ Error in checkUser: $result');
+        _talker.error('${ErrorMessages.errorInCheckUserPhonePage}: $result');
       }
     } catch (e, stack) {
-      _talker.error('💥 Exception in checkUser', e, stack);
+      _talker.error(ErrorMessages.exceptionInCheckUserPhonePage, e, stack);
     }
   }
 
@@ -219,10 +229,10 @@ class _PhonePageState extends ConsumerState<PhonePage> {
           context.push(Routes.otpPage, extra: result.data);
         }
       } else {
-        _talker.error('❌ Login failed: $result');
+        _talker.error('${ErrorMessages.loginFailedPhonePage}: $result');
       }
     } catch (e, stack) {
-      _talker.error('💥 Exception in login', e, stack);
+      _talker.error(ErrorMessages.exceptionInLoginPhonePage, e, stack);
     }
   }
 
@@ -233,14 +243,14 @@ class _PhonePageState extends ConsumerState<PhonePage> {
       _talker.debug('👤 Name: ${nameController.text}');
 
       if (nameController.text.trim().isEmpty) {
-        _talker.error('❌ Name is empty');
+        _talker.error(ErrorMessages.nameIsEmpty);
         // TODO: Show error to user
         return;
       }
 
       final formattedNumber = completePhoneNumber.trim();
       if (!formattedNumber.startsWith('+')) {
-        _talker.error('❌ Invalid phone number format');
+        _talker.error(ErrorMessages.invalidPhoneNumberFormat);
         // TODO: Show error to user
         return;
       }
@@ -261,11 +271,13 @@ class _PhonePageState extends ConsumerState<PhonePage> {
           context.push(Routes.otpPage, extra: result.data);
         }
       } else if (result is DataFailed) {
-        _talker.error('❌ Signup failed: ${result.error}');
+        _talker.error(
+          '${ErrorMessages.signupFailedPhonePage}: ${result.error}',
+        );
         // TODO: Show error to user
       }
     } catch (e, stack) {
-      _talker.error('💥 Exception in signup', e, stack);
+      _talker.error(ErrorMessages.exceptionInSignupPhonePage, e, stack);
       // TODO: Show error to user
     }
   }

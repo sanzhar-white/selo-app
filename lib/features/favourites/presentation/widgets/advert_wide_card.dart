@@ -253,7 +253,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                             borderRadius: radius,
                           ),
                           child: Text(
-                            S.of(context).label_new_advert,
+                            S.of(context)!.label_new_advert,
                             style: overGreenBoldM(context),
                           ),
                         ),
@@ -335,7 +335,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                       if (widget.advert.maxPrice != null &&
                           widget.advert.maxPrice != 0) ...[
                         Text(
-                          'До ${widget.advert.maxPrice.toString()} ₸',
+                          '${S.of(context)!.to} ${widget.advert.maxPrice.toString()} ₸',
                           style: contrastBoldM(context),
                         ),
                       ] else ...[
@@ -346,7 +346,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                       ],
                     ] else ...[
                       Text(
-                        S.of(context).negotiable,
+                        S.of(context)!.negotiable,
                         style: contrastBoldM(context),
                       ),
                     ],
@@ -382,7 +382,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                               ),
                               child: Center(
                                 child: Text(
-                                  S.of(context).call,
+                                  S.of(context)!.call,
                                   style: overGreenBoldM(context),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

@@ -15,6 +15,7 @@ import 'package:selo/generated/l10n.dart';
 import 'package:selo/features/home/presentation/providers/index.dart';
 import 'package:selo/shared/widgets/phone_show_bottom.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:selo/shared/models/user_model.dart';
 
 class AdvertDetailCard extends ConsumerStatefulWidget {
   const AdvertDetailCard({super.key, required this.advert});
@@ -30,8 +31,8 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fillAnimation;
-  dynamic user;
-  List<AdCategory> categories = [];
+  late UserModel? user;
+  late List<AdCategory> categories;
   bool _isInitialized = false;
 
   @override
@@ -73,6 +74,12 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
     super.dispose();
   }
 
+  bool _isNewAdvert(DateTime createdAt) {
+    final now = DateTime.now();
+    final difference = now.difference(createdAt);
+    return difference.inHours < 24;
+  }
+
   Future<void> _toggleFavourite() async {
     if (user == null) return;
 
@@ -88,7 +95,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
     final notifier = ref.read(favouritesNotifierProvider.notifier);
     try {
       await notifier.toggleFavourite(
-        userUid: user.uid,
+        userUid: user!.uid,
         advertUid: widget.advert.uid,
       );
     } catch (e) {
@@ -124,13 +131,8 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
           ),
     );
 
-    bool _isNewAdvert(DateTime createdAt) {
-      final now = DateTime.now();
-      final difference = now.difference(createdAt);
-      return difference.inHours < 24;
-    }
-
     return GestureDetector(
+      key: const Key('advert_detail_card'),
       onTap: () {
         if (user != null && user.uid != widget.advert.ownerUid) {
           ref.read(homeNotifierProvider.notifier).viewAdvert(widget.advert.uid);
@@ -152,53 +154,54 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: radius,
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.inversePrimary.withOpacity(0.2),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: radius,
-                      child:
-                          widget.advert.images.isNotEmpty
-                              ? CachedNetworkImage(
-                                imageUrl: widget.advert.images.first,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                placeholder:
-                                    (context, url) => Container(
-                                      color: colorScheme.onSurface.withOpacity(
-                                        0.1,
-                                      ),
-                                      child: const Center(
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Colors.grey,
-                                              ),
+                  RepaintBoundary(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: radius,
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.inversePrimary.withOpacity(0.2),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: radius,
+                        child:
+                            widget.advert.images.isNotEmpty
+                                ? CachedNetworkImage(
+                                  imageUrl: widget.advert.images.first,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  placeholder:
+                                      (context, url) => Container(
+                                        color: colorScheme.onSurface
+                                            .withOpacity(0.1),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.grey,
+                                                ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                errorWidget:
-                                    (context, url, error) =>
-                                        Container(color: colorScheme.surface),
-                                fadeInDuration: const Duration(
-                                  milliseconds: 300,
-                                ),
-                                fadeOutDuration: const Duration(
-                                  milliseconds: 300,
-                                ),
-                                memCacheWidth:
-                                    (MediaQuery.of(context).size.width * 1.5)
-                                        .toInt(),
-                              )
-                              : Container(color: colorScheme.surface),
+                                  errorWidget:
+                                      (context, url, error) =>
+                                          Container(color: colorScheme.surface),
+                                  fadeInDuration: const Duration(
+                                    milliseconds: 300,
+                                  ),
+                                  fadeOutDuration: const Duration(
+                                    milliseconds: 300,
+                                  ),
+                                  memCacheWidth:
+                                      (MediaQuery.of(context).size.width * 1.5)
+                                          .toInt(),
+                                )
+                                : Container(color: colorScheme.surface),
+                      ),
                     ),
                   ),
                   if (widget.advert.images.isNotEmpty &&
@@ -237,7 +240,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           borderRadius: radius,
                         ),
                         child: Text(
-                          S.of(context).label_new_advert,
+                          S.of(context)!.label_new_advert,
                           style: overGreenBoldM(context),
                         ),
                       ),
@@ -270,7 +273,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                             widget.advert.price != 0)
                           if (widget.advert.maxPrice != null)
                             Text(
-                              'До ${widget.advert.maxPrice} ₸',
+                              '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
                             )
                           else
@@ -280,7 +283,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                             )
                         else
                           Text(
-                            S.of(context).negotiable,
+                            S.of(context)!.negotiable,
                             style: contrastBoldM(context),
                           ),
                         Text(
@@ -292,13 +295,13 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                         if (widget.advert.tradeable &&
                             category.settings['tradeable'] == true)
                           Text(
-                            S.of(context).trade_possible,
+                            S.of(context)!.trade_possible,
                             style: contrastM(context),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
                         Text(
-                          '${widget.advert.views} ${S.of(context).views}, ${widget.advert.createdAt.toDate().toLocal().toString().split(' ')[0]}',
+                          '${widget.advert.views} ${S.of(context)!.views}, ${widget.advert.createdAt.toDate().toLocal().toString().split(' ')[0]}',
                           style: contrastM(context),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
@@ -313,81 +316,63 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
               children: [
                 Flexible(
                   flex: 3,
-                  child: GestureDetector(
-                    onTap: () {
-                      showPhoneBottomSheet(context, widget.advert.phoneNumber);
-                    },
-                    child: Container(
-                      height: screenSize.height * 0.05,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        borderRadius: radius,
-                        boxShadow: [
-                          BoxShadow(
-                            color: colorScheme.inversePrimary.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          S.of(context).call,
-                          style: overGreenBoldM(context),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
+                  child: CallButton(
+                    key: const Key('call_button'),
+                    phoneNumber: widget.advert.phoneNumber,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Flexible(
                   flex: 1,
                   child: GestureDetector(
+                    key: const Key('favourite_button'),
                     onTap: user == null ? null : _toggleFavourite,
-                    child: Container(
-                      height: screenSize.height * 0.05,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        borderRadius: radius,
-                        boxShadow: [
-                          BoxShadow(
-                            color: colorScheme.inversePrimary.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: AnimatedBuilder(
-                          animation: _animationController,
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: _scaleAnimation.value,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.heart,
-                                    color: colorScheme.primary,
-                                    size: 24,
-                                  ),
-                                  ClipRect(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: _fillAnimation.value,
-                                      child: Icon(
-                                        CupertinoIcons.heart_fill,
-                                        color: colorScheme.error,
-                                        size: 24,
+                    child: RepaintBoundary(
+                      child: Container(
+                        height: screenSize.height * 0.05,
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: radius,
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.inversePrimary.withOpacity(
+                                0.2,
+                              ),
+                              blurRadius: 4,
+                              offset: const Offset(0, 0),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: AnimatedBuilder(
+                            animation: _animationController,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: _scaleAnimation.value,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.heart,
+                                      color: colorScheme.primary,
+                                      size: 24,
+                                    ),
+                                    ClipRect(
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        widthFactor: _fillAnimation.value,
+                                        child: Icon(
+                                          CupertinoIcons.heart_fill,
+                                          color: colorScheme.error,
+                                          size: 24,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -396,6 +381,45 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class CallButton extends StatelessWidget {
+  final String phoneNumber;
+  const CallButton({super.key, required this.phoneNumber});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final radius = ResponsiveRadius.screenBased(context);
+    final screenSize = MediaQuery.of(context).size;
+    return GestureDetector(
+      onTap: () => showPhoneBottomSheet(context, phoneNumber),
+      child: RepaintBoundary(
+        child: Container(
+          height: screenSize.height * 0.05,
+          decoration: BoxDecoration(
+            color: colorScheme.primary,
+            borderRadius: radius,
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.inversePrimary.withOpacity(0.2),
+                blurRadius: 4,
+                offset: const Offset(0, 0),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              S.of(context)!.call,
+              style: overGreenBoldM(context),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ),
       ),
     );

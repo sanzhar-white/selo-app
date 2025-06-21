@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:selo/core/di/di.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
@@ -24,8 +25,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
       );
       talker.info('Cleared filtered ads');
     } catch (e) {
-      talker.error('Error clearing filtered ads: $e');
-      state = state.copyWith(error: 'Failed to clear filtered ads: $e');
+      talker.error('${ErrorMessages.errorClearingFilteredAds} $e');
+      state = state.copyWith(
+        error: '${ErrorMessages.failedToClearFilteredAds} $e',
+      );
     }
   }
 
@@ -35,7 +38,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       (banners) {
         state = state.copyWith(banners: banners, isLoading: false);
       },
-      errorMessage: 'Failed to load banners',
+      errorMessage: ErrorMessages.failedToLoadBanners,
     );
   }
 
@@ -66,7 +69,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           currentFilter: null,
         );
       },
-      errorMessage: 'Failed to load advertisements',
+      errorMessage: ErrorMessages.failedToLoadAdvertisements,
     );
   }
 
@@ -106,7 +109,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         );
         talker.info('Loaded ${ads.length} filtered ads for page $page');
       },
-      errorMessage: 'Failed to load filtered ads',
+      errorMessage: ErrorMessages.failedToLoadFilteredAds,
     );
   }
 
@@ -114,7 +117,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     await _executeUseCase(
       () => ref.read(viewAdvertUseCaseProvider).call(params: advertUid),
       (_) => state = state.copyWith(isLoading: false),
-      errorMessage: 'Failed to view advert',
+      errorMessage: ErrorMessages.failedToViewAdvert,
     );
   }
 
@@ -131,7 +134,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
       } else if (result is DataFailed) {
         state = state.copyWith(
           isLoading: false,
-          error: result.error?.toString() ?? errorMessage ?? 'Unknown error',
+          error:
+              result.error?.toString() ??
+              errorMessage ??
+              ErrorMessages.unknownError,
         );
       } else {
         state = state.copyWith(isLoading: false);

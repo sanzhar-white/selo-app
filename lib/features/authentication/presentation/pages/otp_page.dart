@@ -12,6 +12,7 @@ import 'package:selo/core/resources/data_state.dart';
 import 'package:flutter/services.dart';
 import 'package:selo/core/di/di.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:selo/core/constants/error_message.dart';
 
 class OTPPage extends ConsumerStatefulWidget {
   final AuthStatusModel? authStatus;
@@ -75,7 +76,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
   Future<void> verifyOTP() async {
     if (!_mounted || !isActive || widget.authStatus == null) {
       _talker.error(
-        '❌ Cannot verify OTP: ${!isActive
+        '${ErrorMessages.cannotVerifyOTP}: ${!isActive
             ? 'inactive'
             : !_mounted
             ? 'disposed'
@@ -86,7 +87,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
     _capturedCode = codeController.text;
     if (_capturedCode == null || _capturedCode!.isEmpty) {
-      _talker.error('❌ No verification code entered');
+      _talker.error(ErrorMessages.noVerificationCodeEntered);
       return;
     }
 
@@ -119,38 +120,45 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         } else {
           if (_mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Text(
                   'Verification failed - please check the code and try again',
+                  style: contrastBoldM(context),
                 ),
-                backgroundColor: Colors.red,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
-          _talker.error('❌ OTP verification failed: success was false');
+          _talker.error(ErrorMessages.otpVerificationFailedSuccessFalse);
         }
       } else if (result is DataFailed<bool>) {
         final error = result.error.toString();
-        _talker.error('❌ OTP verification failed with error: $error');
+        _talker.error(
+          '${ErrorMessages.otpVerificationFailedWithError}: $error',
+        );
         if (_mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 'Verification error: ${error.contains('invalid-verification-code') ? 'Invalid code entered' : error}',
+                style: contrastBoldM(context),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               duration: const Duration(seconds: 5),
             ),
           );
         }
       }
     } catch (e, stack) {
-      _talker.error('💥 Exception in OTP verification', e, stack);
+      _talker.error(ErrorMessages.exceptionInOtpVerification, e, stack);
       if (_mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error during verification: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            content: Text(
+              'Error during verification: ${e.toString()}',
+              style: contrastBoldM(context),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
             duration: const Duration(seconds: 5),
           ),
         );

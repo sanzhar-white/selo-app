@@ -22,6 +22,7 @@ import 'package:selo/core/utils/utils.dart';
 import 'dart:io';
 import 'package:selo/core/di/di.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:selo/core/constants/error_message.dart';
 
 class CreateAdvertPage extends ConsumerStatefulWidget {
   const CreateAdvertPage({super.key, required this.category});
@@ -78,8 +79,8 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _quantityUnit = S.of(context).unit_kg;
-    _pricePerUnit = S.of(context).unit_kg;
+    _quantityUnit = S.of(context)!.unit_kg;
+    _pricePerUnit = S.of(context)!.unit_kg;
   }
 
   @override
@@ -174,18 +175,21 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     _talker.debug('Current validation state: $_validationState');
 
     if (!_isFormValid) {
-      _talker.error('❌ Form validation failed: $_validationState');
+      _talker.error('${ErrorMessages.formValidationFailed}: $_validationState');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).fill_all_fields),
-          backgroundColor: Colors.red,
+          content: Text(
+            S.of(context)!.fill_all_fields,
+            style: contrastBoldM(context),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
     }
 
     try {
-      _talker.info('🔄 Creating advert...');
+      _talker.info('🟢 Creating advert...');
       int price = 0;
       int maxPrice = 0;
       String priceUnit = _pricePerUnit;
@@ -274,28 +278,37 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       if (success) {
         _talker.info('✅ Advert created successfully');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Advertisement created successfully'),
+          SnackBar(
+            content: Text(
+              S.of(context)!.advertisement_created,
+              style: contrastBoldM(context),
+            ),
             backgroundColor: Colors.green,
           ),
         );
         Navigator.of(context).pop();
       } else {
         final error = ref.read(advertNotifierProvider).error;
-        _talker.error('❌ Failed to create advert: $error');
+        _talker.error('${ErrorMessages.failedToCreateAdvert}: $error');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(error ?? 'Failed to create advertisement'),
-            backgroundColor: Colors.red,
+            content: Text(
+              error ?? S.of(context)!.failed_to_created_advertisement,
+              style: contrastBoldM(context),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } catch (e, st) {
-      _talker.error('💥 Error creating advert', e, st);
+      _talker.error(ErrorMessages.errorCreatingAdvert, e, st);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error creating advert: ${e.toString()}'),
-          backgroundColor: Colors.red,
+          content: Text(
+            '${ErrorMessages.errorCreatingAdvert}: ${e.toString()}',
+            style: contrastBoldM(context),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -303,11 +316,14 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
 
   Future<void> _pickImage() async {
     if (_images.length >= 10) {
-      _talker.warning('⚠️ User tried to add more than 10 images');
+      _talker.warning(ErrorMessages.tooManyImages);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Maximum 10 images allowed'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: Text(
+            S.of(context)!.max_images,
+            style: contrastBoldM(context),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
@@ -321,22 +337,32 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       if (image != null) {
         final file = File(image.path);
         if (!await file.exists()) {
-          _talker.error('❌ Selected image file not found: ${image.path}');
+          _talker.error(
+            '${ErrorMessages.selectedImageNotFound}: ${image.path}',
+          );
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Selected image file not found'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: Text(
+                ErrorMessages.selectedImageNotFound,
+                style: contrastBoldM(context),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
           return;
         }
         final fileSize = await file.length();
         if (fileSize > 5 * 1024 * 1024) {
-          _talker.warning('⚠️ Image size too large: $fileSize bytes');
+          _talker.warning(
+            '${ErrorMessages.imageSizeTooLarge}: $fileSize bytes',
+          );
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Image size should be less than 5MB'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: Text(
+                S.of(context)!.image_less_size,
+                style: contrastBoldM(context),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
           return;
@@ -347,11 +373,14 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         _talker.info('ℹ️ Image picking cancelled by user');
       }
     } catch (e, st) {
-      _talker.error('💥 Error selecting image', e, st);
+      _talker.error(ErrorMessages.errorSelectingImage, e, st);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error selecting image: ${e.toString()}'),
-          backgroundColor: Colors.red,
+          content: Text(
+            '${ErrorMessages.errorSelectingImage}: ${e.toString()}',
+            style: contrastBoldM(context),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -370,7 +399,10 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     final screenSize = MediaQuery.of(context).size;
     final radius = ResponsiveRadius.screenBased(context);
     final advertState = ref.watch(advertNotifierProvider);
-    final List<String> units = [S.of(context).unit_kg, S.of(context).unit_ton];
+    final List<String> units = [
+      S.of(context)!.unit_kg,
+      S.of(context)!.unit_ton,
+    ];
 
     if (advertState.isLoading) {
       _talker.info('⏳ Advert creation/loading in progress...');
@@ -383,7 +415,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
             slivers: [
               SliverAppBar(
                 title: Text(
-                  S.of(context).create_advert,
+                  S.of(context)!.create_advert,
                   style: contrastL(context),
                 ),
                 iconTheme: IconThemeData(color: colorScheme.inversePrimary),
@@ -393,29 +425,29 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: S.of(context).title_of_ad,
+                  title: S.of(context)!.title_of_ad,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: titleController,
                     theme: colorScheme,
                     style: greenM(context),
-                    hintText: S.of(context).title_of_ad_hint,
+                    hintText: S.of(context)!.title_of_ad_hint,
                     border: true,
                     error:
                         _showValidation && !(_validationState['title'] ?? true),
-                    errorText: S.of(context).title_of_ad_required,
+                    errorText: S.of(context)!.title_of_ad_required,
                   ),
                 ),
               ),
               if (widget.category.settings['condition'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: S.of(context).condition,
+                    title: S.of(context)!.condition,
                     titleStyle: contrastBoldM(context),
                     child: CustomToggleButtons(
                       options: [
-                        S.of(context).condition_new,
-                        S.of(context).condition_used,
+                        S.of(context)!.condition_new,
+                        S.of(context)!.condition_used,
                       ],
                       selectedIndex: _isNew ? 0 : 1,
                       onChanged: (index) => setState(() => _isNew = index == 0),
@@ -425,7 +457,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               if (widget.category.settings['year'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: S.of(context).year_of_release,
+                    title: S.of(context)!.year_of_release,
                     titleStyle: contrastBoldM(context),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -503,7 +535,8 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                       maxQuantityError:
                           _showValidation &&
                           !(_validationState['maxQuantity'] ?? true),
-                      maxQuantityErrorText: S.of(context).max_quantity_required,
+                      maxQuantityErrorText:
+                          S.of(context)!.max_quantity_required,
                       showUnitSelector:
                           widget.category.settings['unitPer'] == true,
                     ),
@@ -511,7 +544,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                 ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: S.of(context).location,
+                  title: S.of(context)!.location,
                   titleStyle: contrastBoldM(context),
                   child: LocationSection(
                     region: _region,
@@ -534,7 +567,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: S.of(context).description,
+                  title: S.of(context)!.description,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: descriptionController,
@@ -542,67 +575,67 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                     style: contrastM(context),
                     minLines: 3,
                     maxLines: 10,
-                    hintText: S.of(context).description_hint,
+                    hintText: S.of(context)!.description_hint,
                     border: true,
                     error:
                         _showValidation &&
                         !(_validationState['description'] ?? true),
-                    errorText: S.of(context).description_required,
+                    errorText: S.of(context)!.description_required,
                   ),
                 ),
               ),
               if (widget.category.settings['companyName'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: S.of(context).company,
+                    title: S.of(context)!.company,
                     titleStyle: contrastBoldM(context),
                     child: CustomTextField(
                       controller: settingsControllers['companyName']!,
                       theme: colorScheme,
                       style: contrastM(context),
-                      hintText: S.of(context).company_hint,
+                      hintText: S.of(context)!.company_hint,
                       border: true,
                       error:
                           _showValidation &&
                           !(_validationState['companyName'] ?? true),
-                      errorText: S.of(context).company_required,
+                      errorText: S.of(context)!.company_required,
                     ),
                   ),
                 ),
               if (widget.category.settings['contactPerson'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: S.of(context).contact_person,
+                    title: S.of(context)!.contact_person,
                     titleStyle: contrastBoldM(context),
                     child: CustomTextField(
                       controller: settingsControllers['contactPerson']!,
                       theme: colorScheme,
                       style: contrastM(context),
-                      hintText: S.of(context).contact_person_hint,
+                      hintText: S.of(context)!.contact_person_hint,
                       border: true,
                       error:
                           _showValidation &&
                           !(_validationState['contactPerson'] ?? true),
-                      errorText: S.of(context).contact_person_required,
+                      errorText: S.of(context)!.contact_person_required,
                     ),
                   ),
                 ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: S.of(context).phone_number,
+                  title: S.of(context)!.phone_number,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: phoneController,
                     theme: colorScheme,
                     style: contrastM(context),
-                    hintText: S.of(context).phone_number_hint,
+                    hintText: S.of(context)!.phone_number_hint,
                     border: true,
                     formatters: [PhoneNumberFormatter()],
                     keyboardType: TextInputType.phone,
                     error:
                         _showValidation &&
                         !(_validationState['phoneNumber'] ?? true),
-                    errorText: S.of(context).phone_number_required,
+                    errorText: S.of(context)!.phone_number_required,
                   ),
                 ),
               ),
@@ -628,7 +661,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                       ),
                       child: Center(
                         child: Text(
-                          S.of(context).create_advert,
+                          S.of(context)!.create_advert,
                           style: overGreenBoldM(context),
                         ),
                       ),

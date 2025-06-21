@@ -29,12 +29,12 @@ class LocationSection extends StatelessWidget {
       locations: regions,
       onRegionChanged: onRegionChanged,
       onDistrictChanged: onDistrictChanged,
-      regionLabel: S.of(context).region,
-      districtLabel: S.of(context).district,
+      regionLabel: S.of(context)!.region,
+      districtLabel: S.of(context)!.district,
       regionError: regionError,
       districtError: districtError,
-      regionErrorText: S.of(context).region_required,
-      districtErrorText: S.of(context).district_required,
+      regionErrorText: S.of(context)!.region_required,
+      districtErrorText: S.of(context)!.district_required,
     );
   }
 }

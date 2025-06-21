@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:selo/core/constants/error_message.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'package:selo/core/theme/text_styles.dart';
@@ -205,7 +206,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     if (error == null || !mounted || error == _lastError) return;
 
     _lastError = error;
-    _talker.error('❌ Showing error to user: $error');
+    _talker.error('${ErrorMessages.showingErrorToUser} $error');
 
     Future.microtask(() {
       if (!mounted) return;
@@ -215,8 +216,10 @@ class _FilterPageState extends ConsumerState<FilterPage> {
         SnackBar(
           content: Text(
             error.contains('failed-precondition') || error.contains('Failed')
-                ? S.of(context).error
+                ? S.of(context)!.error
                 : error,
+
+            style: contrastBoldM(context),
           ),
           duration: const Duration(seconds: 5),
         ),
@@ -238,8 +241,8 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     final categoriesList = categoriesAsync.value ?? [];
     final uiCategories =
         categoriesList.map((e) => getLocalizedCategory(e, context)).toList();
-    if (!uiCategories.contains(S.of(context).all_ads)) {
-      uiCategories.add(S.of(context).all_ads);
+    if (!uiCategories.contains(S.of(context)!.all_ads)) {
+      uiCategories.add(S.of(context)!.all_ads);
     }
 
     final adverts =
@@ -302,159 +305,58 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                 );
               },
             ),
-            if (currentFilters != null || _searchController.text.isNotEmpty)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenSize.width * 0.04,
-                    vertical: screenSize.height * 0.01,
-                  ),
-                  child: Wrap(
-                    spacing: 8,
-                    children: [
-                      if (_searchController.text.isNotEmpty)
-                        Chip(
-                          label: Text(_searchController.text),
-                          backgroundColor: colorScheme.primary,
-                          labelStyle: TextStyle(color: colorScheme.onPrimary),
-                          deleteIcon: Icon(
-                            Icons.close,
-                            size: 16,
-                            color: colorScheme.onPrimary,
-                          ),
-                          onDeleted:
-                              _isRefreshing
-                                  ? null
-                                  : () {
-                                    _talker.info(
-                                      '🗑️ User cleared search query. Filters before: $currentFilters',
-                                    );
-                                    setState(() {
-                                      _searchController.clear();
-                                      currentFilters = currentFilters?.copyWith(
-                                        searchQuery: null,
-                                      );
-                                      if (_isFilterEmpty(currentFilters)) {
-                                        currentFilters = null;
-                                      }
-                                    });
-                                    _refreshContent();
-                                  },
-                        ),
-                      if (currentFilters != null &&
-                          currentFilters!.category != null &&
-                          currentFilters!.category! >= -1)
-                        Chip(
-                          label: Text(
-                            getLocalizedCategory(
-                              categoriesList.firstWhere(
-                                (cat) => cat.id == currentFilters!.category!,
-                                orElse: () {
-                                  _talker.warning(
-                                    '⚠️ Category not found for ID: ${currentFilters!.category}',
-                                  );
-                                  return AdCategory(
-                                    id: -1,
-                                    nameEn: S.of(context).unknown,
-                                    nameRu: S.of(context).unknown,
-                                    nameKk: S.of(context).unknown,
-                                    imageUrl: '',
-                                    settings: {},
-                                  );
-                                },
-                              ),
-                              context,
-                            ),
-                            style: TextStyle(color: colorScheme.onPrimary),
-                          ),
-                          backgroundColor: colorScheme.primary,
-                          deleteIcon: Icon(
-                            Icons.close,
-                            size: 16,
-                            color: colorScheme.onPrimary,
-                          ),
-                          onDeleted:
-                              _isRefreshing
-                                  ? null
-                                  : () {
-                                    _talker.info(
-                                      '🗑️ User cleared category. Filters before: $currentFilters',
-                                    );
-                                    setState(() {
-                                      currentFilters = currentFilters!.copyWith(
-                                        category: null,
-                                      );
-                                      if (_isFilterEmpty(currentFilters)) {
-                                        currentFilters = null;
-                                      }
-                                    });
-                                    _refreshContent();
-                                  },
-                        ),
-                      if (currentFilters?.priceFrom != null)
-                        Chip(
-                          label: Text(
-                            '${S.of(context).from} ${currentFilters!.priceFrom}',
-                            style: TextStyle(color: colorScheme.onPrimary),
-                          ),
-                          backgroundColor: colorScheme.primary,
-                          deleteIcon: Icon(
-                            Icons.close,
-                            size: 16,
-                            color: colorScheme.onPrimary,
-                          ),
-                          onDeleted:
-                              _isRefreshing
-                                  ? null
-                                  : () {
-                                    _talker.info(
-                                      '🗑️ User cleared priceFrom. Filters before: $currentFilters',
-                                    );
-                                    setState(() {
-                                      currentFilters = currentFilters!.copyWith(
-                                        priceFrom: null,
-                                      );
-                                      if (_isFilterEmpty(currentFilters)) {
-                                        currentFilters = null;
-                                      }
-                                    });
-                                    _refreshContent();
-                                  },
-                        ),
-                      if (currentFilters?.priceTo != null)
-                        Chip(
-                          label: Text(
-                            '${S.of(context).to} ${currentFilters!.priceTo}',
-                            style: TextStyle(color: colorScheme.onPrimary),
-                          ),
-                          backgroundColor: colorScheme.primary,
-                          deleteIcon: Icon(
-                            Icons.close,
-                            size: 16,
-                            color: colorScheme.onPrimary,
-                          ),
-                          onDeleted:
-                              _isRefreshing
-                                  ? null
-                                  : () {
-                                    _talker.info(
-                                      '🗑️ User cleared priceTo. Filters before: $currentFilters',
-                                    );
-                                    setState(() {
-                                      currentFilters = currentFilters!.copyWith(
-                                        priceTo: null,
-                                      );
-                                      if (_isFilterEmpty(currentFilters)) {
-                                        currentFilters = null;
-                                      }
-                                    });
-                                    _refreshContent();
-                                  },
-                        ),
-                    ],
-                  ),
-                ),
+            SliverToBoxAdapter(
+              child: FilterChipsBar(
+                key: const Key('filter_chips_bar'),
+                searchController: _searchController,
+                currentFilters: currentFilters,
+                categoriesList: categoriesList,
+                isRefreshing: _isRefreshing,
+                onClearSearch: () {
+                  _talker.info(
+                    '🗑️ User cleared search query. Filters before: $currentFilters',
+                  );
+                  setState(() {
+                    _searchController.clear();
+                    currentFilters = currentFilters?.copyWith(
+                      searchQuery: null,
+                    );
+                    if (_isFilterEmpty(currentFilters)) currentFilters = null;
+                  });
+                  _refreshContent();
+                },
+                onClearCategory: () {
+                  _talker.info(
+                    '🗑️ User cleared category. Filters before: $currentFilters',
+                  );
+                  setState(() {
+                    currentFilters = currentFilters!.copyWith(category: null);
+                    if (_isFilterEmpty(currentFilters)) currentFilters = null;
+                  });
+                  _refreshContent();
+                },
+                onClearPriceFrom: () {
+                  _talker.info(
+                    '🗑️ User cleared priceFrom. Filters before: $currentFilters',
+                  );
+                  setState(() {
+                    currentFilters = currentFilters!.copyWith(priceFrom: null);
+                    if (_isFilterEmpty(currentFilters)) currentFilters = null;
+                  });
+                  _refreshContent();
+                },
+                onClearPriceTo: () {
+                  _talker.info(
+                    '🗑️ User cleared priceTo. Filters before: $currentFilters',
+                  );
+                  setState(() {
+                    currentFilters = currentFilters!.copyWith(priceTo: null);
+                    if (_isFilterEmpty(currentFilters)) currentFilters = null;
+                  });
+                  _refreshContent();
+                },
               ),
+            ),
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -462,7 +364,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   vertical: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context).all_ads,
+                  S.of(context)!.all_ads,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -484,10 +386,9 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                         color: colorScheme.secondary,
                         borderRadius: ResponsiveRadius.screenBased(context),
                       ),
-                      child: _buildShimmerCard(context),
+                      child: const ShimmerAdvertDetailCard(),
                     ),
-                    childCount:
-                        6, // Количество шиммер-карточек для имитации загрузки
+                    childCount: 6,
                   ),
                 ),
               )
@@ -497,7 +398,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   child: Padding(
                     padding: EdgeInsets.all(screenSize.width * 0.04),
                     child: Text(
-                      S.of(context).no_ads_found,
+                      S.of(context)!.no_ads_found,
                       style: contrastBoldM(context),
                     ),
                   ),
@@ -518,6 +419,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                     final advert = adverts[index];
                     _talker.debug('🖼️ Rendering advert card: ${advert.uid}');
                     return RepaintBoundary(
+                      key: Key('advert_card_${advert.uid}'),
                       child: Container(
                         decoration: BoxDecoration(
                           color: colorScheme.secondary,
@@ -530,11 +432,11 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                 ),
               ),
             if (homeState.isLoading && adverts.isNotEmpty)
-              SliverToBoxAdapter(
+              const SliverToBoxAdapter(
                 child: Center(
                   child: Padding(
-                    padding: EdgeInsets.all(screenSize.width * 0.04),
-                    child: const CircularProgressIndicator(),
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator(),
                   ),
                 ),
               ),
@@ -590,6 +492,156 @@ class _FilterPageState extends ConsumerState<FilterPage> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// 1. Новый виджет shimmer-карточки
+class ShimmerAdvertDetailCard extends StatelessWidget {
+  const ShimmerAdvertDetailCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final radius = ResponsiveRadius.screenBased(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ShimmerEffect(
+          width: double.infinity,
+          height: 250,
+          borderRadius: radius.topLeft.x,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: const [
+              ShimmerEffect(width: 160, height: 26, borderRadius: 4),
+              SizedBox(height: 8),
+              ShimmerEffect(width: 120, height: 24, borderRadius: 4),
+              SizedBox(height: 8),
+              ShimmerEffect(width: 80, height: 26, borderRadius: 4),
+              SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ShimmerEffect(
+                      width: 100,
+                      height: 32,
+                      borderRadius: 12,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  ShimmerEffect(width: 32, height: 32, borderRadius: 12),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// 2. Новый виджет для фильтр-чипов
+class FilterChipsBar extends StatelessWidget {
+  final TextEditingController searchController;
+  final SearchModel? currentFilters;
+  final List<AdCategory> categoriesList;
+  final bool isRefreshing;
+  final void Function()? onClearSearch;
+  final void Function()? onClearCategory;
+  final void Function()? onClearPriceFrom;
+  final void Function()? onClearPriceTo;
+
+  const FilterChipsBar({
+    super.key,
+    required this.searchController,
+    required this.currentFilters,
+    required this.categoriesList,
+    required this.isRefreshing,
+    this.onClearSearch,
+    this.onClearCategory,
+    this.onClearPriceFrom,
+    this.onClearPriceTo,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final S s = S.of(context)!;
+    List<Widget> chips = [];
+    if (searchController.text.isNotEmpty) {
+      chips.add(
+        Chip(
+          label: Text(searchController.text),
+          backgroundColor: colorScheme.primary,
+          labelStyle: TextStyle(color: colorScheme.onPrimary),
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: isRefreshing ? null : onClearSearch,
+        ),
+      );
+    }
+    if (currentFilters != null &&
+        currentFilters!.category != null &&
+        currentFilters!.category! >= -1) {
+      final category = categoriesList.firstWhere(
+        (cat) => cat.id == currentFilters!.category!,
+        orElse:
+            () => AdCategory(
+              id: -1,
+              nameEn: s.unknown,
+              nameRu: s.unknown,
+              nameKk: s.unknown,
+              imageUrl: '',
+              settings: {},
+            ),
+      );
+      chips.add(
+        Chip(
+          label: Text(
+            getLocalizedCategory(category, context),
+            style: TextStyle(color: colorScheme.onPrimary),
+          ),
+          backgroundColor: colorScheme.primary,
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: isRefreshing ? null : onClearCategory,
+        ),
+      );
+    }
+    if (currentFilters?.priceFrom != null) {
+      chips.add(
+        Chip(
+          label: Text(
+            '${s.from} ${currentFilters!.priceFrom}',
+            style: TextStyle(color: colorScheme.onPrimary),
+          ),
+          backgroundColor: colorScheme.primary,
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: isRefreshing ? null : onClearPriceFrom,
+        ),
+      );
+    }
+    if (currentFilters?.priceTo != null) {
+      chips.add(
+        Chip(
+          label: Text(
+            '${s.to} ${currentFilters!.priceTo}',
+            style: TextStyle(color: colorScheme.onPrimary),
+          ),
+          backgroundColor: colorScheme.primary,
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: isRefreshing ? null : onClearPriceTo,
+        ),
+      );
+    }
+    if (chips.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width * 0.04,
+        vertical: MediaQuery.of(context).size.height * 0.01,
+      ),
+      child: Wrap(spacing: 8, children: chips),
     );
   }
 }

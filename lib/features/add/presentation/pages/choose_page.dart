@@ -69,12 +69,12 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        S.of(context).add_appbar_title,
+                        S.of(context)!.add_appbar_title,
                         style: contrastL(context),
                       ),
                       SizedBox(height: screenSize.height * 0.001),
                       Text(
-                        S.of(context).add_appbar_pick_category,
+                        S.of(context)!.add_appbar_pick_category,
                         style: contrastM(context),
                       ),
                     ],

@@ -10,219 +10,272 @@ import 'package:selo/features/profile/data/datasources/profile_interface.dart';
 import 'package:selo/features/profile/data/models/profile_user.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:selo/core/constants/error_message.dart';
 
 class FirebaseProfileRemoteDataSource implements ProfileInterface {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
   final Talker _talker;
 
-  FirebaseProfileRemoteDataSource(this._firestore, this._storage, this._talker);
+  FirebaseProfileRemoteDataSource({
+    required FirebaseFirestore firestore,
+    required FirebaseStorage storage,
+    required Talker talker,
+  }) : _firestore = firestore,
+       _storage = storage,
+       _talker = talker;
 
   @override
-  Future<DataState<List<AdvertModel>>> getMyAdverts(String uid) async {
-    _talker.info('🔄 Fetching adverts for user: $uid');
+  Future<DataState<List<AdvertModel>>> getMyAdverts(
+    String uid, {
+    int limit = 20,
+    DocumentSnapshot? startAfter,
+  }) async {
+    _talker.info('Fetching adverts for user: $uid');
     try {
-      final snapshot =
-          await _firestore
-              .collection(FirebaseCollections.adverts)
-              .where('ownerUid', isEqualTo: uid)
-              .get();
-      final List<AdvertModel> adverts =
+      Query<Map<String, dynamic>> query = _firestore
+          .collection(FirebaseCollections.adverts)
+          .where('ownerUid', isEqualTo: uid)
+          .limit(limit);
+
+      if (startAfter != null) {
+        query = query.startAfterDocument(startAfter);
+      }
+
+      final snapshot = await query.get().timeout(
+        FirebaseConstants.operationTimeout,
+      );
+      final adverts =
           snapshot.docs.map((doc) => AdvertModel.fromJson(doc.data())).toList();
-      _talker.info('✅ Successfully fetched ${adverts.length} adverts');
+      _talker.info('Successfully fetched ${adverts.length} adverts');
       return DataSuccess(adverts);
     } catch (e, stack) {
-      _talker.error('❌ Failed to fetch adverts', e, stack);
-      return DataFailed(Exception('Failed to fetch adverts: $e'), stack);
+      _talker.error(ErrorMessages.failedToFetchAdverts, e, stack);
+      return DataFailed(
+        Exception('${ErrorMessages.failedToFetchAdverts}: $e'),
+        stack,
+      );
     }
   }
 
   @override
   Future<DataState<bool>> deleteAdvert(String uid) async {
-    _talker.info('🔄 Deleting advert: $uid');
+    _talker.info('Deleting advert: $uid');
     try {
-      await _firestore.collection(FirebaseCollections.adverts).doc(uid).update({
-        'active': false,
-      });
-      _talker.info('✅ Successfully deleted advert');
+      await _firestore
+          .collection(FirebaseCollections.adverts)
+          .doc(uid)
+          .update({'active': false})
+          .timeout(FirebaseConstants.operationTimeout);
+      _talker.info('Successfully deleted advert');
       return DataSuccess(true);
     } catch (e, stack) {
-      _talker.error('❌ Failed to delete advert', e, stack);
-      return DataFailed(Exception('Failed to delete advert: $e'), stack);
+      _talker.error(ErrorMessages.failedToDeleteAdvert, e, stack);
+      return DataFailed(
+        Exception('${ErrorMessages.failedToDeleteAdvert}: $e'),
+        stack,
+      );
     }
   }
 
   @override
   Future<DataState<bool>> deleteUser(String uid) async {
-    _talker.info('🔄 Deleting user: $uid');
+    _talker.info('Deleting user: $uid');
     try {
-      await _firestore.collection(FirebaseCollections.users).doc(uid).set({
-        'deletedAt': Timestamp.now(),
-        'isDeleted': true,
-      }, SetOptions(merge: true));
-      _talker.info('✅ Successfully deleted user');
+      await _firestore
+          .collection(FirebaseCollections.users)
+          .doc(uid)
+          .set({
+            'deletedAt': Timestamp.now(),
+            'isDeleted': true,
+          }, SetOptions(merge: true))
+          .timeout(FirebaseConstants.operationTimeout);
+      _talker.info('Successfully deleted user');
       return DataSuccess(true);
     } catch (e, stack) {
-      _talker.error('❌ Failed to delete user', e, stack);
-      return DataFailed(Exception('Failed to delete user: $e'), stack);
+      _talker.error(ErrorMessages.failedToDeleteUser, e, stack);
+      return DataFailed(
+        Exception('${ErrorMessages.failedToDeleteUser}: $e'),
+        stack,
+      );
     }
   }
 
-  // Удаление старого изображения
   Future<void> _deleteOldProfileImage(String? oldImageUrl) async {
     if (oldImageUrl == null || !oldImageUrl.startsWith('https')) {
-      _talker.debug('ℹ️ No old image to delete or invalid URL: $oldImageUrl');
+      _talker.debug('No old image to delete or invalid URL: $oldImageUrl');
       return;
     }
     try {
       final ref = _storage.refFromURL(oldImageUrl);
       await ref.delete();
-      _talker.debug('🗑️ Deleted old image: $oldImageUrl');
+      _talker.debug('Deleted old image: $oldImageUrl');
     } catch (e, stack) {
-      _talker.error('⚠️ Failed to delete old image', e, stack);
-      // Продолжаем, даже если удаление не удалось
+      _talker.error('Failed to delete old image', e, stack);
+      // Продолжаем выполнение
     }
   }
 
-  // Загрузка нового изображения
   Future<String?> _uploadProfileImage(
     String uid,
     String localPath,
     String? oldImageUrl,
   ) async {
-    _talker.info('🔄 Uploading profile image for user: $uid');
+    _talker.info('Uploading profile image for user: $uid');
     try {
       final file = File(localPath);
-      _talker.debug('📁 Processing file: $localPath');
+      _talker.debug('Processing file: $localPath');
 
       if (!file.existsSync()) {
-        throw Exception('Image file does not exist at $localPath');
+        _talker.error(ErrorMessages.imageFileNotExist);
+        throw Exception(ErrorMessages.imageFileNotExist);
       }
 
       final fileSize = await file.length();
-      _talker.debug('📊 File size: $fileSize bytes');
-
-      if (fileSize > 5 * 1024 * 1024) {
-        throw Exception('Image file is too large (max 5MB): $fileSize bytes');
+      if (fileSize > FirebaseConstants.maxImageSizeBytes) {
+        _talker.error('${ErrorMessages.imageTooLarge}: $fileSize bytes');
+        throw Exception('${ErrorMessages.imageTooLarge}: $fileSize bytes');
       }
 
       await _deleteOldProfileImage(oldImageUrl);
 
       final fileName =
           '${DateTime.now().millisecondsSinceEpoch}_${file.uri.pathSegments.last}';
-      final storageRef = _storage.ref().child('user_photos/$uid/$fileName');
-      _talker.debug('📂 Storage path: user_photos/$uid/$fileName');
+      final storageRef = _storage.ref().child(
+        '${FirebaseCollections.user_photos}/$uid/$fileName',
+      );
+      _talker.debug(
+        'Storage path: ${FirebaseCollections.user_photos}/$uid/$fileName',
+      );
 
       final ext = fileName.split('.').last.toLowerCase();
       final contentType = ext == 'png' ? 'image/png' : 'image/jpeg';
       final metadata = SettableMetadata(contentType: contentType);
-      final bytes = await file.readAsBytes();
+      final fileBytes = await file.readAsBytes();
 
-      // Загрузка с повторными попытками
       String? downloadUrl;
-      int retryCount = 0;
-      while (retryCount < 3 && downloadUrl == null) {
+      for (
+        var retryCount = 0;
+        retryCount < FirebaseConstants.maxUploadRetries;
+        retryCount++
+      ) {
         if (retryCount > 0) {
-          _talker.debug('🔄 Retrying upload (attempt ${retryCount + 1})');
-          await Future.delayed(Duration(seconds: 1));
+          _talker.debug('Retrying upload (attempt ${retryCount + 1})');
+          await Future.delayed(FirebaseConstants.uploadRetryDelay);
         }
 
         try {
-          final uploadTask = storageRef.putData(bytes, metadata);
-          final snapshot = await uploadTask.timeout(Duration(seconds: 60));
-          if (snapshot.state != TaskState.success) {
-            throw Exception('Upload failed: ${snapshot.state}');
-          }
-          downloadUrl = await snapshot.ref.getDownloadURL();
-          _talker.debug('✅ Uploaded image URL: $downloadUrl');
+          final uploadTask = await storageRef
+              .putData(fileBytes, metadata)
+              .timeout(FirebaseConstants.operationTimeout);
+          downloadUrl = await uploadTask.ref.getDownloadURL();
+          _talker.debug('Uploaded image URL: $downloadUrl');
+          break;
         } on FirebaseException catch (e, stack) {
-          _talker.error('❌ Firebase error during upload', e, stack);
-          if (retryCount == 2) {
-            throw Exception('Failed to upload after 3 attempts: ${e.code}');
+          _talker.error('Firebase error during upload', e, stack);
+          if (retryCount == FirebaseConstants.maxUploadRetries - 1) {
+            throw Exception(
+              'Failed to upload after ${FirebaseConstants.maxUploadRetries} attempts: ${e.code}',
+            );
           }
         }
-        retryCount++;
       }
 
       if (downloadUrl == null) {
-        throw Exception('Failed to upload image after 3 attempts');
+        throw Exception(
+          'Failed to upload image after ${FirebaseConstants.maxUploadRetries} attempts',
+        );
       }
 
-      _talker.info('✅ Successfully uploaded profile image');
+      _talker.info('Successfully uploaded profile image');
       return downloadUrl;
     } catch (e, stack) {
-      _talker.error('❌ Failed to upload profile image', e, stack);
-      throw Exception('Failed to upload profile image: $e');
+      _talker.error(ErrorMessages.failedToUploadImage, e, stack);
+      throw Exception('${ErrorMessages.failedToUploadImage}: $e');
     }
   }
 
   @override
   Future<DataState<bool>> updateUser(UpdateUserModel updateUser) async {
-    _talker.info('🔄 Updating user: ${updateUser.uid}');
+    _talker.info('Updating user: ${updateUser.uid}');
     try {
-      _talker.debug('📥 Checking user existence...');
-      final user =
-          await _firestore
-              .collection(FirebaseCollections.users)
-              .doc(updateUser.uid)
-              .get();
-      if (!user.exists) {
-        _talker.error('❌ User not found: ${updateUser.uid}');
-        return DataFailed(Exception('User not found'), StackTrace.current);
-      }
+      final userDoc = await _firestore
+          .collection(FirebaseCollections.users)
+          .doc(updateUser.uid)
+          .get()
+          .timeout(FirebaseConstants.operationTimeout);
 
-      final userData = user.data();
-      if (userData == null) {
-        _talker.error('❌ User data is null for user: ${updateUser.uid}');
-        return DataFailed(Exception('User data is null'), StackTrace.current);
+      if (!userDoc.exists) {
+        _talker.error(ErrorMessages.userNotFound);
+        return DataFailed(
+          Exception(ErrorMessages.userNotFound),
+          StackTrace.current,
+        );
       }
 
       String? profileImageUrl = updateUser.profileImage;
-      final userModel = UserModel.fromFirestoreMap(userData);
-
       if (profileImageUrl != null && !profileImageUrl.startsWith('http')) {
-        _talker.debug('📤 Uploading new profile image...');
         profileImageUrl = await _uploadProfileImage(
           updateUser.uid,
           profileImageUrl,
-          userModel.profileImage,
+          userDoc.data()?['profileImage'] as String?,
         );
         if (profileImageUrl == null) {
-          _talker.error('❌ Failed to upload profile image');
+          _talker.error(ErrorMessages.failedToUploadImage);
           return DataFailed(
-            Exception('Failed to upload profile image'),
+            Exception(ErrorMessages.failedToUploadImage),
             StackTrace.current,
           );
         }
       }
 
-      _talker.debug('📝 Updating user data...');
-      final updatedUser = userModel.copyWith(
-        name: updateUser.name,
-        lastName: updateUser.lastName,
-        phoneNumber: updateUser.phoneNumber,
-        region: updateUser.region,
-        district: updateUser.district,
-        profileImage: profileImageUrl,
+      final likesList = userDoc.data()?['likes'];
+
+      final updatedUser = UserModel(
+        uid: updateUser.uid,
+        name: updateUser.name ?? userDoc.data()?['name'] ?? '',
+        lastName: updateUser.lastName ?? userDoc.data()?['lastName'] ?? '',
+        phoneNumber:
+            updateUser.phoneNumber ?? userDoc.data()?['phoneNumber'] ?? '',
+        region: updateUser.region ?? userDoc.data()?['region'] ?? 0,
+        district: updateUser.district ?? userDoc.data()?['district'] ?? 0,
+        profileImage: profileImageUrl ?? userDoc.data()?['profileImage'] ?? '',
+        createdAt: userDoc.data()?['createdAt'] ?? Timestamp.now(),
+        likes:
+            likesList is List
+                ? List<String>.from(likesList.map((e) => e.toString()))
+                : [],
         updatedAt: Timestamp.now(),
       );
 
       await _firestore
           .collection(FirebaseCollections.users)
           .doc(updateUser.uid)
-          .set(updatedUser.toFirestoreMap(), SetOptions(merge: true));
+          .set(updatedUser.toFirestoreMap(), SetOptions(merge: true))
+          .timeout(FirebaseConstants.operationTimeout);
 
-      _talker.debug('💾 Updating local storage...');
+      await _updateLocalStorage(updatedUser);
+
+      _talker.info('Successfully updated user profile');
+      return DataSuccess(true);
+    } catch (e, stack) {
+      _talker.error(ErrorMessages.failedToUpdateUser, e, stack);
+      return DataFailed(
+        Exception('${ErrorMessages.failedToUpdateUser}: $e'),
+        stack,
+      );
+    }
+  }
+
+  Future<void> _updateLocalStorage(UserModel updatedUser) async {
+    try {
       await LocalStorageService.deleteUser();
       await LocalStorageService.saveUser(
         LocalUserModel.fromUserModel(updatedUser),
       );
-
-      _talker.info('✅ Successfully updated user profile');
-      return DataSuccess(true);
+      _talker.debug('Updated local storage');
     } catch (e, stack) {
-      _talker.error('❌ Failed to update user', e, stack);
-      return DataFailed(Exception('Failed to update user: $e'), stack);
+      _talker.error('Failed to update local storage', e, stack);
     }
   }
 }
