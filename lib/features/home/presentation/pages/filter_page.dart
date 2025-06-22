@@ -288,6 +288,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                 showCategoryFilterBottomSheet(
                   context: context,
                   categories: categoriesList,
+
                   currentFilters: currentFilters,
                   onApply: (result) {
                     _talker.info('✅ User applied filter: $result');

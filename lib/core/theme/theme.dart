@@ -6,7 +6,7 @@ ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme.light(
     background: Colors.white,
 
-    primary: Color(0xff2B654D),
+    primary: Color(0xff2a5a46),
     onPrimary: Color(0xffFFFFFF),
 
     inversePrimary: Color(0xff000000),

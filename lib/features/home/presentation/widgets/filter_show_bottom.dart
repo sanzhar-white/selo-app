@@ -45,6 +45,9 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
     context: context,
     backgroundColor: colorScheme.surface,
     shape: RoundedRectangleBorder(borderRadius: radius),
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.of(context).size.height * 0.7,
+    ),
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {

@@ -172,9 +172,9 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                         borderRadius: radius,
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.inversePrimary.withOpacity(0.2),
+                            color: colorScheme.inversePrimary.withOpacity(0.1),
                             blurRadius: 6,
-                            offset: const Offset(0, 3),
+                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
@@ -254,10 +254,10 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                             boxShadow: [
                               BoxShadow(
                                 color: colorScheme.inversePrimary.withOpacity(
-                                  0.2,
+                                  0.1,
                                 ),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
+                                blurRadius: 2,
+                                offset: const Offset(0, 0),
                               ),
                             ],
                           ),

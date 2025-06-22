@@ -160,9 +160,9 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                         borderRadius: radius,
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.inversePrimary.withOpacity(0.2),
+                            color: colorScheme.inversePrimary.withOpacity(0.1),
                             blurRadius: 6,
-                            offset: const Offset(0, 3),
+                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
@@ -312,73 +312,67 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                 ),
               ),
             ),
-            Row(
-              children: [
-                Flexible(
-                  flex: 3,
-                  child: CallButton(
-                    key: const Key('call_button'),
-                    phoneNumber: widget.advert.phoneNumber,
+            SizedBox(
+              height: screenSize.height * 0.07,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: CallButton(
+                      key: const Key('call_button'),
+                      phoneNumber: widget.advert.phoneNumber,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  flex: 1,
-                  child: GestureDetector(
-                    key: const Key('favourite_button'),
-                    onTap: user == null ? null : _toggleFavourite,
-                    child: RepaintBoundary(
-                      child: Container(
-                        height: screenSize.height * 0.05,
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface,
-                          borderRadius: radius,
-                          boxShadow: [
-                            BoxShadow(
-                              color: colorScheme.inversePrimary.withOpacity(
-                                0.2,
-                              ),
-                              blurRadius: 4,
-                              offset: const Offset(0, 0),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: AnimatedBuilder(
-                            animation: _animationController,
-                            builder: (context, child) {
-                              return Transform.scale(
-                                scale: _scaleAnimation.value,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Icon(
-                                      CupertinoIcons.heart,
-                                      color: colorScheme.primary,
-                                      size: 24,
-                                    ),
-                                    ClipRect(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: _fillAnimation.value,
-                                        child: Icon(
-                                          CupertinoIcons.heart_fill,
-                                          color: colorScheme.error,
-                                          size: 24,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 1,
+                    child: GestureDetector(
+                      key: const Key('favourite_button'),
+                      onTap: user == null ? null : _toggleFavourite,
+                      child: RepaintBoundary(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface,
+                            borderRadius: radius,
+                          ),
+                          child: Center(
+                            child: AnimatedBuilder(
+                              animation: _animationController,
+                              builder: (context, child) {
+                                return Transform.scale(
+                                  scale: _scaleAnimation.value,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.heart,
+                                        color: colorScheme.primary,
+                                        size: 32,
+                                      ),
+                                      ClipRect(
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: _fillAnimation.value,
+                                          child: Icon(
+                                            CupertinoIcons.heart_fill,
+                                            color: colorScheme.error,
+                                            size: 32,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

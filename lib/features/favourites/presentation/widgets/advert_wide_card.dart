@@ -169,9 +169,9 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                         borderRadius: radius,
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.inversePrimary.withOpacity(0.2),
+                            color: colorScheme.inversePrimary.withOpacity(0.1),
                             blurRadius: 6,
-                            offset: const Offset(0, 3),
+                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
@@ -265,18 +265,10 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                         child: Container(
                           height: 48,
                           width: 48,
+                          margin: EdgeInsets.all(4),
                           decoration: BoxDecoration(
                             color: colorScheme.surface,
                             borderRadius: radius,
-                            boxShadow: [
-                              BoxShadow(
-                                color: colorScheme.inversePrimary.withOpacity(
-                                  0.2,
-                                ),
-                                blurRadius: 4,
-                                offset: const Offset(0, 0),
-                              ),
-                            ],
                           ),
                           child: Center(
                             child: AnimatedBuilder(
@@ -323,36 +315,61 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.advert.title, style: contrastBoldM(context)),
-                    Text(
-                      '${getRegionName(widget.advert.region ?? 0)}\n${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
-                      style: grayM(context),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
+                    Flexible(
+                      child: Text(
+                        widget.advert.title,
+                        style: contrastBoldM(context),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        '${getRegionName(widget.advert.region ?? 0)}\n${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
+                        style: grayM(context),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
                     ),
                     if (widget.advert.price != null &&
                         widget.advert.price != 0) ...[
                       if (widget.advert.maxPrice != null &&
                           widget.advert.maxPrice != 0) ...[
-                        Text(
-                          '${S.of(context)!.to} ${widget.advert.maxPrice.toString()} ₸',
-                          style: contrastBoldM(context),
+                        Flexible(
+                          child: Text(
+                            '${S.of(context)!.to} ${widget.advert.maxPrice.toString()} ₸',
+                            style: contrastBoldM(context),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
                       ] else ...[
-                        Text(
-                          '${widget.advert.price.toString()} ₸',
-                          style: contrastBoldM(context),
+                        Flexible(
+                          child: Text(
+                            '${widget.advert.price.toString()} ₸',
+                            style: contrastBoldM(context),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
                       ],
                     ] else ...[
-                      Text(
-                        S.of(context)!.negotiable,
-                        style: contrastBoldM(context),
+                      Flexible(
+                        child: Text(
+                          S.of(context)!.negotiable,
+                          style: contrastBoldM(context),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                       ),
                     ],
-                    Text(
-                      getLocalizedCategory(category, context),
-                      style: grayM(context),
+                    Flexible(
+                      child: Text(
+                        getLocalizedCategory(category, context),
+                        style: grayM(context),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
                     const Spacer(),
                     Row(

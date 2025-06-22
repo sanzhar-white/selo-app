@@ -17,6 +17,7 @@ import 'package:selo/core/di/di.dart';
 import 'dart:io';
 import 'package:recaptcha_enterprise_flutter/recaptcha.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Класс для инициализации всех сервисов приложения
 class AppInitializer {
