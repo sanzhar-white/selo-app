@@ -9,10 +9,10 @@ import 'favourites_interface.dart';
 import 'dart:io';
 
 class FirebaseDatasource implements FavouritesInterface {
-  final FirebaseFirestore _firestore;
-  final Talker _talker;
 
   FirebaseDatasource(this._firestore, this._talker);
+  final FirebaseFirestore _firestore;
+  final Talker _talker;
 
   @override
   Future<DataState<List<AdvertModel>>> getFavourites(
@@ -138,7 +138,7 @@ class FirebaseDatasource implements FavouritesInterface {
       await advertRef.update({'likes': FieldValue.increment(1)});
 
       _talker.info('✅ Successfully added to favourites');
-      return DataSuccess(true);
+      return const DataSuccess(true);
     } catch (e, stack) {
       _talker.error(ErrorMessages.errorInAddToFavourites, e, stack);
       return DataFailed(Exception(e), stack);
@@ -205,7 +205,7 @@ class FirebaseDatasource implements FavouritesInterface {
       await advertRef.update({'likes': FieldValue.increment(-1)});
 
       _talker.info('✅ Successfully removed from favourites');
-      return DataSuccess(true);
+      return const DataSuccess(true);
     } catch (e, stack) {
       _talker.error(ErrorMessages.errorInRemoveFromFavourites, e, stack);
       return DataFailed(Exception(e), stack);
@@ -268,7 +268,7 @@ class FirebaseDatasource implements FavouritesInterface {
 
       await userRef.update({'likes': likes});
       _talker.info('✅ Successfully toggled favourite status');
-      return DataSuccess(true);
+      return const DataSuccess(true);
     } catch (e, stack) {
       _talker.error(ErrorMessages.errorInToggleFavourite, e, stack);
       return DataFailed(Exception(e), stack);

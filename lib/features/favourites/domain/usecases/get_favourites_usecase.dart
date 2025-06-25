@@ -5,9 +5,8 @@ import 'package:selo/features/favourites/domain/repositories/favourites_reposito
 import 'package:selo/shared/models/advert_model.dart';
 
 class GetFavouritesUseCase extends UseCase<DataState<List<AdvertModel>>, void> {
-  final FavouritesRepository _favouritesRepository;
-
   GetFavouritesUseCase(this._favouritesRepository);
+  final FavouritesRepository _favouritesRepository;
 
   @override
   Future<DataState<List<AdvertModel>>> call({void params}) {

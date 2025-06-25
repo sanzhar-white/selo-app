@@ -1,7 +1,7 @@
 import 'package:selo/core/models/category.dart';
 
 final List<AdCategory> conditions = [
-  AdCategory(
+  const AdCategory(
     id: 0,
     nameRu: 'Новое',
     nameEn: 'New',
@@ -9,7 +9,7 @@ final List<AdCategory> conditions = [
     imageUrl: '',
     settings: {},
   ),
-  AdCategory(
+  const AdCategory(
     id: 1,
     nameRu: 'Б/у',
     nameEn: 'Used',

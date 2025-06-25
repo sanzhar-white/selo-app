@@ -5,12 +5,12 @@ import '../advert_provider.dart';
 import 'package:selo/core/resources/data_state.dart';
 
 class AdvertNotifier extends StateNotifier<AdvertState> {
-  final Ref ref;
 
   AdvertNotifier(this.ref) : super(const AdvertState());
+  final Ref ref;
 
   Future<bool> createAdvert(AdvertModel advert) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final useCase = ref.read(createAdUseCaseProvider);
       final filteredData = advert.toFilteredMap();
@@ -20,7 +20,6 @@ class AdvertNotifier extends StateNotifier<AdvertState> {
         state = state.copyWith(
           advert: result.data,
           isLoading: false,
-          error: null,
         );
         return true;
       } else if (result is DataFailed) {

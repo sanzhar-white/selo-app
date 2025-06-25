@@ -18,7 +18,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
 
   Future<void> _loadLocale() async {
     try {
-      final languageCode = await LocalStorageService.getLocale();
+      final languageCode = LocalStorageService.getLocale();
       if (languageCode != null && ['en', 'ru', 'kk'].contains(languageCode)) {
         state = Locale(languageCode);
       } else {

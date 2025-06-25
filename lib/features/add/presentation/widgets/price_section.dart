@@ -9,6 +9,22 @@ import 'package:selo/features/add/presentation/widgets/custom_toggle_buttons.dar
 import 'package:selo/generated/l10n.dart';
 
 class PriceSection extends StatelessWidget {
+  const PriceSection({
+    required this.isPriceFixed,
+    required this.hasMaxPrice,
+    required this.hasPricePer,
+    required this.isSalary,
+    required this.pricePerUnit,
+    required this.units,
+    required this.priceController,
+    required this.maxPriceController,
+    required this.onPriceTypeChanged,
+    required this.onUnitChanged,
+    required this.showPricePerSelector,
+    super.key,
+    this.priceError = false,
+    this.maxPriceError = false,
+  });
   final bool isPriceFixed;
   final bool hasMaxPrice;
   final bool hasPricePer;
@@ -23,23 +39,6 @@ class PriceSection extends StatelessWidget {
   final bool maxPriceError;
   final bool showPricePerSelector;
 
-  const PriceSection({
-    super.key,
-    required this.isPriceFixed,
-    required this.hasMaxPrice,
-    required this.hasPricePer,
-    required this.isSalary,
-    required this.pricePerUnit,
-    required this.units,
-    required this.priceController,
-    required this.maxPriceController,
-    required this.onPriceTypeChanged,
-    required this.onUnitChanged,
-    this.priceError = false,
-    this.maxPriceError = false,
-    required this.showPricePerSelector,
-  });
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -50,15 +49,15 @@ class PriceSection extends StatelessWidget {
       children: [
         Text(
           isSalary
-              ? S.of(context).salary
+              ? S.of(context)!.salary
               : (hasPricePer
-                  ? S.of(context).price_per_unit
-                  : S.of(context).price),
+                  ? S.of(context)!.price_per_unit
+                  : S.of(context)!.price),
           style: contrastBoldM(context),
         ),
         SizedBox(height: screenSize.height * 0.015),
         CustomToggleButtons(
-          options: [S.of(context).fixed, S.of(context).negotiable],
+          options: [S.of(context)!.fixed, S.of(context)!.negotiable],
           selectedIndex: isPriceFixed ? 0 : 1,
           onChanged: (index) => onPriceTypeChanged(index == 0),
         ),
@@ -84,15 +83,14 @@ class PriceSection extends StatelessWidget {
       controller: priceController,
       theme: colorScheme,
       style: contrastM(context),
-      hintText: S.of(context).price_hint,
+      hintText: S.of(context)!.price_hint,
       formatters: [
         FilteringTextInputFormatter.digitsOnly,
         ThousandsSeparatorInputFormatter(),
       ],
       keyboardType: TextInputType.number,
-      border: true,
       error: priceError,
-      errorText: S.of(context).price_required,
+      errorText: S.of(context)!.price_required,
     );
   }
 
@@ -112,10 +110,10 @@ class PriceSection extends StatelessWidget {
               controller: priceController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).from,
+              hintText: S.of(context)!.from,
               textAlign: TextAlign.center,
               error: priceError,
-              errorText: S.of(context).price_required,
+              errorText: S.of(context)!.price_required,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 ThousandsSeparatorInputFormatter(),
@@ -128,16 +126,16 @@ class PriceSection extends StatelessWidget {
             ),
           ),
           _buildCurrencyContainer(context, priceError),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Flexible(
             flex: 3,
             child: CustomTextField(
               controller: maxPriceController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).to,
+              hintText: S.of(context)!.to,
               error: maxPriceError,
-              errorText: S.of(context).max_price_required,
+              errorText: S.of(context)!.max_price_required,
               textAlign: TextAlign.center,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -151,7 +149,7 @@ class PriceSection extends StatelessWidget {
             ),
           ),
           _buildCurrencyContainer(context, maxPriceError),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _buildUnitSelector(context),
         ],
       ),
@@ -169,14 +167,14 @@ class PriceSection extends StatelessWidget {
           _buildPriceField(
             context,
             priceController,
-            S.of(context).from,
+            S.of(context)!.from,
             priceError,
           ),
           SizedBox(width: screenSize.width * 0.04),
           _buildPriceField(
             context,
             maxPriceController,
-            S.of(context).to,
+            S.of(context)!.to,
             maxPriceError,
           ),
         ],
@@ -198,10 +196,10 @@ class PriceSection extends StatelessWidget {
               controller: priceController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).price_hint,
+              hintText: S.of(context)!.price_hint,
               textAlign: TextAlign.center,
               error: priceError,
-              errorText: S.of(context).price_required,
+              errorText: S.of(context)!.price_required,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 ThousandsSeparatorInputFormatter(),
@@ -242,7 +240,7 @@ class PriceSection extends StatelessWidget {
               style: contrastM(context),
               hintText: hint,
               error: error,
-              errorText: S.of(context).price_required,
+              errorText: S.of(context)!.price_required,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 ThousandsSeparatorInputFormatter(),

@@ -3,20 +3,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ProfileAvatar extends StatelessWidget {
+
+  const ProfileAvatar({
+    required this.radius, required this.backgroundColor, required this.iconColor, super.key,
+    this.imageUrl,
+    this.localImage,
+  });
   final String? imageUrl;
   final File? localImage;
   final double radius;
   final Color backgroundColor;
   final Color iconColor;
-
-  const ProfileAvatar({
-    super.key,
-    this.imageUrl,
-    this.localImage,
-    required this.radius,
-    required this.backgroundColor,
-    required this.iconColor,
-  });
 
   @override
   Widget build(BuildContext context) {

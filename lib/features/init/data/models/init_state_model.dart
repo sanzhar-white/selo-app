@@ -2,12 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:selo/shared/models/user_model.dart';
 
 class InitStateModel extends Equatable {
-  final bool isInitialized;
-  final bool isLoading;
-  final String? error;
-  final StackTrace? stackTrace;
-  final UserModel? user;
-  final Map<String, dynamic> cachedData;
 
   const InitStateModel({
     this.isInitialized = false,
@@ -17,6 +11,12 @@ class InitStateModel extends Equatable {
     this.user,
     this.cachedData = const {},
   });
+  final bool isInitialized;
+  final bool isLoading;
+  final String? error;
+  final StackTrace? stackTrace;
+  final UserModel? user;
+  final Map<String, dynamic> cachedData;
 
   InitStateModel copyWith({
     bool? isInitialized,

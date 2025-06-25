@@ -5,12 +5,12 @@ import 'package:selo/shared/models/advert_model.dart';
 
 class GetMyAdvertsUseCase
     extends UseCase<DataState<List<AdvertModel>>, String> {
-  final ProfileRepository _profileRepository;
 
   GetMyAdvertsUseCase(this._profileRepository);
+  final ProfileRepository _profileRepository;
 
   @override
   Future<DataState<List<AdvertModel>>> call({String? params}) async {
-    return await _profileRepository.getMyAdverts(params as String);
+    return _profileRepository.getMyAdverts(params!);
   }
 }

@@ -4,14 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:selo/generated/l10n.dart';
 
 class BaseCategory extends Equatable {
-  final int id;
-
   const BaseCategory({required this.id});
-
-  @override
-  List<Object?> get props => [id];
-
-  Map<String, dynamic> toMap() => {'id': id};
 
   factory BaseCategory.fromMap(Map<String, dynamic> map) {
     return BaseCategory(
@@ -19,53 +12,27 @@ class BaseCategory extends Equatable {
     );
   }
 
-  String toJson() => json.encode(toMap());
-
   factory BaseCategory.fromJson(String source) =>
-      BaseCategory.fromMap(json.decode(source));
+      BaseCategory.fromMap(json.decode(source) as Map<String, dynamic>);
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
+
+  Map<String, dynamic> toMap() => {'id': id};
+
+  String toJson() => json.encode(toMap());
 }
 
 class AdCategory extends BaseCategory {
-  final String imageUrl;
-  final String nameEn;
-  final String nameRu;
-  final String nameKk;
-  final Map<String, bool> settings;
-
   const AdCategory({
-    required int id,
+    required super.id,
     required this.imageUrl,
     required this.nameEn,
     required this.nameRu,
     required this.nameKk,
     required this.settings,
-  }) : super(id: id);
-
-  String getLocalizedCategory(BuildContext context) {
-    final s = S.of(context);
-    if (s.language_code == 'en') {
-      return nameEn;
-    } else if (s.language_code == 'ru') {
-      return nameRu;
-    } else if (s.language_code == 'kk') {
-      return nameKk;
-    }
-    throw Exception('Didn\'t add the localisation correctly');
-  }
-
-  @override
-  List<Object?> get props =>
-      super.props + [imageUrl, nameEn, nameRu, nameKk, settings];
-
-  @override
-  Map<String, dynamic> toMap() => {
-    ...super.toMap(),
-    'imageUrl': imageUrl,
-    'nameEn': nameEn,
-    'nameRu': nameRu,
-    'nameKk': nameKk,
-    'settings': settings,
-  };
+  });
 
   factory AdCategory.fromMap(Map<String, dynamic> map) {
     return AdCategory(
@@ -82,28 +49,50 @@ class AdCategory extends BaseCategory {
     );
   }
 
-  String toJson() => json.encode(toMap());
-
   factory AdCategory.fromJson(String source) =>
-      AdCategory.fromMap(json.decode(source));
-}
+      AdCategory.fromMap(json.decode(source) as Map<String, dynamic>);
+  final String imageUrl;
+  final String nameEn;
+  final String nameRu;
+  final String nameKk;
+  final Map<String, bool> settings;
 
-class PlaceCategory extends BaseCategory {
-  final List<PlaceCategory>? subcategories;
-  final String name;
-
-  const PlaceCategory({required int id, this.subcategories, required this.name})
-    : super(id: id);
+  String getLocalizedCategory(BuildContext context) {
+    final s = S.of(context)!;
+    if (s.language_code == 'en') {
+      return nameEn;
+    } else if (s.language_code == 'ru') {
+      return nameRu;
+    } else if (s.language_code == 'kk') {
+      return nameKk;
+    }
+    throw Exception("Didn't add the localisation correctly");
+  }
 
   @override
-  List<Object?> get props => super.props + [subcategories ?? [], name];
+  List<Object?> get props =>
+      super.props + [imageUrl, nameEn, nameRu, nameKk, settings];
 
   @override
   Map<String, dynamic> toMap() => {
     ...super.toMap(),
-    'subcategories': subcategories?.map((e) => e.toMap()).toList(),
-    'name': name,
+    'imageUrl': imageUrl,
+    'nameEn': nameEn,
+    'nameRu': nameRu,
+    'nameKk': nameKk,
+    'settings': settings,
   };
+
+  @override
+  String toJson() => json.encode(toMap());
+}
+
+class PlaceCategory extends BaseCategory {
+  const PlaceCategory({
+    required super.id,
+    required this.name,
+    this.subcategories,
+  });
 
   factory PlaceCategory.fromMap(Map<String, dynamic> map) {
     List<PlaceCategory>? subcategoriesList;
@@ -123,9 +112,21 @@ class PlaceCategory extends BaseCategory {
     );
   }
 
+  factory PlaceCategory.fromJson(String source) =>
+      PlaceCategory.fromMap(json.decode(source) as Map<String, dynamic>);
+  final List<PlaceCategory>? subcategories;
+  final String name;
+
+  @override
+  List<Object?> get props => super.props + [subcategories ?? [], name];
+
+  @override
+  Map<String, dynamic> toMap() => {
+    ...super.toMap(),
+    'subcategories': subcategories?.map((e) => e.toMap()).toList(),
+    'name': name,
+  };
+
   @override
   String toJson() => json.encode(toMap());
-
-  factory PlaceCategory.fromJson(String source) =>
-      PlaceCategory.fromMap(json.decode(source));
 }

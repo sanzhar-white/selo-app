@@ -2,16 +2,6 @@ import 'package:selo/features/home/data/models/home_model.dart';
 import 'package:selo/shared/models/advert_model.dart';
 
 class HomeState {
-  final List<String>? banners;
-  final List<AdvertModel>? allAdvertisements;
-  final List<AdvertModel>? filteredAdvertisements;
-  final bool isLoading;
-  final String? error;
-  final int currentPageAll;
-  final int currentPageFiltered;
-  final bool hasMoreAll;
-  final bool hasMoreFiltered;
-  final SearchModel? currentFilter;
 
   const HomeState({
     this.banners,
@@ -25,6 +15,16 @@ class HomeState {
     this.hasMoreFiltered = true,
     this.currentFilter,
   });
+  final List<String>? banners;
+  final List<AdvertModel>? allAdvertisements;
+  final List<AdvertModel>? filteredAdvertisements;
+  final bool isLoading;
+  final String? error;
+  final int currentPageAll;
+  final int currentPageFiltered;
+  final bool hasMoreAll;
+  final bool hasMoreFiltered;
+  final SearchModel? currentFilter;
 
   HomeState copyWith({
     List<String>? banners,

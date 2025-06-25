@@ -3,22 +3,20 @@ import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ShimmerEffect extends StatelessWidget {
+
+  const ShimmerEffect({
+    required this.width, required this.height, super.key,
+    this.borderRadius = 8.0,
+    this.baseColor,
+    this.highlightColor,
+    this.child,
+  });
   final double width;
   final double height;
   final double borderRadius;
   final Color? baseColor;
   final Color? highlightColor;
   final Widget? child;
-
-  const ShimmerEffect({
-    super.key,
-    required this.width,
-    required this.height,
-    this.borderRadius = 8.0,
-    this.baseColor,
-    this.highlightColor,
-    this.child,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +30,6 @@ class ShimmerEffect extends StatelessWidget {
       child: Shimmer.fromColors(
         baseColor: defaultBaseColor,
         highlightColor: defaultHighlightColor,
-        period: const Duration(milliseconds: 1500),
         child:
             child ??
             Container(

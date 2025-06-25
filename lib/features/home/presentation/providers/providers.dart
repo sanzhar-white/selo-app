@@ -46,5 +46,5 @@ final viewAdvertUseCaseProvider = Provider<ViewAdvertUseCase>(
 );
 
 final homeNotifierProvider = StateNotifierProvider<HomeNotifier, HomeState>(
-  (ref) => HomeNotifier(ref),
+  HomeNotifier.new,
 );

@@ -18,7 +18,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:selo/shared/models/user_model.dart';
 
 class AdvertDetailCard extends ConsumerStatefulWidget {
-  const AdvertDetailCard({super.key, required this.advert});
+  const AdvertDetailCard({required this.advert, super.key});
 
   final AdvertModel advert;
 
@@ -43,11 +43,11 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
       duration: const Duration(milliseconds: 300),
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+    _scaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
-    _fillAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _fillAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
@@ -127,7 +127,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
             nameKk: 'Белгісіз',
             nameRu: 'Неизвестно',
             imageUrl: '',
-            settings: {},
+            settings: const {},
           ),
     );
 
@@ -162,7 +162,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           BoxShadow(
                             color: colorScheme.inversePrimary.withOpacity(0.1),
                             blurRadius: 6,
-                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
@@ -175,7 +174,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   placeholder:
-                                      (context, url) => Container(
+                                      (context, url) => ColoredBox(
                                         color: colorScheme.onSurface
                                             .withOpacity(0.1),
                                         child: const Center(
@@ -209,7 +208,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -240,7 +239,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           borderRadius: radius,
                         ),
                         child: Text(
-                          S.of(context).label_new_advert,
+                          S.of(context)!.label_new_advert,
                           style: overGreenBoldM(context),
                         ),
                       ),
@@ -250,7 +249,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -269,11 +268,10 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (widget.advert.price != null &&
-                            widget.advert.price != 0)
+                        if (widget.advert.price != 0)
                           if (widget.advert.maxPrice != null)
                             Text(
-                              '${S.of(context).to} ${widget.advert.maxPrice} ₸',
+                              '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
                             )
                           else
@@ -283,7 +281,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                             )
                         else
                           Text(
-                            S.of(context).negotiable,
+                            S.of(context)!.negotiable,
                             style: contrastBoldM(context),
                           ),
                         Text(
@@ -295,13 +293,13 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                         if (widget.advert.tradeable &&
                             category.settings['tradeable'] == true)
                           Text(
-                            S.of(context).trade_possible,
+                            S.of(context)!.trade_possible,
                             style: contrastM(context),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
                         Text(
-                          '${widget.advert.views} ${S.of(context).views}, ${widget.advert.createdAt.toDate().toLocal().toString().split(' ')[0]}',
+                          '${widget.advert.views} ${S.of(context)!.views}, ${widget.advert.createdAt.toDate().toLocal().toString().split(' ')[0]}',
                           style: contrastM(context),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
@@ -326,7 +324,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    flex: 1,
                     child: GestureDetector(
                       key: const Key('favourite_button'),
                       onTap: user == null ? null : _toggleFavourite,
@@ -352,7 +349,6 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                                       ),
                                       ClipRect(
                                         child: Align(
-                                          alignment: Alignment.center,
                                           widthFactor: _fillAnimation.value,
                                           child: Icon(
                                             CupertinoIcons.heart_fill,
@@ -382,8 +378,8 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
 }
 
 class CallButton extends StatelessWidget {
+  const CallButton({required this.phoneNumber, super.key});
   final String phoneNumber;
-  const CallButton({super.key, required this.phoneNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -402,13 +398,12 @@ class CallButton extends StatelessWidget {
               BoxShadow(
                 color: colorScheme.inversePrimary.withOpacity(0.2),
                 blurRadius: 4,
-                offset: const Offset(0, 0),
               ),
             ],
           ),
           child: Center(
             child: Text(
-              S.of(context).call,
+              S.of(context)!.call,
               style: overGreenBoldM(context),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

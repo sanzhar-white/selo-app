@@ -32,14 +32,14 @@ Widget defaultTransitionBuilder(
     curve: Curves.easeOutExpo,
   );
   return FadeTransition(
-    opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+    opacity: Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: animation,
-        curve: const Interval(0.0, 0.65, curve: Curves.easeInOut),
+        curve: const Interval(0, 0.65, curve: Curves.easeInOut),
       ),
     ),
     child: ScaleTransition(
-      scale: Tween<double>(begin: 0.96, end: 1.0).animate(fadeAnimation),
+      scale: Tween<double>(begin: 0.96, end: 1).animate(fadeAnimation),
       child: child,
     ),
   );
@@ -49,7 +49,6 @@ final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: Routes.initPage,
   debugLogDiagnostics: true,
-  redirectLimit: 5,
   redirect: (context, state) {
     if (state.uri.toString().contains('firebaseauth')) {
       return Routes.authenticationPage;
@@ -117,7 +116,7 @@ final router = GoRouter(
                       (context, state) => CustomTransitionPage(
                         key: state.pageKey,
                         child: AdvertDetailsPage(
-                          advert: state.extra as AdvertModel,
+                          advert: state.extra! as AdvertModel,
                         ),
                         transitionsBuilder: defaultTransitionBuilder,
                       ),
@@ -129,11 +128,11 @@ final router = GoRouter(
                         key: state.pageKey,
                         child: FilterPage(
                           searchQueryText:
-                              (state.extra
+                              (state.extra!
                                       as Map<String, dynamic>)['searchQuery']
                                   as String,
                           initialCategoryId:
-                              (state.extra
+                              (state.extra!
                                       as Map<
                                         String,
                                         dynamic
@@ -177,7 +176,7 @@ final router = GoRouter(
                       (context, state) => CustomTransitionPage(
                         key: state.pageKey,
                         child: CreateAdvertPage(
-                          category: state.extra as AdCategory,
+                          category: state.extra! as AdCategory,
                         ),
                         transitionsBuilder: defaultTransitionBuilder,
                       ),

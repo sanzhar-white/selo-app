@@ -11,19 +11,18 @@ import '../providers.dart';
 import 'profile_state.dart';
 
 class ProfileNotifier extends StateNotifier<ProfileState> {
-  final Ref ref;
-  final Talker logger;
-  final CacheManager cacheManager;
 
   ProfileNotifier({
     required this.ref,
     required this.logger,
     required this.cacheManager,
   }) : super(const ProfileState());
+  final Ref ref;
+  final Talker logger;
+  final CacheManager cacheManager;
 
   Future<void> getMyAdverts({
-    bool forceRefresh = false,
-    required String uid,
+    required String uid, bool forceRefresh = false,
   }) async {
     if (!forceRefresh && !cacheManager.shouldRefresh()) return;
     await _executeUseCase(
@@ -81,7 +80,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   }
 
   Future<void> _setLoadingState() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
   }
 
   Future<void> _handleResult<T>(
@@ -91,7 +90,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   ) async {
     if (result is DataSuccess<T>) {
       onSuccess(result.data);
-      state = state.copyWith(isLoading: false, error: null);
+      state = state.copyWith(isLoading: false);
     } else if (result is DataFailed) {
       final error = result.error?.toString() ?? ErrorMessages.unknownError;
       state = state.copyWith(isLoading: false, error: error);

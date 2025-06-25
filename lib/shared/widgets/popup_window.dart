@@ -6,22 +6,21 @@ import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 
 class PopupWindow {
-  final String message;
-  final VoidCallback? onButtonPressed;
-  final String? buttonText;
 
   const PopupWindow({
     required this.message,
     this.onButtonPressed,
     this.buttonText,
   });
+  final String message;
+  final VoidCallback? onButtonPressed;
+  final String? buttonText;
 
   void show(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
     showDialog(
       context: context,
-      barrierDismissible: true,
       barrierColor: Colors.black.withOpacity(0.5),
       builder:
           (context) => Dialog(
@@ -44,7 +43,6 @@ class PopupWindow {
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 20),
                       Center(
@@ -62,7 +60,6 @@ class PopupWindow {
                           borderRadius: ResponsiveRadius.screenBased(context),
                           onPressed: () {
                             context.pop();
-                            ;
 
                             if (onButtonPressed != null) {
                               onButtonPressed!();

@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 
 class FormSection extends StatelessWidget {
+
+  const FormSection({
+    required this.child, super.key,
+    this.title,
+    this.titleStyle,
+  });
   final String? title;
   final Widget child;
   final TextStyle? titleStyle;
-
-  const FormSection({
-    super.key,
-    this.title,
-    required this.child,
-    this.titleStyle,
-  });
 
   @override
   Widget build(BuildContext context) {

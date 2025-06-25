@@ -22,7 +22,7 @@ class _InitPageState extends ConsumerState<InitPage> {
   bool _videoInitialized = false;
   bool _videoError = false;
   bool _videoFinished = false;
-  double _videoSizeFactor = 0.5;
+  final double _videoSizeFactor = 0.5;
 
   @override
   void initState() {
@@ -102,7 +102,7 @@ class _InitPageState extends ConsumerState<InitPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Container(color: Color(0xff2a5a46)),
+          Container(color: const Color(0xff2a5a46)),
           if (_videoInitialized)
             Center(
               child: SizedBox(
@@ -126,7 +126,7 @@ class _InitPageState extends ConsumerState<InitPage> {
                     Column(
                       children: [
                         SelectableText(
-                          '${S.of(context).error}: ${initState.error}, ${initState.stackTrace?.toString()}',
+                          '${S.of(context)!.error}: ${initState.error}, ${initState.stackTrace}',
                           style: const TextStyle(color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
@@ -135,7 +135,7 @@ class _InitPageState extends ConsumerState<InitPage> {
                           onPressed: () {
                             ref.read(initStateProvider.notifier).initialize();
                           },
-                          child: Text(S.of(context).retry),
+                          child: Text(S.of(context)!.retry),
                         ),
                       ],
                     ),

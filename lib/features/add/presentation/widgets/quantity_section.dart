@@ -8,6 +8,22 @@ import 'package:selo/shared/widgets/show_bottom_picker.dart';
 import 'package:selo/generated/l10n.dart';
 
 class QuantitySection extends StatelessWidget {
+  const QuantitySection({
+    required this.isQuantityFixed,
+    required this.hasMaxQuantity,
+    required this.quantityUnit,
+    required this.units,
+    required this.quantityController,
+    required this.maxQuantityController,
+    required this.onQuantityTypeChanged,
+    required this.onUnitChanged,
+    required this.showUnitSelector,
+    super.key,
+    this.quantityError = false,
+    this.maxQuantityError = false,
+    this.quantityErrorText = 'Quantity is required',
+    this.maxQuantityErrorText = 'Max quantity is required',
+  });
   final bool isQuantityFixed;
   final bool hasMaxQuantity;
   final String quantityUnit;
@@ -22,23 +38,6 @@ class QuantitySection extends StatelessWidget {
   final String maxQuantityErrorText;
   final bool showUnitSelector;
 
-  const QuantitySection({
-    super.key,
-    required this.isQuantityFixed,
-    required this.hasMaxQuantity,
-    required this.quantityUnit,
-    required this.units,
-    required this.quantityController,
-    required this.maxQuantityController,
-    required this.onQuantityTypeChanged,
-    required this.onUnitChanged,
-    this.quantityError = false,
-    this.maxQuantityError = false,
-    this.quantityErrorText = 'Quantity is required',
-    this.maxQuantityErrorText = 'Max quantity is required',
-    required this.showUnitSelector,
-  });
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -48,7 +47,7 @@ class QuantitySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(S.of(context).volume_quantity, style: contrastBoldM(context)),
+        Text(S.of(context)!.volume_quantity, style: contrastBoldM(context)),
         const SizedBox(height: 12),
         Container(
           width: double.infinity,
@@ -72,8 +71,8 @@ class QuantitySection extends StatelessWidget {
                 isSelected: [isQuantityFixed, !isQuantityFixed],
                 onPressed: (index) => onQuantityTypeChanged(index == 0),
                 children: [
-                  Text(S.of(context).fixed),
-                  Text(S.of(context).negotiable),
+                  Text(S.of(context)!.fixed),
+                  Text(S.of(context)!.negotiable),
                 ],
               );
             },
@@ -101,7 +100,7 @@ class QuantitySection extends StatelessWidget {
       controller: quantityController,
       theme: colorScheme,
       style: contrastM(context),
-      hintText: S.of(context).volume_quantity,
+      hintText: S.of(context)!.volume_quantity,
       formatters: [
         FilteringTextInputFormatter.digitsOnly,
         ThousandsSeparatorInputFormatter(),
@@ -126,7 +125,7 @@ class QuantitySection extends StatelessWidget {
               controller: quantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).from,
+              hintText: S.of(context)!.from,
               textAlign: TextAlign.center,
               error: quantityError,
               errorText: quantityErrorText,
@@ -137,13 +136,13 @@ class QuantitySection extends StatelessWidget {
               keyboardType: TextInputType.number,
             ),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: CustomTextField(
               controller: maxQuantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).to,
+              hintText: S.of(context)!.to,
               textAlign: TextAlign.center,
               error: maxQuantityError,
               errorText: maxQuantityErrorText,
@@ -155,7 +154,7 @@ class QuantitySection extends StatelessWidget {
             ),
           ),
           if (showUnitSelector) ...[
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             _buildUnitSelector(context, colorScheme, screenSize),
           ],
         ],
@@ -177,7 +176,7 @@ class QuantitySection extends StatelessWidget {
               controller: quantityController,
               theme: colorScheme,
               style: contrastM(context),
-              hintText: S.of(context).volume_quantity,
+              hintText: S.of(context)!.volume_quantity,
               formatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 ThousandsSeparatorInputFormatter(),
@@ -188,7 +187,7 @@ class QuantitySection extends StatelessWidget {
               errorText: quantityErrorText,
             ),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           _buildUnitSelector(context, colorScheme, screenSize),
         ],
       ),

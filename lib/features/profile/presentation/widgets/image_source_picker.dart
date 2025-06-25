@@ -14,12 +14,12 @@ class ImageSourcePicker extends StatelessWidget {
       children: [
         ListTile(
           leading: Icon(Icons.photo_library, color: colorScheme.inversePrimary),
-          title: Text(S.of(context).gallery, style: contrastM(context)),
+          title: Text(S.of(context)!.gallery, style: contrastM(context)),
           onTap: () => Navigator.pop(context, ImageSource.gallery),
         ),
         ListTile(
           leading: Icon(Icons.camera_alt, color: colorScheme.inversePrimary),
-          title: Text(S.of(context).camera, style: contrastM(context)),
+          title: Text(S.of(context)!.camera, style: contrastM(context)),
           onTap: () => Navigator.pop(context, ImageSource.camera),
         ),
       ],

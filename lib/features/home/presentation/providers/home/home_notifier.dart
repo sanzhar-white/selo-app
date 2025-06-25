@@ -12,7 +12,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   HomeNotifier(this.ref) : super(const HomeState());
 
   final Ref ref;
-  final talker = di<Talker>();
+  final Talker talker = di<Talker>();
 
   Future<void> clearFilteredCache() async {
     try {
@@ -20,8 +20,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
         filteredAdvertisements: [],
         hasMoreFiltered: true,
         currentPageFiltered: 1,
-        error: null,
-        currentFilter: null,
       );
       talker.info('Cleared filtered ads');
     } catch (e) {
@@ -58,7 +56,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               pageSize: pageSize,
             ),
           ),
-      (List<AdvertModel> ads) {
+      (ads) {
         final newList = refresh ? ads : [...?state.allAdvertisements, ...ads];
         final hasMore = ads.length >= pageSize;
         state = state.copyWith(
@@ -66,7 +64,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           currentPageAll: page,
           hasMoreAll: hasMore,
           isLoading: false,
-          currentFilter: null,
         );
       },
       errorMessage: ErrorMessages.failedToLoadAdvertisements,
@@ -96,7 +93,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               ),
             ),
           ),
-      (List<AdvertModel> ads) {
+      (ads) {
         final newList =
             refresh ? ads : [...?state.filteredAdvertisements, ...ads];
         final hasMore = ads.length >= pageSize;
@@ -126,7 +123,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     void Function(T) onSuccess, {
     String? errorMessage,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final result = await useCase();
       if (result is DataSuccess<T> && result.data != null) {
@@ -153,10 +150,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool refresh,
   ) async {
     final appliedFilter =
-        filter == null
-            ? null
-            : filter.copyWith(
-              category: filter.category == null ? null : filter.category,
+        filter?.copyWith(
+              category: filter.category,
             );
     if (refresh || appliedFilter != state.currentFilter) {
       await clearFilteredCache();

@@ -9,8 +9,6 @@ import '../providers.dart';
 import 'user_state.dart';
 
 class UserNotifier extends StateNotifier<UserState> {
-  final Ref ref;
-  final talker = di<Talker>();
 
   UserNotifier(this.ref) : super(const UserState()) {
     final localUser = LocalStorageService.getUser();
@@ -18,21 +16,22 @@ class UserNotifier extends StateNotifier<UserState> {
       state = state.copyWith(user: localUser.user);
     }
   }
+  final Ref ref;
+  final Talker talker = di<Talker>();
 
   Future<bool> _executeUseCase<T>(
     Future<DataState<T>> Function() useCase, {
     UserModel? userOverride,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final result = await useCase();
       if (result is DataSuccess && result.data != null) {
         state = state.copyWith(
           user:
               userOverride ??
-              (result.data is UserModel ? result.data as UserModel : null),
+              (result.data is UserModel ? result.data! as UserModel : null),
           isLoading: false,
-          error: null,
         );
         return true;
       } else if (result is DataFailed) {
@@ -83,33 +82,31 @@ class UserNotifier extends StateNotifier<UserState> {
 
   Future<bool> logOut() async {
     return _executeUseCase(
-      () => ref.read(logOutUseCaseProvider).call(params: null),
+      () => ref.read(logOutUseCaseProvider).call(),
     );
   }
 
   Future<bool> anonymousLogIn() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final localUser = LocalStorageService.getUser();
       if (localUser != null) {
         state = state.copyWith(
           user: localUser.user,
           isLoading: false,
-          error: null,
         );
         return true;
       }
 
       final result = await ref
           .read(anonymousLogInUseCaseProvider)
-          .call(params: null);
+          .call();
       if (result is DataSuccess && result.data is bool) {
         final newLocalUser = LocalStorageService.getUser();
         if (newLocalUser != null) {
           state = state.copyWith(
             user: newLocalUser.user,
             isLoading: false,
-            error: null,
           );
           return true;
         }
@@ -127,11 +124,11 @@ class UserNotifier extends StateNotifier<UserState> {
   }
 
   Future<void> logoutAndClearData() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     final result = await ref.read(logOutUseCaseProvider).call();
     await LocalStorageService.deleteUser();
     if (result is DataSuccess) {
-      state = const UserState(user: null, isLoading: false, error: null);
+      state = const UserState();
     } else if (result is DataFailed) {
       state = state.copyWith(isLoading: false, error: result.error.toString());
     } else {
@@ -142,7 +139,7 @@ class UserNotifier extends StateNotifier<UserState> {
   Future<bool> isAnonymous() async {
     final user = LocalStorageService.getUser();
     if (user != null) {
-      return user.user.phoneNumber == null || user.user.phoneNumber == '';
+      return user.user.phoneNumber == '';
     }
     return false;
   }

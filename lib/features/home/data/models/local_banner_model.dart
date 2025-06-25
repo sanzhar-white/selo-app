@@ -6,12 +6,6 @@ part 'local_banner_model.g.dart';
 
 @HiveType(typeId: 2)
 class LocalBannerModel extends HiveObject {
-  @HiveField(0)
-  final String imageUrl;
-  @HiveField(1)
-  final String? title;
-  @HiveField(2)
-  final String? description;
 
   LocalBannerModel({required this.imageUrl, this.title, this.description});
 
@@ -22,6 +16,12 @@ class LocalBannerModel extends HiveObject {
       description: banner.description,
     );
   }
+  @HiveField(0)
+  final String imageUrl;
+  @HiveField(1)
+  final String? title;
+  @HiveField(2)
+  final String? description;
 
   BannerModel get banner =>
       BannerModel(imageUrl: imageUrl, title: title, description: description);

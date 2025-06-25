@@ -43,10 +43,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       text:
           user?.phoneNumber != null ? formatPhoneNumber(user!.phoneNumber) : '',
     );
-    _region = user?.region != null ? getRegionName(user!.region!) : null;
+    _region = user?.region != null ? getRegionName(user!.region) : null;
     _district =
         user?.district != null && user?.region != null
-            ? getDistrictName(user!.district!, user.region!)
+            ? getDistrictName(user!.district, user.region)
             : null;
 
     Future.microtask(
@@ -68,14 +68,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       builder:
           (context) => AlertDialog(
             title: Text(
-              S.of(context).select_image_source,
+              S.of(context)!.select_image_source,
               style: contrastBoldM(context),
             ),
             content: const ImageSourcePicker(),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(S.of(context).cancel),
+                child: Text(S.of(context)!.cancel),
               ),
             ],
           ),
@@ -115,24 +115,24 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       builder:
           (context) => AlertDialog(
             title: Text(
-              S.of(context).delete_account,
+              S.of(context)!.delete_account,
               style: contrastM(context),
             ),
             content: Text(
-              S.of(context).delete_account_confirmation,
+              S.of(context)!.delete_account_confirmation,
               style: contrastM(context),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(S.of(context).cancel, style: contrastM(context)),
+                child: Text(S.of(context)!.cancel, style: contrastM(context)),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                   ref.read(editProfileNotifierProvider.notifier).deleteUser();
                 },
-                child: Text(S.of(context).delete, style: overGreenM(context)),
+                child: Text(S.of(context)!.delete, style: overGreenM(context)),
               ),
             ],
           ),
@@ -156,7 +156,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             ..showSnackBar(
               SnackBar(
                 content: Text(
-                  S.of(context).change_saved,
+                  S.of(context)!.change_saved,
                   style: contrastBoldM(context),
                 ),
               ),
@@ -182,7 +182,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context).edit_profile, style: contrastBoldM(context)),
+        title: Text(S.of(context)!.edit_profile, style: contrastBoldM(context)),
         iconTheme: IconThemeData(color: colorScheme.inversePrimary),
       ),
       body: Stack(
@@ -190,7 +190,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           Form(
             key: _formKey,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                   _buildAvatarSection(
@@ -208,7 +208,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             ),
           ),
           if (editProfileState.isLoading)
-            Container(
+            ColoredBox(
               color: Colors.black.withOpacity(0.5),
               child: const Center(child: CircularProgressIndicator.adaptive()),
             ),
@@ -238,7 +238,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         const SizedBox(height: 16),
         TextButton(
           onPressed: _pickProfileImage,
-          child: Text(S.of(context).change_profile_photo),
+          child: Text(S.of(context)!.change_profile_photo),
         ),
       ],
     );
@@ -249,7 +249,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       children: [
         CustomTextField(
           controller: _nameController,
-          hintText: S.of(context).name_hint,
+          hintText: S.of(context)!.name_hint,
           keyboardType: TextInputType.name,
           theme: colorScheme,
           style: contrastM(context),
@@ -257,7 +257,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         const SizedBox(height: 16),
         CustomTextField(
           controller: _lastNameController,
-          hintText: S.of(context).lastname_hint,
+          hintText: S.of(context)!.lastname_hint,
           keyboardType: TextInputType.name,
           theme: colorScheme,
           style: contrastM(context),
@@ -270,23 +270,23 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             isDense: true,
             fillColor: colorScheme.onSurface,
             filled: true,
-            hintText: S.of(context).phone_number_hint,
+            hintText: S.of(context)!.phone_number_hint,
             hintStyle: grayM(context),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
+              borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: Colors.transparent),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
+              borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: Colors.transparent),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: colorScheme.primary, width: 2.0),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: colorScheme.primary, width: 2),
             ),
             errorStyle: TextStyle(
               color: Theme.of(context).colorScheme.error,
-              fontSize: 12.0,
+              fontSize: 12,
             ),
           ),
           keyboardType: TextInputType.phone,
@@ -294,7 +294,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           validator: (value) {
             if (value == null ||
                 value.replaceAll(RegExp(r'\D'), '').length < 11) {
-              return S.of(context).phone_number_invalid;
+              return S.of(context)!.phone_number_invalid;
             }
             return null;
           },
@@ -310,12 +310,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 _district = null;
               }),
           onDistrictChanged: (value) => setState(() => _district = value),
-          regionHint: S.of(context).region_select,
-          districtHint: S.of(context).district_select,
-          regionLabel: S.of(context).region,
-          districtLabel: S.of(context).district,
-          showLabels: true,
-          showDistrict: true,
+          regionHint: S.of(context)!.region_select,
+          districtHint: S.of(context)!.district_select,
+          regionLabel: S.of(context)!.region,
+          districtLabel: S.of(context)!.district,
         ),
       ],
     );
@@ -335,7 +333,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             shape: RoundedRectangleBorder(borderRadius: radius),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
-          child: Text(S.of(context).apply, style: overGreenBoldM(context)),
+          child: Text(S.of(context)!.apply, style: overGreenBoldM(context)),
         ),
         const SizedBox(height: 16),
         ElevatedButton(
@@ -346,7 +344,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             shape: RoundedRectangleBorder(borderRadius: radius),
           ),
           child: Text(
-            S.of(context).delete_account,
+            S.of(context)!.delete_account,
             style: overGreenBoldM(context),
           ),
         ),

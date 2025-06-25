@@ -4,9 +4,8 @@ import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/shared/models/advert_model.dart';
 
 class CreateAdUseCase extends UseCase<DataState<AdvertModel>, void> {
-  final AdvertRepository _advertRepository;
-
   CreateAdUseCase(this._advertRepository);
+  final AdvertRepository _advertRepository;
 
   @override
   Future<DataState<AdvertModel>> call({void params}) {

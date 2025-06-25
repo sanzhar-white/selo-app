@@ -4,11 +4,11 @@ import 'package:selo/core/resources/data_state.dart';
 import '../categories_provider.dart';
 
 class CategoriesNotifier extends StateNotifier<AsyncValue<List<AdCategory>>> {
+
+  CategoriesNotifier(this.ref) : super(const AsyncValue.data([]));
   final Ref ref;
   DateTime? _lastFetchTime;
   final Duration _cacheDuration = const Duration(minutes: 10);
-
-  CategoriesNotifier(this.ref) : super(const AsyncValue.data([]));
 
   Future<void> loadCategories({bool forceRefresh = false}) async {
     if (!forceRefresh &&
@@ -24,7 +24,7 @@ class CategoriesNotifier extends StateNotifier<AsyncValue<List<AdCategory>>> {
       final useCase = ref.read(getCategoriesUseCaseProvider);
       final result = await useCase.call();
       if (result is DataSuccess) {
-        state = AsyncValue.data(result.data as List<AdCategory>);
+        state = AsyncValue.data(result.data!);
         _lastFetchTime = DateTime.now();
       } else if (result is DataFailed && result.error != null) {
         state = AsyncValue.error(result.error!, StackTrace.current);

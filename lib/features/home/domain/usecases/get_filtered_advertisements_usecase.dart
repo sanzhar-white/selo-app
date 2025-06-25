@@ -10,17 +10,17 @@ class GetFilteredAdvertisementsUseCase
           DataState<List<AdvertModel>>,
           ({SearchModel? searchModel, PaginationModel paginationModel})
         > {
-  final HomeRepository _homeRepository;
 
   GetFilteredAdvertisementsUseCase(this._homeRepository);
+  final HomeRepository _homeRepository;
 
   @override
   Future<DataState<List<AdvertModel>>> call({
     ({SearchModel? searchModel, PaginationModel paginationModel})? params,
   }) async {
-    return await _homeRepository.getFilteredAdvertisements(
+    return _homeRepository.getFilteredAdvertisements(
       params?.searchModel,
-      params?.paginationModel ?? PaginationModel(currentPage: 1, pageSize: 10),
+      params?.paginationModel ?? const PaginationModel(),
     );
   }
 }

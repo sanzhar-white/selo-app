@@ -20,8 +20,8 @@ import 'package:selo/shared/widgets/phone_show_bottom.dart';
 
 class AdvertMiniCard extends ConsumerStatefulWidget {
   const AdvertMiniCard({
-    super.key,
     required this.advert,
+    super.key,
     this.isLoading = false,
   });
 
@@ -51,7 +51,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
-    _fillAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _fillAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
@@ -123,8 +123,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
 
     final colorScheme = Theme.of(context).colorScheme;
     final radius = ResponsiveRadius.screenBased(context);
-    final List<AdCategory> categories =
-        ref.watch(categoriesNotifierProvider).valueOrNull ?? [];
+    final categories = ref.watch(categoriesNotifierProvider).valueOrNull ?? [];
     final user = ref.watch(userNotifierProvider).user;
 
     final category = categories.firstWhere(
@@ -136,7 +135,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
             nameKk: 'Белгісіз',
             nameRu: 'Неизвестно',
             imageUrl: '',
-            settings: {},
+            settings: const {},
           ),
     );
 
@@ -172,7 +171,6 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           BoxShadow(
                             color: colorScheme.inversePrimary.withOpacity(0.1),
                             blurRadius: 6,
-                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
@@ -199,7 +197,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -232,7 +230,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           borderRadius: ResponsiveRadius.screenBased(context),
                         ),
                         child: Text(
-                          S.of(context).label_new_advert,
+                          S.of(context)!.label_new_advert,
                           style: overGreenBoldM(context),
                         ),
                       ),
@@ -255,7 +253,6 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                                   0.1,
                                 ),
                                 blurRadius: 2,
-                                offset: const Offset(0, 0),
                               ),
                             ],
                           ),
@@ -274,7 +271,6 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                                     ),
                                     ClipRect(
                                       child: Align(
-                                        alignment: Alignment.center,
                                         widthFactor: _fillAnimation.value,
                                         child: Icon(
                                           CupertinoIcons.heart_fill,
@@ -298,7 +294,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
             // Text and buttons
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -318,11 +314,10 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (widget.advert.price != null &&
-                            widget.advert.price != 0) ...[
+                        if (widget.advert.price != 0) ...[
                           if (widget.advert.maxPrice != null) ...[
                             Text(
-                              '${S.of(context).to} ${widget.advert.maxPrice} ₸',
+                              '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
                             ),
                           ] else ...[
@@ -333,7 +328,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           ],
                         ] else ...[
                           Text(
-                            S.of(context).negotiable,
+                            S.of(context)!.negotiable,
                             style: contrastBoldM(context),
                           ),
                         ],
@@ -382,14 +377,14 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
         ),
         // Shimmer for text and buttons
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           child: Column(
             children: [
-              ShimmerEffect(width: 160, height: 16, borderRadius: 4),
+              const ShimmerEffect(width: 160, height: 16, borderRadius: 4),
               const SizedBox(height: 8),
-              ShimmerEffect(width: 120, height: 14, borderRadius: 4),
+              const ShimmerEffect(width: 120, height: 14, borderRadius: 4),
               const SizedBox(height: 8),
-              ShimmerEffect(width: 80, height: 16, borderRadius: 4),
+              const ShimmerEffect(width: 80, height: 16, borderRadius: 4),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -425,7 +420,6 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
           BoxShadow(
             color: colorScheme.inversePrimary.withOpacity(0.2),
             blurRadius: 4,
-            offset: Offset(0, 0),
           ),
         ],
       ),
@@ -435,8 +429,8 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
 }
 
 class CallButton extends StatelessWidget {
+  const CallButton({required this.phoneNumber, super.key});
   final String phoneNumber;
-  const CallButton({super.key, required this.phoneNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -455,13 +449,12 @@ class CallButton extends StatelessWidget {
               BoxShadow(
                 color: colorScheme.inversePrimary.withOpacity(0.2),
                 blurRadius: 4,
-                offset: const Offset(0, 0),
               ),
             ],
           ),
           child: Center(
             child: Text(
-              S.of(context).call,
+              S.of(context)!.call,
               style: overGreenBoldM(context),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

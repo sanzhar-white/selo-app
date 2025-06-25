@@ -4,9 +4,8 @@ import 'package:selo/shared/models/user_model.dart';
 import 'package:selo/features/authentication/domain/repositories/user_repository.dart';
 
 class SignUpUseCase extends UseCase<DataState<AuthStatusModel>, void> {
-  final UserRepository _userRepository;
-
   SignUpUseCase(this._userRepository);
+  final UserRepository _userRepository;
 
   @override
   Future<DataState<AuthStatusModel>> call({void params}) {

@@ -6,13 +6,12 @@ import 'package:selo/features/home/data/models/home_model.dart';
 
 class GetAllAdvertisementsUseCase
     extends UseCase<DataState<List<AdvertModel>>, void> {
-  final HomeRepository _homeRepository;
-
   GetAllAdvertisementsUseCase(this._homeRepository);
+  final HomeRepository _homeRepository;
 
   @override
   Future<DataState<List<AdvertModel>>> call({void params}) async {
-    return await _homeRepository.getAllAdvertisements(
+    return _homeRepository.getAllAdvertisements(
       params as PaginationModel,
     );
   }

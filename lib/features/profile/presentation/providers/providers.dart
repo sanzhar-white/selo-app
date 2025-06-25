@@ -26,7 +26,7 @@ final cacheManagerProvider = Provider<CacheManager>((ref) => CacheManager());
 
 final selectedImageProvider = StateProvider<XFile?>((ref) => null);
 
-final imagePickerProvider = Provider((_) => ImagePicker());
+final Provider<ImagePicker> imagePickerProvider = Provider((_) => ImagePicker());
 
 final editProfileNotifierProvider =
     AsyncNotifierProvider<EditProfileNotifier, void>(EditProfileNotifier.new);

@@ -6,9 +6,9 @@ import '../../domain/repositories/favourites_repository.dart';
 
 class FavouritesRepositoryImpl extends FavouritesRepository
     implements FavouritesInterface {
-  final FavouritesInterface _favouritesInteface;
 
   FavouritesRepositoryImpl(this._favouritesInteface);
+  final FavouritesInterface _favouritesInteface;
 
   @override
   Future<DataState<List<AdvertModel>>> getFavourites(

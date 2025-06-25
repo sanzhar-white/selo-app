@@ -44,7 +44,7 @@ void showPhoneBottomSheet(BuildContext context, String phoneNumber) {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Text(S.of(context).phone_number, style: contrastBoldM(context)),
+              Text(S.of(context)!.phone_number, style: contrastBoldM(context)),
               const SizedBox(height: 8),
               Text(
                 formatPhoneNumber(phoneNumber),
@@ -57,32 +57,30 @@ void showPhoneBottomSheet(BuildContext context, String phoneNumber) {
               InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () async {
-                  String formatted = phoneNumber.replaceAll(
+                  var formatted = phoneNumber.replaceAll(
                     RegExp(r'[^\d+]'),
                     '',
                   );
                   if (!formatted.startsWith('+')) {
                     formatted = '+$formatted';
                   }
-                  final url = "tel:$formatted";
+                  final url = 'tel:$formatted';
                   if (await canLaunchUrlString(url)) {
                     await launchUrlString(url);
                     context.pop();
-                    ;
                   }
                 },
                 child: GestureDetector(
                   onTap: () {
-                    String formattedNumber = phoneNumber.replaceAll(
+                    var formattedNumber = phoneNumber.replaceAll(
                       RegExp(r'[^\d+]'),
                       '',
                     );
                     if (!formattedNumber.startsWith('+')) {
                       formattedNumber = '+$formattedNumber';
                     }
-                    launchUrlString("tel:$formattedNumber");
+                    launchUrlString('tel:$formattedNumber');
                     context.pop();
-                    ;
                   },
                   child: Container(
                     width: double.infinity,
@@ -93,7 +91,7 @@ void showPhoneBottomSheet(BuildContext context, String phoneNumber) {
                       color: colorScheme.primaryContainer,
                     ),
                     child: Text(
-                      S.of(context).call,
+                      S.of(context)!.call,
                       style: overGreenBoldM(context),
                     ),
                   ),

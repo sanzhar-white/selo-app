@@ -9,10 +9,10 @@ import 'package:selo/generated/l10n.dart';
 
 class SearchAppBarWidget extends StatefulWidget {
   const SearchAppBarWidget({
-    super.key,
     required this.searchQuery,
     required this.onSearchSubmitted,
     required this.onFilterPressed,
+    super.key,
     this.pinned = false,
     this.backIcon = false,
     this.floating = false,
@@ -93,7 +93,7 @@ class _SearchAppBarWidgetState extends State<SearchAppBarWidget> {
                               controller: widget.searchQuery,
                               theme: theme,
                               style: greenM(context),
-                              hintText: S.of(context).search_hint,
+                              hintText: S.of(context)!.search_hint,
                               border: false,
                               onSubmitted: (value) {
                                 if (value.isNotEmpty) {

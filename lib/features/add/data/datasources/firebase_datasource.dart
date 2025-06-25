@@ -12,11 +12,11 @@ import 'dart:io';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
+
+  FirebaseDatasource(this._firestore, this._storage, this._talker);
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
   final Talker _talker;
-
-  FirebaseDatasource(this._firestore, this._storage, this._talker);
 
   Future<String?> _uploadSingleImage(
     File file,
@@ -30,9 +30,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       }
 
       final fileName =
-          DateTime.now().millisecondsSinceEpoch.toString() +
-          '_' +
-          file.uri.pathSegments.last;
+          '${DateTime.now().millisecondsSinceEpoch}_${file.uri.pathSegments.last}';
 
       final ref = _storage.ref().child(
         '${FirebaseCollections.adverts}/$advertId/$fileName',
@@ -71,7 +69,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
     _talker.info('🔄 Starting image upload for advert: $advertId');
 
     try {
-      for (var path in paths) {
+      for (final path in paths) {
         if (path.isEmpty) continue;
 
         final file = File(path);
@@ -81,13 +79,13 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
         }
 
         String? downloadUrl;
-        int retryCount = 0;
+        var retryCount = 0;
         while (retryCount < 3 && downloadUrl == null) {
           if (retryCount > 0) {
             _talker.debug(
               '🔄 Retrying upload for $path (attempt ${retryCount + 1})',
             );
-            await Future.delayed(Duration(seconds: 1));
+            await Future.delayed(const Duration(seconds: 1));
           }
 
           downloadUrl = await _uploadSingleImage(file, path, advertId);
@@ -124,7 +122,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       final docRef = _firestore.collection(FirebaseCollections.adverts).doc();
       final now = Timestamp.now();
 
-      List<String> imageUrls = [];
+      var imageUrls = <String>[];
       if (advert.images.isNotEmpty) {
         _talker.debug(
           '📤 Starting image upload for ${advert.images.length} images',
@@ -172,7 +170,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       final snapshot = await ref.get();
 
       _talker.debug('📋 Raw Firestore data:');
-      for (var doc in snapshot.docs) {
+      for (final doc in snapshot.docs) {
         _talker.debug('📄 Document ID: ${doc.id}');
         _talker.debug('📄 Data: ${doc.data()}');
       }

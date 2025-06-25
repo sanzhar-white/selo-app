@@ -6,9 +6,9 @@ import 'package:selo/shared/models/advert_model.dart';
 
 class ProfileRepositoryImpl extends ProfileRepository
     implements ProfileInterface {
-  final ProfileInterface _profileInteface;
 
   ProfileRepositoryImpl(this._profileInteface);
+  final ProfileInterface _profileInteface;
 
   @override
   Future<DataState<List<AdvertModel>>> getMyAdverts(String uid) {

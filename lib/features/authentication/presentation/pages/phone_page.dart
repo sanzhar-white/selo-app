@@ -68,7 +68,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        S.of(context).your_phone_number,
+                        S.of(context)!.your_phone_number,
                         style: contrastBoldL(context),
                       ),
                       SizedBox(height: screenSize.height * 0.015),
@@ -80,21 +80,18 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              width: 1,
                               color: colorScheme.primary,
                             ),
                             borderRadius: radius,
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              width: 1,
                               color: colorScheme.primary,
                             ),
                             borderRadius: radius,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              width: 1,
                               color: colorScheme.primary,
                             ),
                             borderRadius: radius,
@@ -103,7 +100,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                           fillColor: colorScheme.onSurface,
                         ),
                         invalidNumberMessage:
-                            S.of(context).phone_number_invalid,
+                            S.of(context)!.phone_number_invalid,
                         initialCountryCode: 'KZ',
                         controller: phoneController,
                         inputFormatters: [
@@ -134,7 +131,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                           controller: nameController,
                           theme: colorScheme,
                           style: contrastM(context),
-                          hintText: S.of(context).name_hint,
+                          hintText: S.of(context)!.name_hint,
                         ),
                     ],
                   ),
@@ -161,7 +158,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
                       ),
                       child: Center(
                         child: Text(
-                          S.of(context).continue_,
+                          S.of(context)!.continue_,
                           style: overGreenBoldM(context).copyWith(
                             color:
                                 isLogin != null

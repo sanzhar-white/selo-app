@@ -1,11 +1,11 @@
 import 'package:selo/shared/models/user_model.dart';
 
 class UserState {
+
+  const UserState({this.user, this.isLoading = false, this.error});
   final UserModel? user;
   final bool isLoading;
   final String? error;
-
-  const UserState({this.user, this.isLoading = false, this.error});
 
   UserState copyWith({UserModel? user, bool? isLoading, String? error}) {
     return UserState(

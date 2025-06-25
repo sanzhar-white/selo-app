@@ -4,9 +4,8 @@ import 'package:selo/features/favourites/data/model/favourites_model.dart';
 import 'package:selo/features/favourites/domain/repositories/favourites_repository.dart';
 
 class ToggleFavouriteUseCase extends UseCase<DataState<bool>, void> {
-  final FavouritesRepository _favouritesRepository;
-
   ToggleFavouriteUseCase(this._favouritesRepository);
+  final FavouritesRepository _favouritesRepository;
 
   @override
   Future<DataState<bool>> call({void params}) {

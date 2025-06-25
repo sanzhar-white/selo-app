@@ -1,15 +1,15 @@
 import 'package:selo/core/models/category.dart';
 
 class CategoriesState {
-  final List<AdCategory> categories;
-  final bool isLoading;
-  final String? error;
 
   const CategoriesState({
     this.categories = const [],
     this.isLoading = false,
     this.error,
   });
+  final List<AdCategory> categories;
+  final bool isLoading;
+  final String? error;
 
   CategoriesState copyWith({
     List<AdCategory>? categories,

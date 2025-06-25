@@ -13,10 +13,6 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:selo/core/constants/error_message.dart';
 
 class FirebaseProfileRemoteDataSource implements ProfileInterface {
-  final FirebaseFirestore _firestore;
-  final FirebaseStorage _storage;
-  final Talker _talker;
-
   FirebaseProfileRemoteDataSource({
     required FirebaseFirestore firestore,
     required FirebaseStorage storage,
@@ -24,6 +20,9 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
   }) : _firestore = firestore,
        _storage = storage,
        _talker = talker;
+  final FirebaseFirestore _firestore;
+  final FirebaseStorage _storage;
+  final Talker _talker;
 
   @override
   Future<DataState<List<AdvertModel>>> getMyAdverts(
@@ -33,7 +32,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
   }) async {
     _talker.info('Fetching adverts for user: $uid');
     try {
-      Query<Map<String, dynamic>> query = _firestore
+      var query = _firestore
           .collection(FirebaseCollections.adverts)
           .where('ownerUid', isEqualTo: uid)
           .limit(limit);
@@ -68,7 +67,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
           .update({'active': false})
           .timeout(FirebaseConstants.operationTimeout);
       _talker.info('Successfully deleted advert');
-      return DataSuccess(true);
+      return const DataSuccess(true);
     } catch (e, stack) {
       _talker.error(ErrorMessages.failedToDeleteAdvert, e, stack);
       return DataFailed(
@@ -91,7 +90,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
           }, SetOptions(merge: true))
           .timeout(FirebaseConstants.operationTimeout);
       _talker.info('Successfully deleted user');
-      return DataSuccess(true);
+      return const DataSuccess(true);
     } catch (e, stack) {
       _talker.error(ErrorMessages.failedToDeleteUser, e, stack);
       return DataFailed(
@@ -212,7 +211,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
         );
       }
 
-      String? profileImageUrl = updateUser.profileImage;
+      var profileImageUrl = updateUser.profileImage;
       if (profileImageUrl != null && !profileImageUrl.startsWith('http')) {
         profileImageUrl = await _uploadProfileImage(
           updateUser.uid,
@@ -232,14 +231,21 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
 
       final updatedUser = UserModel(
         uid: updateUser.uid,
-        name: updateUser.name ?? userDoc.data()?['name'] ?? '',
-        lastName: updateUser.lastName ?? userDoc.data()?['lastName'] ?? '',
+        name: updateUser.name ?? (userDoc.data()?['name'] as String? ?? ''),
+        lastName:
+            updateUser.lastName ??
+            (userDoc.data()?['lastName'] as String? ?? ''),
         phoneNumber:
-            updateUser.phoneNumber ?? userDoc.data()?['phoneNumber'] ?? '',
-        region: updateUser.region ?? userDoc.data()?['region'] ?? 0,
-        district: updateUser.district ?? userDoc.data()?['district'] ?? 0,
-        profileImage: profileImageUrl ?? userDoc.data()?['profileImage'] ?? '',
-        createdAt: userDoc.data()?['createdAt'] ?? Timestamp.now(),
+            updateUser.phoneNumber ??
+            (userDoc.data()?['phoneNumber'] as String? ?? ''),
+        region: updateUser.region ?? (userDoc.data()?['region'] as int? ?? 0),
+        district:
+            updateUser.district ?? (userDoc.data()?['district'] as int? ?? 0),
+        profileImage:
+            profileImageUrl ??
+            (userDoc.data()?['profileImage'] as String? ?? ''),
+        createdAt:
+            (userDoc.data()?['createdAt'] as Timestamp?) ?? Timestamp.now(),
         likes:
             likesList is List
                 ? List<String>.from(likesList.map((e) => e.toString()))
@@ -256,7 +262,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
       await _updateLocalStorage(updatedUser);
 
       _talker.info('Successfully updated user profile');
-      return DataSuccess(true);
+      return const DataSuccess(true);
     } catch (e, stack) {
       _talker.error(ErrorMessages.failedToUpdateUser, e, stack);
       return DataFailed(

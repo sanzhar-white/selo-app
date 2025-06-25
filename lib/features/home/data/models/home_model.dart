@@ -12,7 +12,7 @@ class SearchModel extends Equatable {
   final int? priceTo;
   final int? sortBy;
 
-  SearchModel({
+  const SearchModel({
     this.searchQuery,
     this.category,
     this.district,
@@ -95,7 +95,7 @@ class PaginationModel extends Equatable {
   final int pageSize;
   final bool refresh;
 
-  PaginationModel({
+  const PaginationModel({
     this.currentPage = 1,
     this.pageSize = 10,
     this.refresh = false,

@@ -16,9 +16,8 @@ import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/shared/widgets/phone_show_bottom.dart';
 
 class AdvertDetailsPage extends ConsumerStatefulWidget {
+  const AdvertDetailsPage({required this.advert, super.key});
   final AdvertModel advert;
-
-  const AdvertDetailsPage({super.key, required this.advert});
 
   @override
   ConsumerState<AdvertDetailsPage> createState() => _AdvertDetailsPageState();
@@ -40,10 +39,10 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+    _scaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.05).animate(
+    _rotationAnimation = Tween<double>(begin: 0, end: 0.05).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
@@ -90,7 +89,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          S.of(context).share_functionality_coming_soon,
+          S.of(context)!.share_functionality_coming_soon,
           style: contrastBoldM(context),
         ),
       ),
@@ -119,7 +118,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     final category = categories.firstWhere(
       (cat) => cat.id == widget.advert.category,
       orElse:
-          () => AdCategory(
+          () => const AdCategory(
             id: -1,
             nameEn: '',
             nameRu: '',
@@ -146,7 +145,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                     left: 16,
                     child: SafeArea(
                       child: ScaleTransition(
-                        scale: Tween<double>(begin: 1.0, end: 0.9).animate(
+                        scale: Tween<double>(begin: 1, end: 0.9).animate(
                           CurvedAnimation(
                             parent: _animationController,
                             curve: Curves.easeOut,
@@ -275,7 +274,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                     Text(
                       widget.advert.title,
                       style: contrastBoldM(context).copyWith(fontSize: 22),
-                      semanticsLabel: S.of(context).title_of_ad,
+                      semanticsLabel: S.of(context)!.title_of_ad,
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -286,11 +285,11 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                           color: Colors.grey,
                           semanticLabel: 'Location',
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           '${getRegionName(widget.advert.region ?? 0)}, ${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
                           style: grayM(context),
-                          semanticsLabel: S.of(context).location,
+                          semanticsLabel: S.of(context)!.location,
                         ),
                       ],
                     ),
@@ -366,8 +365,8 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
 
 // Image carousel
 class _ImageCarousel extends StatefulWidget {
+  const _ImageCarousel({required this.images});
   final List<String> images;
-  const _ImageCarousel({required this.images, super.key});
 
   @override
   State<_ImageCarousel> createState() => _ImageCarouselState();
@@ -394,7 +393,7 @@ class _ImageCarouselState extends State<_ImageCarousel> {
     final colorScheme = Theme.of(context).colorScheme;
     final images = widget.images;
     if (images.isEmpty) {
-      return Container(
+      return ColoredBox(
         color: colorScheme.onSurface.withOpacity(0.1),
         child: const Center(
           child: Icon(
@@ -418,7 +417,7 @@ class _ImageCarouselState extends State<_ImageCarousel> {
                 imageUrl: images[index],
                 fit: BoxFit.cover,
                 placeholder:
-                    (context, url) => Container(
+                    (context, url) => ColoredBox(
                       color: colorScheme.onSurface.withOpacity(0.1),
                       child: const Center(
                         child: CircularProgressIndicator(
@@ -429,7 +428,7 @@ class _ImageCarouselState extends State<_ImageCarousel> {
                       ),
                     ),
                 errorWidget:
-                    (context, url, error) => Container(
+                    (context, url, error) => ColoredBox(
                       color: colorScheme.onSurface.withOpacity(0.1),
                       child: Center(
                         child: Icon(
@@ -479,15 +478,14 @@ class _ImageCarouselState extends State<_ImageCarousel> {
 
 // Price card
 class _PriceCard extends StatelessWidget {
-  final AdvertModel advert;
-  final AdCategory category;
-  final ColorScheme colorScheme;
-
   const _PriceCard({
     required this.advert,
     required this.category,
     required this.colorScheme,
   });
+  final AdvertModel advert;
+  final AdCategory category;
+  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
@@ -503,14 +501,14 @@ class _PriceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).price,
+              S.of(context)!.price,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).price,
+              semanticsLabel: S.of(context)!.price,
             ),
             const SizedBox(height: 8),
             if (advert.price == 0)
               Text(
-                S.of(context).negotiable,
+                S.of(context)!.negotiable,
                 style: grayM(context).copyWith(fontSize: 16),
               )
             else ...[
@@ -523,9 +521,9 @@ class _PriceCard extends StatelessWidget {
                   category.settings['tradeable'] == true) ...[
                 const SizedBox(height: 8),
                 Text(
-                  S.of(context).trade_possible,
+                  S.of(context)!.trade_possible,
                   style: grayS(context).copyWith(color: colorScheme.secondary),
-                  semanticsLabel: S.of(context).trade_possible,
+                  semanticsLabel: S.of(context)!.trade_possible,
                 ),
               ],
             ],
@@ -538,20 +536,19 @@ class _PriceCard extends StatelessWidget {
 
 // Price range
 class _PriceRange extends StatelessWidget {
-  final double minPrice;
-  final double maxPrice;
-  final ColorScheme colorScheme;
-
   const _PriceRange({
     required this.minPrice,
     required this.maxPrice,
     required this.colorScheme,
   });
+  final double minPrice;
+  final double maxPrice;
+  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      '${S.of(context).from}: ${minPrice.toStringAsFixed(0)} ₸\n${S.of(context).to}: ${maxPrice.toStringAsFixed(0)} ₸',
+      '${S.of(context)!.from}: ${minPrice.toStringAsFixed(0)} ₸\n${S.of(context)!.to}: ${maxPrice.toStringAsFixed(0)} ₸',
       style: contrastBoldM(context),
     );
   }
@@ -559,15 +556,14 @@ class _PriceRange extends StatelessWidget {
 
 // Details card
 class _DetailsCard extends StatelessWidget {
-  final AdvertModel advert;
-  final AdCategory category;
-  final ColorScheme colorScheme;
-
   const _DetailsCard({
     required this.advert,
     required this.category,
     required this.colorScheme,
   });
+  final AdvertModel advert;
+  final AdCategory category;
+  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
@@ -583,54 +579,54 @@ class _DetailsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).details,
+              S.of(context)!.details,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).details,
+              semanticsLabel: S.of(context)!.details,
             ),
             const SizedBox(height: 12),
             _InfoRow(
-              title: S.of(context).phone_number,
+              title: S.of(context)!.phone_number,
               value:
                   advert.phoneNumber.isNotEmpty
                       ? advert.phoneNumber
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: true,
               icon: Icons.phone,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).phone_number,
+              semanticsLabel: S.of(context)!.phone_number,
             ),
             _InfoRow(
-              title: S.of(context).category,
+              title: S.of(context)!.category,
               value:
                   getLocalizedCategory(category, context).isNotEmpty
                       ? getLocalizedCategory(category, context)
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: true,
               icon: Icons.category,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).category,
+              semanticsLabel: S.of(context)!.category,
             ),
             _InfoRow(
-              title: S.of(context).contact_person,
+              title: S.of(context)!.contact_person,
               value:
                   advert.contactPerson?.isNotEmpty == true
                       ? advert.contactPerson!
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: category.settings['contactPerson'] == true,
               icon: Icons.person,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).contact_person,
+              semanticsLabel: S.of(context)!.contact_person,
             ),
             _InfoRow(
-              title: S.of(context).company,
+              title: S.of(context)!.company,
               value:
                   advert.companyName?.isNotEmpty == true
                       ? advert.companyName!
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: category.settings['companyName'] == true,
               icon: Icons.business,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).company,
+              semanticsLabel: S.of(context)!.company,
             ),
           ],
         ),
@@ -641,15 +637,14 @@ class _DetailsCard extends StatelessWidget {
 
 // Quantity card
 class _QuantityCard extends StatelessWidget {
-  final AdvertModel advert;
-  final AdCategory category;
-  final ColorScheme colorScheme;
-
   const _QuantityCard({
     required this.advert,
     required this.category,
     required this.colorScheme,
   });
+  final AdvertModel advert;
+  final AdCategory category;
+  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
@@ -666,9 +661,9 @@ class _QuantityCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).quantity,
+              S.of(context)!.quantity,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).quantity,
+              semanticsLabel: S.of(context)!.quantity,
             ),
             const SizedBox(height: 12),
             if (category.settings['quantity'] == true &&
@@ -679,7 +674,7 @@ class _QuantityCard extends StatelessWidget {
                 advert.maxQuantity! > 0)
               _QuantityTag(
                 value:
-                    '${S.of(context).from} ${advert.quantity} $unit \n${S.of(context).to} ${advert.maxQuantity} $unit',
+                    '${S.of(context)!.from} ${advert.quantity} $unit \n${S.of(context)!.to} ${advert.maxQuantity} $unit',
                 colorScheme: colorScheme,
               )
             else if (category.settings['quantity'] == true &&
@@ -698,7 +693,7 @@ class _QuantityCard extends StatelessWidget {
               )
             else
               Text(
-                S.of(context).unknown,
+                S.of(context)!.unknown,
                 style: grayM(context).copyWith(fontSize: 16),
               ),
           ],
@@ -710,16 +705,14 @@ class _QuantityCard extends StatelessWidget {
 
 // Quantity tag
 class _QuantityTag extends StatelessWidget {
+  const _QuantityTag({required this.value, required this.colorScheme});
   final String value;
   final ColorScheme colorScheme;
-
-  const _QuantityTag({required this.value, required this.colorScheme});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Row(
-        mainAxisSize: MainAxisSize.max,
         children: [Text(value, style: contrastBoldM(context))],
       ),
     );
@@ -728,15 +721,14 @@ class _QuantityTag extends StatelessWidget {
 
 // Item details card
 class _ItemDetailsCard extends StatelessWidget {
-  final AdvertModel advert;
-  final AdCategory category;
-  final ColorScheme colorScheme;
-
   const _ItemDetailsCard({
     required this.advert,
     required this.category,
     required this.colorScheme,
   });
+  final AdvertModel advert;
+  final AdCategory category;
+  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
@@ -752,32 +744,32 @@ class _ItemDetailsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).item_details,
+              S.of(context)!.item_details,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).item_details,
+              semanticsLabel: S.of(context)!.item_details,
             ),
             const SizedBox(height: 12),
             _InfoRow(
-              title: S.of(context).condition,
+              title: S.of(context)!.condition,
               value:
                   advert.condition != null && advert.condition != 0
                       ? getConditionName(advert.condition!, context)
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: category.settings['condition'] == true,
               icon: Icons.build,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).condition,
+              semanticsLabel: S.of(context)!.condition,
             ),
             _InfoRow(
-              title: S.of(context).year_of_release,
+              title: S.of(context)!.year_of_release,
               value:
                   advert.year != null && advert.year! > 0
                       ? advert.year.toString()
-                      : S.of(context).unknown,
+                      : S.of(context)!.unknown,
               isVisible: category.settings['year'] == true,
               icon: Icons.calendar_today,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context).year_of_release,
+              semanticsLabel: S.of(context)!.year_of_release,
             ),
           ],
         ),
@@ -788,17 +780,16 @@ class _ItemDetailsCard extends StatelessWidget {
 
 // Description card
 class _DescriptionCard extends StatelessWidget {
+  const _DescriptionCard({
+    required this.advert,
+    required this.colorScheme,
+    required this.onToggle,
+    this.expanded = false,
+  });
   final AdvertModel advert;
   final ColorScheme colorScheme;
   final bool expanded;
   final VoidCallback onToggle;
-
-  const _DescriptionCard({
-    required this.advert,
-    required this.colorScheme,
-    this.expanded = false,
-    required this.onToggle,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -806,7 +797,7 @@ class _DescriptionCard extends StatelessWidget {
     final description =
         advert.description.isNotEmpty
             ? advert.description
-            : S.of(context).unknown;
+            : S.of(context)!.unknown;
     final isLong = description.length > 180;
     return Container(
       decoration: BoxDecoration(
@@ -819,23 +810,25 @@ class _DescriptionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context).description,
+              S.of(context)!.description,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context).description,
+              semanticsLabel: S.of(context)!.description,
             ),
             const SizedBox(height: 12),
             Text(
               isLong && !expanded
-                  ? description.substring(0, 180) + '...'
+                  ? '${description.substring(0, 180)}...'
                   : description,
               style: grayM(context).copyWith(fontSize: 14, height: 1.6),
-              semanticsLabel: S.of(context).description,
+              semanticsLabel: S.of(context)!.description,
             ),
             if (isLong)
               TextButton(
                 onPressed: onToggle,
                 child: Text(
-                  expanded ? S.of(context).show_less : S.of(context).show_less,
+                  expanded
+                      ? S.of(context)!.show_less
+                      : S.of(context)!.show_less,
                 ),
               ),
           ],
@@ -847,10 +840,9 @@ class _DescriptionCard extends StatelessWidget {
 
 // Stats card
 class _StatsCard extends StatelessWidget {
+  const _StatsCard({required this.advert, required this.colorScheme});
   final AdvertModel advert;
   final ColorScheme colorScheme;
-
-  const _StatsCard({required this.advert, required this.colorScheme});
 
   @override
   Widget build(BuildContext context) {
@@ -874,9 +866,9 @@ class _StatsCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Semantics(
-                  label: S.of(context).views,
+                  label: S.of(context)!.views,
                   child: Text(
-                    '${advert.views} ${S.of(context).views}',
+                    '${advert.views} ${S.of(context)!.views}',
                     style: grayS(context),
                   ),
                 ),
@@ -887,9 +879,9 @@ class _StatsCard extends StatelessWidget {
                 Icon(Icons.favorite, size: 16, color: colorScheme.secondary),
                 const SizedBox(width: 4),
                 Semantics(
-                  label: S.of(context).likes,
+                  label: S.of(context)!.likes,
                   child: Text(
-                    '${advert.likes} ${S.of(context).likes}',
+                    '${advert.likes} ${S.of(context)!.likes}',
                     style: grayS(context),
                   ),
                 ),
@@ -904,16 +896,15 @@ class _StatsCard extends StatelessWidget {
 
 // Action bar
 class _ActionBar extends StatelessWidget {
+  const _ActionBar({required this.colorScheme, required this.onCall});
   final ColorScheme colorScheme;
   final VoidCallback onCall;
-
-  const _ActionBar({required this.colorScheme, required this.onCall});
 
   @override
   Widget build(BuildContext context) {
     return _ActionButton(
       icon: Icons.call,
-      label: S.of(context).call,
+      label: S.of(context)!.call,
       onTap: onCall,
       colorScheme: colorScheme,
     );
@@ -922,17 +913,16 @@ class _ActionBar extends StatelessWidget {
 
 // Action button
 class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final ColorScheme colorScheme;
-
   const _ActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
     required this.colorScheme,
   });
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
@@ -958,21 +948,20 @@ class _ActionButton extends StatelessWidget {
 
 // Info row
 class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.title,
+    required this.value,
+    required this.isVisible,
+    required this.colorScheme,
+    required this.semanticsLabel,
+    this.icon,
+  });
   final String title;
   final String value;
   final bool isVisible;
   final IconData? icon;
   final ColorScheme colorScheme;
   final String semanticsLabel;
-
-  const _InfoRow({
-    required this.title,
-    required this.value,
-    required this.isVisible,
-    this.icon,
-    required this.colorScheme,
-    required this.semanticsLabel,
-  });
 
   @override
   Widget build(BuildContext context) {

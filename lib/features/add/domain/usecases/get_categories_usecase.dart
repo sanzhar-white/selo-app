@@ -4,9 +4,9 @@ import 'package:selo/core/models/category.dart';
 import 'package:selo/core/resources/data_state.dart';
 
 class GetCategoriesUseCase extends UseCase<DataState<List<AdCategory>>, void> {
-  final CategoriesRepository _categoriesRepository;
 
   GetCategoriesUseCase(this._categoriesRepository);
+  final CategoriesRepository _categoriesRepository;
 
   @override
   Future<DataState<List<AdCategory>>> call({void params}) {

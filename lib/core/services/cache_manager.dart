@@ -1,8 +1,8 @@
 class CacheManager {
-  static const Duration cacheDuration = Duration(minutes: 10);
-  DateTime? _lastFetchTime;
 
   CacheManager({DateTime? lastFetchTime}) : _lastFetchTime = lastFetchTime;
+  static const Duration cacheDuration = Duration(minutes: 10);
+  DateTime? _lastFetchTime;
 
   bool shouldRefresh() {
     return _lastFetchTime == null ||

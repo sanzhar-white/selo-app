@@ -6,6 +6,26 @@ import 'package:selo/shared/widgets/show_bottom_picker.dart';
 import 'package:selo/core/models/category.dart';
 
 class LocationPicker extends StatelessWidget {
+
+  const LocationPicker({
+    required this.locations, super.key,
+    this.region,
+    this.district,
+    this.onRegionChanged,
+    this.onDistrictChanged,
+    this.regionHint = 'Select region',
+    this.districtHint = 'Select district',
+    this.regionLabel,
+    this.districtLabel,
+    this.showLabels = true,
+    this.showDistrict = true,
+    this.padding,
+    this.spacing,
+    this.regionError = false,
+    this.districtError = false,
+    this.regionErrorText,
+    this.districtErrorText,
+  });
   final String? region;
   final String? district;
   final List<PlaceCategory> locations;
@@ -23,27 +43,6 @@ class LocationPicker extends StatelessWidget {
   final bool districtError;
   final String? regionErrorText;
   final String? districtErrorText;
-
-  const LocationPicker({
-    super.key,
-    this.region,
-    this.district,
-    required this.locations,
-    this.onRegionChanged,
-    this.onDistrictChanged,
-    this.regionHint = 'Select region',
-    this.districtHint = 'Select district',
-    this.regionLabel,
-    this.districtLabel,
-    this.showLabels = true,
-    this.showDistrict = true,
-    this.padding,
-    this.spacing,
-    this.regionError = false,
-    this.districtError = false,
-    this.regionErrorText,
-    this.districtErrorText,
-  });
 
   bool get _isRegionSelected => region != null && region!.isNotEmpty;
 
@@ -109,7 +108,6 @@ class LocationPicker extends StatelessWidget {
                 onItemSelected: onRegionChanged ?? (_) {},
               );
             },
-            enabled: true,
           ),
           if (showDistrict) ...[
             SizedBox(height: verticalSpacing),
@@ -121,7 +119,6 @@ class LocationPicker extends StatelessWidget {
               error: districtError,
               errorText: districtErrorText,
               onTap: () => _onDistrictTap(context),
-              enabled: true,
             ),
           ],
         ],
@@ -131,10 +128,8 @@ class LocationPicker extends StatelessWidget {
 
   Widget _buildLocationField(
     BuildContext context, {
-    String? title,
+    required String hint, required VoidCallback onTap, String? title,
     String? value,
-    required String hint,
-    required VoidCallback onTap,
     bool error = false,
     String? errorText,
     bool enabled = true,
@@ -179,7 +174,6 @@ class LocationPicker extends StatelessWidget {
                 error
                     ? BorderSide(
                       color: Theme.of(context).colorScheme.error,
-                      width: 1.0,
                     )
                     : BorderSide.none,
             disabledBackgroundColor: colorScheme.onSurface.withOpacity(0.1),
@@ -199,7 +193,7 @@ class LocationPicker extends StatelessWidget {
             errorText,
             style: TextStyle(
               color: Theme.of(context).colorScheme.error,
-              fontSize: 12.0,
+              fontSize: 12,
             ),
           ),
         ],

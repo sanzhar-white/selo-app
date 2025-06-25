@@ -1,18 +1,18 @@
 class UserUidModel {
-  final String uid;
 
   UserUidModel({required this.uid});
+  final String uid;
 }
 
 class AdvertUidModel {
-  final String uid;
 
   AdvertUidModel({required this.uid});
+  final String uid;
 }
 
 class FavouritesModel {
-  final UserUidModel userUid;
-  final AdvertUidModel advertUid;
 
   FavouritesModel({required this.userUid, required this.advertUid});
+  final UserUidModel userUid;
+  final AdvertUidModel advertUid;
 }

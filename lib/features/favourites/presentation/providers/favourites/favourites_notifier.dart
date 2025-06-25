@@ -9,11 +9,11 @@ import '../providers.dart';
 import 'favourites_state.dart';
 
 class FavouritesNotifier extends StateNotifier<FavouritesState> {
-  final Ref ref;
-  final talker = di<Talker>();
-  final Map<String, bool> _loadingAdverts = {};
 
   FavouritesNotifier(this.ref) : super(const FavouritesState());
+  final Ref ref;
+  final Talker talker = di<Talker>();
+  final Map<String, bool> _loadingAdverts = {};
 
   bool isAdvertLoading(String advertUid) => _loadingAdverts[advertUid] ?? false;
 
@@ -28,7 +28,7 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
   Future<bool> getFavourites(UserUidModel userUid) async {
     return _executeUseCase(
       () => ref.read(getFavouritesUseCaseProvider).call(params: userUid),
-      onSuccess: (List<AdvertModel>? favourites) {
+      onSuccess: (favourites) {
         state = state.copyWith(favouritesModel: favourites);
         if (favourites != null) {
           ref
@@ -118,7 +118,7 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
   }) async {
     if (isAdvertLoading(advertUid)) return false;
     _startLoadingAdvert(advertUid);
-    state = state.copyWith(error: null);
+    state = state.copyWith();
     try {
       final result = await action();
       if (result is DataSuccess && result.data == true) {
@@ -143,13 +143,14 @@ class FavouritesNotifier extends StateNotifier<FavouritesState> {
     String? errorMessage,
     bool updateLoading = true,
   }) async {
-    if (updateLoading) state = state.copyWith(isLoading: true, error: null);
+    if (updateLoading) state = state.copyWith(isLoading: true);
     try {
       final result = await useCase();
       if (result is DataSuccess<T>) {
         onSuccess(result.data);
-        if (updateLoading)
-          state = state.copyWith(isLoading: false, error: null);
+        if (updateLoading) {
+          state = state.copyWith(isLoading: false);
+        }
         return true;
       } else if (result is DataFailed) {
         state = state.copyWith(

@@ -5,13 +5,13 @@ import 'package:selo/features/init/data/repositories/init_repository_impl.dart';
 import 'package:selo/features/init/domain/usecases/get_initial_state_usecase.dart';
 import 'package:selo/core/resources/data_state.dart';
 
-final initDatasourceProvider = Provider((ref) => InitDatasource());
+final Provider<InitDatasource> initDatasourceProvider = Provider((ref) => InitDatasource());
 
-final initRepositoryProvider = Provider(
+final Provider<InitRepositoryImpl> initRepositoryProvider = Provider(
   (ref) => InitRepositoryImpl(ref.watch(initDatasourceProvider)),
 );
 
-final getInitialStateUseCaseProvider = Provider(
+final Provider<GetInitialStateUseCase> getInitialStateUseCaseProvider = Provider(
   (ref) => GetInitialStateUseCase(ref.watch(initRepositoryProvider)),
 );
 
@@ -21,12 +21,12 @@ final initStateProvider =
     });
 
 class InitStateNotifier extends StateNotifier<InitStateModel> {
-  final GetInitialStateUseCase _getInitialStateUseCase;
 
   InitStateNotifier(this._getInitialStateUseCase)
     : super(const InitStateModel()) {
     initialize();
   }
+  final GetInitialStateUseCase _getInitialStateUseCase;
 
   Future<void> initialize() async {
     state = state.copyWith(isLoading: true);

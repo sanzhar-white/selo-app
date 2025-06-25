@@ -66,12 +66,12 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        S.of(context).add_appbar_title,
+                        S.of(context)!.add_appbar_title,
                         style: contrastL(context),
                       ),
                       SizedBox(height: screenSize.height * 0.001),
                       Text(
-                        S.of(context).add_appbar_pick_category,
+                        S.of(context)!.add_appbar_pick_category,
                         style: contrastM(context),
                       ),
                     ],
@@ -91,7 +91,6 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                       onTap: () {
                         if (user != null &&
                             user.phoneNumber != '' &&
-                            user.phoneNumber != null &&
                             user.phoneNumber.isNotEmpty) {
                           context.push(
                             Routes.nestedCreateAdvertPage,
@@ -123,12 +122,10 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
                               children: [
-                                if (category.imageUrl != null &&
-                                    category.imageUrl != '') ...[
+                                if (category.imageUrl != '') ...[
                                   Center(
                                     child: CachedNetworkImage(
                                       imageUrl: category.imageUrl,
@@ -209,11 +206,11 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SelectableText(
-                    '${S.of(context).error}: $error',
+                    '${S.of(context)!.error}: $error',
                     style: greenM(context),
                   ),
                   SelectableText(
-                    '${S.of(context).location}: ${stack}',
+                    '${S.of(context)!.location}: $stack',
                     style: greenM(context),
                   ),
                   ElevatedButton(
@@ -222,7 +219,7 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                           .read(categoriesNotifierProvider.notifier)
                           .refreshCategories();
                     },
-                    child: Text(S.of(context).retry),
+                    child: Text(S.of(context)!.retry),
                   ),
                 ],
               ),

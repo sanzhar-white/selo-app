@@ -24,8 +24,8 @@ import 'package:talker_flutter/talker_flutter.dart';
 
 class FilterPage extends ConsumerStatefulWidget {
   const FilterPage({
-    super.key,
     required this.searchQueryText,
+    super.key,
     this.initialCategoryId,
   });
 
@@ -44,9 +44,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
   String? _lastError;
   bool _isRefreshing = false;
 
-  PaginationModel _paginationModel = PaginationModel(
-    pageSize: 10,
-    currentPage: 1,
+  PaginationModel _paginationModel = const PaginationModel(
     refresh: true,
   );
 
@@ -59,8 +57,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     if ((widget.initialCategoryId != null && widget.initialCategoryId! >= -1) ||
         widget.searchQueryText.isNotEmpty) {
       currentFilters = SearchModel(
-        category:
-            widget.initialCategoryId == null ? null : widget.initialCategoryId,
+        category: widget.initialCategoryId,
         searchQuery:
             widget.searchQueryText.isNotEmpty ? widget.searchQueryText : null,
       );
@@ -177,7 +174,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
             .read(homeNotifierProvider.notifier)
             .loadFilteredAdvertisements(
               filter: currentFilters,
-              refresh: false,
               page: _paginationModel.currentPage,
               pageSize: _paginationModel.pageSize,
             );
@@ -193,7 +189,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
         ref
             .read(homeNotifierProvider.notifier)
             .loadAllAdvertisements(
-              refresh: false,
               page: _paginationModel.currentPage,
               pageSize: _paginationModel.pageSize,
             );
@@ -215,7 +210,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
         SnackBar(
           content: Text(
             error.contains('failed-precondition') || error.contains('Failed')
-                ? S.of(context).error
+                ? S.of(context)!.error
                 : error,
 
             style: contrastBoldM(context),
@@ -240,8 +235,8 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     final categoriesList = categoriesAsync.value ?? [];
     final uiCategories =
         categoriesList.map((e) => getLocalizedCategory(e, context)).toList();
-    if (!uiCategories.contains(S.of(context).all_ads)) {
-      uiCategories.add(S.of(context).all_ads);
+    if (!uiCategories.contains(S.of(context)!.all_ads)) {
+      uiCategories.add(S.of(context)!.all_ads);
     }
 
     final adverts =
@@ -263,7 +258,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
               searchQuery: _searchController,
               backIcon: true,
               pinned: true,
-              floating: false,
               onSearchSubmitted: (value) {
                 _talker.info('🔍 User submitted search: $value');
                 setState(() {
@@ -293,8 +287,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                     _talker.info('✅ User applied filter: $result');
                     setState(() {
                       currentFilters = result?.copyWith(
-                        category:
-                            result.category == null ? null : result.category,
+                        category: result.category,
                       );
                       if (_isFilterEmpty(currentFilters)) {
                         currentFilters = null;
@@ -364,7 +357,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   vertical: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context).all_ads,
+                  S.of(context)!.all_ads,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -398,7 +391,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   child: Padding(
                     padding: EdgeInsets.all(screenSize.width * 0.04),
                     child: Text(
-                      S.of(context).no_ads_found,
+                      S.of(context)!.no_ads_found,
                       style: contrastBoldM(context),
                     ),
                   ),
@@ -461,14 +454,14 @@ class _FilterPageState extends ConsumerState<FilterPage> {
           borderRadius: radius.topLeft.x,
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           child: Column(
             children: [
-              ShimmerEffect(width: 160, height: 26, borderRadius: 4),
+              const ShimmerEffect(width: 160, height: 26, borderRadius: 4),
               const SizedBox(height: 8),
-              ShimmerEffect(width: 120, height: 24, borderRadius: 4),
+              const ShimmerEffect(width: 120, height: 24, borderRadius: 4),
               const SizedBox(height: 8),
-              ShimmerEffect(width: 80, height: 26, borderRadius: 4),
+              const ShimmerEffect(width: 80, height: 26, borderRadius: 4),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -510,10 +503,10 @@ class ShimmerAdvertDetailCard extends StatelessWidget {
           height: 250,
           borderRadius: radius.topLeft.x,
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
+        const Padding(
+          padding: EdgeInsets.all(8),
           child: Column(
-            children: const [
+            children: [
               ShimmerEffect(width: 160, height: 26, borderRadius: 4),
               SizedBox(height: 8),
               ShimmerEffect(width: 120, height: 24, borderRadius: 4),
@@ -542,6 +535,17 @@ class ShimmerAdvertDetailCard extends StatelessWidget {
 }
 
 class FilterChipsBar extends StatelessWidget {
+  const FilterChipsBar({
+    required this.searchController,
+    required this.currentFilters,
+    required this.categoriesList,
+    required this.isRefreshing,
+    super.key,
+    this.onClearSearch,
+    this.onClearCategory,
+    this.onClearPriceFrom,
+    this.onClearPriceTo,
+  });
   final TextEditingController searchController;
   final SearchModel? currentFilters;
   final List<AdCategory> categoriesList;
@@ -551,23 +555,11 @@ class FilterChipsBar extends StatelessWidget {
   final void Function()? onClearPriceFrom;
   final void Function()? onClearPriceTo;
 
-  const FilterChipsBar({
-    super.key,
-    required this.searchController,
-    required this.currentFilters,
-    required this.categoriesList,
-    required this.isRefreshing,
-    this.onClearSearch,
-    this.onClearCategory,
-    this.onClearPriceFrom,
-    this.onClearPriceTo,
-  });
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final S s = S.of(context);
-    List<Widget> chips = [];
+    final s = S.of(context)!;
+    final chips = <Widget>[];
     if (searchController.text.isNotEmpty) {
       chips.add(
         Chip(
@@ -591,7 +583,7 @@ class FilterChipsBar extends StatelessWidget {
               nameRu: s.unknown,
               nameKk: s.unknown,
               imageUrl: '',
-              settings: {},
+              settings: const {},
             ),
       );
       chips.add(

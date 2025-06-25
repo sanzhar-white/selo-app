@@ -5,9 +5,8 @@ import '../models/destination_model.dart';
 import 'package:selo/generated/l10n.dart';
 
 class LayoutScaffold extends StatelessWidget {
+  const LayoutScaffold({required this.navigationShell, super.key});
   final StatefulNavigationShell navigationShell;
-
-  const LayoutScaffold({super.key, required this.navigationShell});
 
   void _onTap(int index) {
     navigationShell.goBranch(index);
@@ -20,17 +19,17 @@ class LayoutScaffold extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
 
     final destinations = [
-      Destination(label: S.of(context).nav_home, icon: CupertinoIcons.home),
+      Destination(label: S.of(context)!.nav_home, icon: CupertinoIcons.home),
       Destination(
-        label: S.of(context).nav_favourites,
+        label: S.of(context)!.nav_favourites,
         icon: CupertinoIcons.heart,
       ),
       Destination(
-        label: S.of(context).nav_create,
+        label: S.of(context)!.nav_create,
         icon: CupertinoIcons.add_circled,
       ),
       Destination(
-        label: S.of(context).nav_profile,
+        label: S.of(context)!.nav_profile,
         icon: CupertinoIcons.person_crop_circle,
       ),
     ];
@@ -54,11 +53,10 @@ class LayoutScaffold extends StatelessWidget {
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _onTap(index),
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       AnimatedSwitcher(
-                        duration: Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 200),
                         child: Icon(
                           destination.icon,
                           key: ValueKey<bool>(isSelected),
@@ -69,7 +67,7 @@ class LayoutScaffold extends StatelessWidget {
                       ),
                       SizedBox(height: screenSize.height * 0.005),
                       AnimatedDefaultTextStyle(
-                        duration: Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 200),
                         style: TextStyle(
                           color:
                               isSelected ? theme.primary : theme.inversePrimary,

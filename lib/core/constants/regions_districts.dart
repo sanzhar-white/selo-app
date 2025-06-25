@@ -1,7 +1,7 @@
 import 'package:selo/core/models/category.dart';
 
 final List<PlaceCategory> regions = [
-  PlaceCategory(
+  const PlaceCategory(
     id: 0,
     name: 'Актобе',
     subcategories: [
@@ -9,7 +9,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 1, name: 'Алматинский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 1,
     name: 'Алматы',
     subcategories: [
@@ -23,7 +23,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 7, name: 'Турксибский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 2,
     name: 'Астана',
     subcategories: [
@@ -34,7 +34,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 4, name: 'Сарыаркинский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 3,
     name: 'Караганда',
     subcategories: [
@@ -42,7 +42,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 1, name: 'Казыбекбийский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 4,
     name: 'Шымкент',
     subcategories: [
@@ -54,7 +54,7 @@ final List<PlaceCategory> regions = [
     ],
   ),
 
-  PlaceCategory(
+  const PlaceCategory(
     id: 5,
     name: 'Абайская область',
     subcategories: [
@@ -70,7 +70,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 9, name: 'Урджарский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 6,
     name: 'Акмолинская область',
     subcategories: [
@@ -93,7 +93,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 16, name: 'Шортандинский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 7,
     name: 'Актюбинская область',
     subcategories: [
@@ -111,7 +111,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 11, name: 'Шалкарский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 8,
     name: 'Алматинская область',
     subcategories: [
@@ -126,7 +126,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 8, name: 'Уйгурский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 9,
     name: 'Атырауская область',
     subcategories: [
@@ -139,7 +139,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 6, name: 'Махамбетский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 10,
     name: 'Восточно-Казахстанская область',
     subcategories: [
@@ -156,7 +156,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 10, name: 'Шемонаихинский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 11,
     name: 'Жамбылская область',
     subcategories: [
@@ -172,7 +172,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 9, name: 'Шуский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 12,
     name: 'Жетысуская область',
     subcategories: [
@@ -186,7 +186,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 7, name: 'Саркандский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 13,
     name: 'Западно-Казахстанская область',
     subcategories: [
@@ -204,7 +204,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 11, name: 'Чингирлауский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 14,
     name: 'Карагандинская область',
     subcategories: [
@@ -217,7 +217,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 6, name: 'Шетский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 15,
     name: 'Костанайская область',
     subcategories: [
@@ -239,7 +239,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 15, name: 'Фёдоровский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 16,
     name: 'Кызылординская область',
     subcategories: [
@@ -252,7 +252,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 6, name: 'Шиелийский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 17,
     name: 'Мангистауская область',
     subcategories: [
@@ -263,7 +263,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 4, name: 'Тупкараганский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 18,
     name: 'Павлодарская область',
     subcategories: [
@@ -279,7 +279,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 9, name: 'Щербактинский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 19,
     name: 'Северо-Казахстанская область',
     subcategories: [
@@ -298,7 +298,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 12, name: 'Шал Акына район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 20,
     name: 'Туркестанская область',
     subcategories: [
@@ -318,7 +318,7 @@ final List<PlaceCategory> regions = [
       PlaceCategory(id: 13, name: 'Шардаринский район'),
     ],
   ),
-  PlaceCategory(
+  const PlaceCategory(
     id: 21,
     name: 'Улытауская область',
     subcategories: [

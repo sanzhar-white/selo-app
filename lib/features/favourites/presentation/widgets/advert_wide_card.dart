@@ -19,8 +19,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class AdvertWideCard extends ConsumerStatefulWidget {
   const AdvertWideCard({
-    super.key,
     required this.advert,
+    super.key,
     this.isLoading = false,
   });
 
@@ -52,7 +52,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
-    _fillAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _fillAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
@@ -94,7 +94,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
     final notifier = ref.read(favouritesNotifierProvider.notifier);
     try {
       await notifier.toggleFavourite(
-        userUid: user.uid,
+        userUid: user.uid as String,
         advertUid: widget.advert.uid,
       );
     } catch (e) {
@@ -128,11 +128,11 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
             nameKk: 'Белгісіз',
             nameRu: 'Неизвестно',
             imageUrl: '',
-            settings: {},
+            settings: const {},
           ),
     );
 
-    bool _isNewAdvert(DateTime createdAt) {
+    bool isNewAdvert(DateTime createdAt) {
       final now = DateTime.now();
       final difference = now.difference(createdAt);
       return difference.inHours < 24;
@@ -158,7 +158,6 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
         child: Row(
           children: [
             Flexible(
-              flex: 1,
               child: AspectRatio(
                 aspectRatio: screenSize.width * 2.1 / screenSize.height,
                 child: Stack(
@@ -171,7 +170,6 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                           BoxShadow(
                             color: colorScheme.inversePrimary.withOpacity(0.1),
                             blurRadius: 6,
-                            offset: const Offset(0, 0),
                           ),
                         ],
                       ),
@@ -184,7 +182,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   placeholder:
-                                      (context, url) => Container(
+                                      (context, url) => ColoredBox(
                                         color: colorScheme.onSurface
                                             .withOpacity(0.1),
                                         child: const Center(
@@ -218,7 +216,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -235,7 +233,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                           ),
                         ),
                       ),
-                    if (_isNewAdvert(widget.advert.createdAt.toDate()))
+                    if (isNewAdvert(widget.advert.createdAt.toDate()))
                       Positioned(
                         top: 8,
                         left: 8,
@@ -253,7 +251,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                             borderRadius: radius,
                           ),
                           child: Text(
-                            S.of(context).label_new_advert,
+                            S.of(context)!.label_new_advert,
                             style: overGreenBoldM(context),
                           ),
                         ),
@@ -265,7 +263,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                         child: Container(
                           height: 48,
                           width: 48,
-                          margin: EdgeInsets.all(4),
+                          margin: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
                             color: colorScheme.surface,
                             borderRadius: radius,
@@ -286,7 +284,6 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                                       ),
                                       ClipRect(
                                         child: Align(
-                                          alignment: Alignment.center,
                                           widthFactor: _fillAnimation.value,
                                           child: Icon(
                                             CupertinoIcons.heart_fill,
@@ -309,9 +306,8 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
               ),
             ),
             Flexible(
-              flex: 1,
               child: Padding(
-                padding: const EdgeInsets.only(left: 16.0),
+                padding: const EdgeInsets.only(left: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -331,13 +327,12 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                         maxLines: 2,
                       ),
                     ),
-                    if (widget.advert.price != null &&
-                        widget.advert.price != 0) ...[
+                    if (widget.advert.price != 0) ...[
                       if (widget.advert.maxPrice != null &&
                           widget.advert.maxPrice != 0) ...[
                         Flexible(
                           child: Text(
-                            '${S.of(context).to} ${widget.advert.maxPrice.toString()} ₸',
+                            '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
                             style: contrastBoldM(context),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -346,7 +341,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                       ] else ...[
                         Flexible(
                           child: Text(
-                            '${widget.advert.price.toString()} ₸',
+                            '${widget.advert.price} ₸',
                             style: contrastBoldM(context),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -356,7 +351,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                     ] else ...[
                       Flexible(
                         child: Text(
-                          S.of(context).negotiable,
+                          S.of(context)!.negotiable,
                           style: contrastBoldM(context),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
@@ -393,13 +388,12 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                                     color: colorScheme.inversePrimary
                                         .withOpacity(0.2),
                                     blurRadius: 4,
-                                    offset: const Offset(0, 0),
                                   ),
                                 ],
                               ),
                               child: Center(
                                 child: Text(
-                                  S.of(context).call,
+                                  S.of(context)!.call,
                                   style: overGreenBoldM(context),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -428,7 +422,6 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
     return Row(
       children: [
         Flexible(
-          flex: 1,
           child: AspectRatio(
             aspectRatio: screenSize.width * 2.1 / screenSize.height,
             child: ShimmerEffect(
@@ -439,17 +432,16 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
           ),
         ),
         Flexible(
-          flex: 1,
           child: Padding(
-            padding: const EdgeInsets.only(left: 16.0),
+            padding: const EdgeInsets.only(left: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ShimmerEffect(width: 160, height: 16, borderRadius: 4),
+                const ShimmerEffect(width: 160, height: 16, borderRadius: 4),
                 const SizedBox(height: 8),
-                ShimmerEffect(width: 120, height: 14, borderRadius: 4),
+                const ShimmerEffect(width: 120, height: 14, borderRadius: 4),
                 const SizedBox(height: 8),
-                ShimmerEffect(width: 80, height: 16, borderRadius: 4),
+                const ShimmerEffect(width: 80, height: 16, borderRadius: 4),
                 const Spacer(),
                 Row(
                   children: [
@@ -481,7 +473,6 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
           BoxShadow(
             color: colorScheme.inversePrimary.withOpacity(0.2),
             blurRadius: 4,
-            offset: const Offset(0, 0),
           ),
         ],
       ),

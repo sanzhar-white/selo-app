@@ -11,11 +11,11 @@ import '../../../../shared/models/local_user_model.dart';
 import 'user_interface.dart';
 
 class FirebaseDatasource implements UserInterface {
+
+  FirebaseDatasource(this._firestore, this._auth, this._talker);
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
   final Talker _talker;
-
-  FirebaseDatasource(this._firestore, this._auth, this._talker);
 
   @override
   Future<DataState<AuthStatusModel>> signUp(SignUpModel signUp) async {
@@ -44,7 +44,7 @@ class FirebaseDatasource implements UserInterface {
       await _auth.verifyPhoneNumber(
         phoneNumber: signUp.phoneNumber,
         timeout: const Duration(seconds: 60),
-        verificationCompleted: (PhoneAuthCredential credential) async {
+        verificationCompleted: (credential) async {
           try {
             _talker.info('✅ Auto-verification completed');
             await _auth.signInWithCredential(credential);
@@ -53,13 +53,12 @@ class FirebaseDatasource implements UserInterface {
               phoneNumber: signUp.phoneNumber,
               name: signUp.name,
               lastName: signUp.lastName,
-              likes: [],
+              likes: const [],
               region: 0,
               district: 0,
               profileImage: '',
               createdAt: now,
               updatedAt: now,
-              deletedAt: null,
             );
             await _firestore
                 .collection(FirebaseCollections.users)
@@ -81,24 +80,23 @@ class FirebaseDatasource implements UserInterface {
             completer.complete(DataFailed(Exception(e), st));
           }
         },
-        verificationFailed: (FirebaseAuthException e) {
+        verificationFailed: (e) {
           _talker.error(ErrorMessages.verificationFailed, e);
           completer.complete(DataFailed(e, StackTrace.current));
         },
-        codeSent: (String verificationId, int? resendToken) {
+        codeSent: (verificationId, resendToken) {
           _talker.info('📤 SMS code sent, verification ID: $verificationId');
           final userModel = UserModel(
             uid: _auth.currentUser?.uid ?? '',
             phoneNumber: signUp.phoneNumber,
             name: signUp.name,
             lastName: signUp.lastName,
-            likes: [],
+            likes: const [],
             region: 0,
             district: 0,
             profileImage: '',
             createdAt: now,
             updatedAt: now,
-            deletedAt: null,
           );
           completer.complete(
             DataSuccess(
@@ -110,7 +108,7 @@ class FirebaseDatasource implements UserInterface {
             ),
           );
         },
-        codeAutoRetrievalTimeout: (String verificationId) {
+        codeAutoRetrievalTimeout: (verificationId) {
           _talker.warning('⌛ Auto-verification timeout');
           if (!completer.isCompleted) {
             completer.complete(
@@ -138,7 +136,7 @@ class FirebaseDatasource implements UserInterface {
     try {
       if (phoneNumber.phoneNumber.isEmpty) {
         _talker.info('📱 No phone number provided, treating as guest user');
-        completer.complete(DataSuccess(true));
+        completer.complete(const DataSuccess(true));
         return await completer.future;
       }
 
@@ -166,7 +164,7 @@ class FirebaseDatasource implements UserInterface {
     } catch (e, st) {
       _talker.error(ErrorMessages.checkUserError, e, st);
       completer.complete(DataFailed(Exception(e), st));
-      return await completer.future;
+      return completer.future;
     }
   }
 
@@ -217,8 +215,7 @@ class FirebaseDatasource implements UserInterface {
         await _auth.verifyPhoneNumber(
           phoneNumber: cleanNumber,
           timeout: const Duration(seconds: 120),
-          forceResendingToken: null,
-          verificationCompleted: (PhoneAuthCredential credential) async {
+          verificationCompleted: (credential) async {
             _talker.info('✅ Auto-verification completed');
             try {
               final userCredential = await _auth.signInWithCredential(
@@ -249,11 +246,11 @@ class FirebaseDatasource implements UserInterface {
               completer.complete(DataFailed(Exception(e), st));
             }
           },
-          verificationFailed: (FirebaseAuthException e) {
+          verificationFailed: (e) {
             _talker.error('${ErrorMessages.verificationFailed}: ${e.code}', e);
             completer.complete(DataFailed(e, StackTrace.current));
           },
-          codeSent: (String verificationId, int? resendToken) {
+          codeSent: (verificationId, resendToken) {
             _talker.info('📤 SMS code sent, verification ID: $verificationId');
             completer.complete(
               DataSuccess(
@@ -265,7 +262,7 @@ class FirebaseDatasource implements UserInterface {
               ),
             );
           },
-          codeAutoRetrievalTimeout: (String verificationId) {
+          codeAutoRetrievalTimeout: (verificationId) {
             _talker.warning('⌛ Auto-retrieval timeout');
             if (!completer.isCompleted) {
               completer.complete(
@@ -323,13 +320,12 @@ class FirebaseDatasource implements UserInterface {
         phoneNumber: '',
         name: 'Anonymous',
         lastName: '',
-        likes: [],
+        likes: const [],
         region: 0,
         district: 0,
         profileImage: '',
         createdAt: now,
         updatedAt: now,
-        deletedAt: null,
       );
 
       if (savedUser == null) {
@@ -394,7 +390,6 @@ class FirebaseDatasource implements UserInterface {
 
       final userModel = signInWithCredential.user.copyWith(
         uid: userCredential.user!.uid,
-        deletedAt: null,
       );
 
       _talker.debug(

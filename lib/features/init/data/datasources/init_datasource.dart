@@ -9,7 +9,7 @@ class InitDatasource implements InitDatasourceInterface {
   @override
   Future<DataState<UserModel?>> getCachedUser() async {
     try {
-      final LocalUserModel? localUser = LocalStorageService.getUser();
+      final localUser = LocalStorageService.getUser();
       if (localUser == null) {
         return const DataSuccess(null);
       }

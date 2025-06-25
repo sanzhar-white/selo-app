@@ -1,15 +1,15 @@
 import 'package:selo/shared/models/advert_model.dart';
 
 class FavouritesState {
-  final List<AdvertModel>? favouritesModel;
-  final bool isLoading;
-  final String? error;
 
   const FavouritesState({
     this.favouritesModel,
     this.isLoading = false,
     this.error,
   });
+  final List<AdvertModel>? favouritesModel;
+  final bool isLoading;
+  final String? error;
 
   FavouritesState copyWith({
     List<AdvertModel>? favouritesModel,

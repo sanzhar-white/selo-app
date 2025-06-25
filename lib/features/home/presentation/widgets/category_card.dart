@@ -11,7 +11,7 @@ import 'package:selo/core/constants/routes.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class CategoryCard extends ConsumerWidget {
-  const CategoryCard({super.key, required this.category});
+  const CategoryCard({required this.category, super.key});
   final AdCategory category;
 
   @override
@@ -22,8 +22,6 @@ class CategoryCard extends ConsumerWidget {
         final homeNotifier = ref.read(homeNotifierProvider.notifier);
         homeNotifier.loadFilteredAdvertisements(
           refresh: true,
-          page: 1,
-          pageSize: 10,
           filter: SearchModel(category: category.id),
         );
         context.push(

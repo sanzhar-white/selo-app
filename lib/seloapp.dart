@@ -60,10 +60,7 @@ class AppInitializer {
         appleProvider: AppleProvider.debug,
       );
     } else {
-      await FirebaseAppCheck.instance.activate(
-        androidProvider: AndroidProvider.playIntegrity,
-        appleProvider: AppleProvider.deviceCheck,
-      );
+      await FirebaseAppCheck.instance.activate();
     }
     talker.info('Firebase App Check initialized.');
   }
@@ -115,9 +112,8 @@ class SeloApp extends ConsumerWidget {
 }
 
 class InitializationErrorScreen extends StatelessWidget {
+  const InitializationErrorScreen({required this.error, super.key});
   final String error;
-
-  const InitializationErrorScreen({super.key, required this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -125,9 +121,9 @@ class InitializationErrorScreen extends StatelessWidget {
       home: Scaffold(
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Text(
-              '${S.of(context).critical_error_when_launching_app}:\n\n$error',
+              '${S.of(context)!.critical_error_when_launching_app}:\n\n$error',
               textAlign: TextAlign.center,
               style: contrastBoldM(context),
             ),

@@ -5,11 +5,7 @@ import 'package:selo/core/theme/text_styles.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
-    super.key,
-    required this.controller,
-    required this.theme,
-    required this.style,
-    required this.hintText,
+    required this.controller, required this.theme, required this.style, required this.hintText, super.key,
     this.borderRadius,
     this.border = true,
     this.minLines,
@@ -71,7 +67,7 @@ class CustomTextField extends StatelessWidget {
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
+              borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
                 color:
                     error
@@ -80,19 +76,19 @@ class CustomTextField extends StatelessWidget {
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
+              borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
                 color:
                     error
                         ? Theme.of(context).colorScheme.error
                         : (border ? theme.primary : Colors.transparent),
-                width: 2.0,
+                width: 2,
               ),
             ),
             errorText: error ? errorText : null,
             errorStyle: TextStyle(
               color: Theme.of(context).colorScheme.error,
-              fontSize: 12.0,
+              fontSize: 12,
             ),
           ),
         ),

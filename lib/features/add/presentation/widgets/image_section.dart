@@ -7,20 +7,19 @@ import 'dart:io';
 import 'package:selo/generated/l10n.dart';
 
 class ImageSection extends StatelessWidget {
+  const ImageSection({
+    required this.images,
+    required this.onPickImage,
+    required this.onRemoveImage,
+    super.key,
+    this.error = false,
+    this.errorText,
+  });
   final List<XFile?> images;
   final VoidCallback onPickImage;
   final ValueChanged<int> onRemoveImage;
   final bool error;
   final String? errorText;
-
-  const ImageSection({
-    super.key,
-    required this.images,
-    required this.onPickImage,
-    required this.onRemoveImage,
-    this.error = false,
-    this.errorText,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +37,7 @@ class ImageSection extends StatelessWidget {
             errorText!,
             style: TextStyle(
               color: Theme.of(context).colorScheme.error,
-              fontSize: 12.0,
+              fontSize: 12,
             ),
           ),
         ],
@@ -51,9 +50,9 @@ class ImageSection extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Text(S.of(context).images, style: contrastBoldM(context)),
+        Text(S.of(context)!.images, style: contrastBoldM(context)),
         const SizedBox(width: 8),
-        Text('(${S.of(context).images_optional})', style: grayM(context)),
+        Text('(${S.of(context)!.images_optional})', style: grayM(context)),
       ],
     );
   }
@@ -156,10 +155,9 @@ class ImageSection extends StatelessWidget {
 }
 
 class _AddImagePlaceholder extends StatelessWidget {
+  const _AddImagePlaceholder({required this.onTap, this.withText = false});
   final VoidCallback onTap;
   final bool withText;
-
-  const _AddImagePlaceholder({required this.onTap, this.withText = false});
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +182,7 @@ class _AddImagePlaceholder extends StatelessWidget {
               ),
               if (withText) ...[
                 const SizedBox(height: 8),
-                Text(S.of(context).add_photo, style: greenM(context)),
+                Text(S.of(context)!.add_photo, style: greenM(context)),
               ],
             ],
           ),

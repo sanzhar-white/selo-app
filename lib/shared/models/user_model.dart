@@ -114,7 +114,7 @@ class UserModel extends Equatable {
       phoneNumber: map['phoneNumber'] as String? ?? '',
       name: map['name'] as String? ?? '',
       lastName: map['lastName'] as String? ?? '',
-      likes: List<String>.from(map['likes'] ?? []),
+      likes: (map['likes'] as List?)?.map((e) => e.toString()).toList() ?? [],
       region: toInt(map['region']),
       district: toInt(map['district']),
       profileImage: map['profileImage'] as String? ?? '',
@@ -148,7 +148,7 @@ class UserModel extends Equatable {
       phoneNumber: map['phoneNumber'] as String? ?? '',
       name: map['name'] as String? ?? '',
       lastName: map['lastName'] as String? ?? '',
-      likes: List<String>.from(map['likes'] ?? []),
+      likes: (map['likes'] as List?)?.map((e) => e.toString()).toList() ?? [],
       region: (map['region'] as num?)?.toInt() ?? 0,
       district: (map['district'] as num?)?.toInt() ?? 0,
       profileImage: map['profileImage'] as String? ?? '',
@@ -189,7 +189,7 @@ class UserModel extends Equatable {
 
 class PhoneNumberModel extends Equatable {
   final String phoneNumber;
-  PhoneNumberModel({required this.phoneNumber});
+  const PhoneNumberModel({required this.phoneNumber});
 
   PhoneNumberModel copyWith({String? phoneNumber}) {
     return PhoneNumberModel(phoneNumber: phoneNumber ?? this.phoneNumber);
@@ -220,7 +220,7 @@ class SignUpModel extends Equatable {
   final String name;
   final String lastName;
 
-  SignUpModel({
+  const SignUpModel({
     required this.phoneNumber,
     required this.name,
     this.lastName = '',

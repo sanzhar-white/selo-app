@@ -1,11 +1,11 @@
 import 'package:selo/shared/models/advert_model.dart';
 
 class AdvertState {
+
+  const AdvertState({this.advert, this.isLoading = false, this.error});
   final AdvertModel? advert;
   final bool isLoading;
   final String? error;
-
-  const AdvertState({this.advert, this.isLoading = false, this.error});
 
   AdvertState copyWith({AdvertModel? advert, bool? isLoading, String? error}) {
     return AdvertState(

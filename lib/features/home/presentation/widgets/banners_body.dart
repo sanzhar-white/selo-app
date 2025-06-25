@@ -7,8 +7,7 @@ import 'package:selo/features/home/data/models/home_model.dart';
 
 class BannersBodyWidget extends StatefulWidget {
   const BannersBodyWidget({
-    super.key,
-    required this.banners,
+    required this.banners, super.key,
     this.autoPlayInterval = const Duration(seconds: 10),
   });
 
@@ -38,7 +37,6 @@ class _BannersBodyWidgetState extends State<BannersBodyWidget> {
               return _CarouselItem(banner: banner);
             },
             options: CarouselOptions(
-              aspectRatio: 16 / 9,
               viewportFraction: 0.9,
               autoPlay: true,
               autoPlayInterval: widget.autoPlayInterval,
@@ -160,10 +158,9 @@ class _CarouselDotsIndicator extends StatelessWidget {
 
 Widget buildImageWidget(
   String imageUrl, {
-  double? height,
+  required BuildContext context, double? height,
   double? width,
   BoxFit? fit = BoxFit.contain,
-  required BuildContext context,
 }) {
   if (imageUrl.isEmpty) {
     return _placeholderImage(height, width, context);

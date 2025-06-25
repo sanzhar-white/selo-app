@@ -25,26 +25,20 @@ import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/utils/utils.dart';
 
 class HomePageController extends ChangeNotifier {
-  final WidgetRef ref;
-  final ScrollController scrollController = ScrollController();
-  PaginationModel paginationModel = PaginationModel(
-    pageSize: 10,
-    currentPage: 1,
-    refresh: false,
-  );
-  bool isInitialized = false;
-  bool isAnonymous = false;
-  String? lastError;
-
   HomePageController(this.ref) {
     scrollController.addListener(_onScroll);
   }
+  final WidgetRef ref;
+  final ScrollController scrollController = ScrollController();
+  PaginationModel paginationModel = const PaginationModel();
+  bool isInitialized = false;
+  bool isAnonymous = false;
+  String? lastError;
 
   Future<void> initializeData() async {
     final homeNotifier = ref.read(homeNotifierProvider.notifier);
     await Future.wait([
       homeNotifier.loadAllAdvertisements(
-        refresh: false,
         page: paginationModel.currentPage,
         pageSize: paginationModel.pageSize,
       ),
@@ -98,7 +92,6 @@ class HomePageController extends ChangeNotifier {
         ref
             .read(homeNotifierProvider.notifier)
             .loadAllAdvertisements(
-              refresh: false,
               page: paginationModel.currentPage,
               pageSize: paginationModel.pageSize,
             );
@@ -164,7 +157,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       return const HomePageShimmer();
     }
 
-    final List<AdvertModel> adverts = homeState.allAdvertisements ?? [];
+    final adverts = homeState.allAdvertisements ?? [];
 
     return Scaffold(
       body: RefreshIndicator(
@@ -207,7 +200,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   vertical: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context).all_categories,
+                  S.of(context)!.all_categories,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -224,7 +217,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     child: CategoryCard(
                       category:
                           categories.valueOrNull?[index] ??
-                          AdCategory(
+                          const AdCategory(
                             id: 0,
                             nameEn: '',
                             nameRu: '',
@@ -251,7 +244,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   top: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context).all_ads,
+                  S.of(context)!.all_ads,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -262,7 +255,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   child: Padding(
                     padding: EdgeInsets.all(screenSize.width * 0.04),
                     child: Text(
-                      S.of(context).no_ads_found,
+                      S.of(context)!.no_ads_found,
                       style: contrastBoldM(context),
                     ),
                   ),

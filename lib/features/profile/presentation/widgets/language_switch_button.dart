@@ -16,7 +16,7 @@ class LanguageSwitchButton extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final radius = ResponsiveRadius.screenBased(context);
     final screenSize = MediaQuery.of(context).size;
-    final supportedLocales = const [Locale('en'), Locale('ru'), Locale('kk')];
+    const supportedLocales = [Locale('en'), Locale('ru'), Locale('kk')];
 
     return GestureDetector(
       onTap: () {
@@ -45,7 +45,7 @@ class LanguageSwitchButton extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                S.of(context).language_display_code,
+                S.of(context)!.language_display_code,
                 style: contrastBoldM(context),
               ),
             ],

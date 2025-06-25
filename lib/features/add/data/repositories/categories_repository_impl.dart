@@ -5,9 +5,9 @@ import 'package:selo/core/models/category.dart';
 
 class CategoriesRepositoryImpl extends CategoriesRepository
     implements CategoriesInteface {
-  final CategoriesInteface _categoriesInteface;
 
   CategoriesRepositoryImpl(this._categoriesInteface);
+  final CategoriesInteface _categoriesInteface;
 
   @override
   Future<DataState<List<AdCategory>>> getCategories() {

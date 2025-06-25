@@ -22,9 +22,9 @@ class HomePageShimmer extends StatelessWidget {
           const SliverToBoxAdapter(child: BannersBodyShimmer()),
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Text(
-                S.of(context).all_categories,
+                S.of(context)!.all_categories,
                 style: contrastBoldL(context),
               ),
             ),
@@ -35,8 +35,11 @@ class HomePageShimmer extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.only(left: 16, top: 16),
-              child: Text(S.of(context).all_ads, style: contrastBoldL(context)),
+              padding: const EdgeInsets.only(left: 16, top: 16),
+              child: Text(
+                S.of(context)!.all_ads,
+                style: contrastBoldL(context),
+              ),
             ),
           ),
           const SliverPadding(
@@ -55,7 +58,7 @@ class _ShimmerCategories extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemCount = 2;
+    const itemCount = 2;
 
     return SliverGrid(
       delegate: SliverChildBuilderDelegate(
@@ -82,7 +85,7 @@ class _ShimmerAdsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemCount = 6;
+    const itemCount = 6;
 
     return SliverList(
       delegate: SliverChildBuilderDelegate(
@@ -101,7 +104,7 @@ class _ShimmerAdsList extends StatelessWidget {
 }
 
 class BannersBodyShimmer extends StatelessWidget {
-  const BannersBodyShimmer();
+  const BannersBodyShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {

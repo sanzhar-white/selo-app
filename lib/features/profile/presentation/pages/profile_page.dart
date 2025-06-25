@@ -55,8 +55,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   ) {
     if (_isAnonymous(userState)) {
       PopupWindow(
-        message: S.of(context).edit_anonymous_window,
-        buttonText: S.of(context).login,
+        message: S.of(context)!.edit_anonymous_window,
+        buttonText: S.of(context)!.login,
         onButtonPressed: () {
           ref.read(userNotifierProvider.notifier).logOut();
           context.push(Routes.authenticationPage);
@@ -75,13 +75,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final userState = ref.watch(userNotifierProvider);
     final locale = ref.watch(localeProvider);
     final theme = ref.watch(themeProvider);
-    final supportedLocales = const [Locale('en'), Locale('ru'), Locale('kk')];
+    const supportedLocales = [Locale('en'), Locale('ru'), Locale('kk')];
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            title: Text(S.of(context).profile_title, style: contrastL(context)),
+            title: Text(
+              S.of(context)!.profile_title,
+              style: contrastL(context),
+            ),
             centerTitle: false,
             expandedHeight: screenSize.height * _headerHeightFactor,
             actions: [
@@ -99,7 +102,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
                         theme.brightness == Brightness.light
@@ -116,8 +118,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       Expanded(
                         child: Text(
                           theme.brightness == Brightness.light
-                              ? S.of(context).theme_light
-                              : S.of(context).theme_dark,
+                              ? S.of(context)!.theme_light
+                              : S.of(context)!.theme_dark,
                           overflow: TextOverflow.ellipsis,
                           style: contrastM(context),
                           textAlign: TextAlign.center,
@@ -157,7 +159,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          S.of(context).language_display_code,
+                          S.of(context)!.language_display_code,
                           style: contrastBoldM(context),
                         ),
                       ],
@@ -177,7 +179,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ? const CircularProgressIndicator()
                         : userState.user == null
                         ? Text(
-                          S.of(context).my_ads_empty,
+                          S.of(context)!.my_ads_empty,
                           style: contrastL(context),
                         )
                         : Column(
@@ -195,7 +197,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 Text(
                                   userState.user!.name.isNotEmpty
                                       ? userState.user!.name
-                                      : S.of(context).anonymous_user,
+                                      : S.of(context)!.anonymous_user,
                                   style: contrastL(context),
                                 ),
                                 if (userState.user!.lastName.isNotEmpty) ...[
@@ -211,7 +213,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             Text(
                               userState.user!.phoneNumber.isNotEmpty
                                   ? userState.user!.phoneNumber
-                                  : S.of(context).no_phone_number,
+                                  : S.of(context)!.no_phone_number,
                               style: contrastM(context),
                             ),
                             SizedBox(height: screenSize.height * 0.01),
@@ -223,7 +225,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     userState,
                                   ),
                               child: Text(
-                                S.of(context).edit_profile,
+                                S.of(context)!.edit_profile,
                                 style: contrastBoldM(context),
                               ),
                             ),
@@ -244,7 +246,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                   child: ProfileButton(
                     icon: Images.myAdvertSvg,
-                    label: S.of(context).my_ads,
+                    label: S.of(context)!.my_ads,
                     screenSize: screenSize,
                     colorScheme: colorScheme,
                   ),
@@ -258,7 +260,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                   child: ProfileButton(
                     icon: Images.publicSvg,
-                    label: S.of(context).terms_and_conditions,
+                    label: S.of(context)!.terms_and_conditions,
                     screenSize: screenSize,
                     colorScheme: colorScheme,
                   ),
@@ -274,7 +276,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            S.of(context).logged_out,
+                            S.of(context)!.logged_out,
                             style: contrastBoldM(context),
                           ),
                         ),
@@ -283,7 +285,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   },
                   child: ProfileButton(
                     icon: Images.leaveSvg,
-                    label: S.of(context).logout,
+                    label: S.of(context)!.logout,
                     screenSize: screenSize,
                     colorScheme: colorScheme,
                   ),
@@ -298,18 +300,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 }
 
 class ProfileButton extends StatelessWidget {
-  final String icon;
-  final String label;
-  final Size screenSize;
-  final ColorScheme colorScheme;
-
   const ProfileButton({
-    super.key,
     required this.icon,
     required this.label,
     required this.screenSize,
     required this.colorScheme,
+    super.key,
   });
+  final String icon;
+  final String label;
+  final Size screenSize;
+  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
@@ -341,18 +342,17 @@ class ProfileButton extends StatelessWidget {
 }
 
 class ProfileAvatar extends StatelessWidget {
+  const ProfileAvatar({
+    required this.radius,
+    required this.backgroundColor,
+    required this.iconColor,
+    super.key,
+    this.imageUrl,
+  });
   final String? imageUrl;
   final double radius;
   final Color backgroundColor;
   final Color iconColor;
-
-  const ProfileAvatar({
-    super.key,
-    this.imageUrl,
-    required this.radius,
-    required this.backgroundColor,
-    required this.iconColor,
-  });
 
   @override
   Widget build(BuildContext context) {

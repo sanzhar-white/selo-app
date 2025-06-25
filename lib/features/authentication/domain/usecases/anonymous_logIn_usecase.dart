@@ -3,9 +3,9 @@ import 'package:selo/core/resources/data_state.dart';
 import 'package:selo/features/authentication/domain/repositories/user_repository.dart';
 
 class AnonymousLogInUseCase extends UseCase<DataState<bool>, void> {
-  final UserRepository _userRepository;
 
   AnonymousLogInUseCase(this._userRepository);
+  final UserRepository _userRepository;
 
   @override
   Future<DataState<bool>> call({void params}) {

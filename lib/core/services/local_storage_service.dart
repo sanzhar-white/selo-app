@@ -100,7 +100,7 @@ class LocalStorageService {
   }
 
   static bool? getTheme() {
-    final box = Hive.box(_settingsBoxName);
+    final box = Hive.box<bool>(_settingsBoxName);
     return box.get(_themeKey);
   }
 
@@ -110,7 +110,7 @@ class LocalStorageService {
   }
 
   static String? getLocale() {
-    final box = Hive.box(_settingsBoxName);
+    final box = Hive.box<String>(_settingsBoxName);
     return box.get(_localeKey);
   }
 
@@ -118,7 +118,7 @@ class LocalStorageService {
     try {
       await _adsBox?.put(
         _bannersKey,
-        banners.map((e) => LocalBannerModel.fromBannerModel(e)).toList(),
+        banners.map(LocalBannerModel.fromBannerModel).toList(),
       );
       _talker.info('Cached [32m${banners.length}[0m banners');
     } catch (e, stack) {
@@ -151,7 +151,7 @@ class LocalStorageService {
     try {
       await _adsBox?.put(
         '$_pagePrefix$page',
-        ads.map((e) => LocalAdvertModel.fromAdvertModel(e)).toList(),
+        ads.map(LocalAdvertModel.fromAdvertModel).toList(),
       );
       _talker.info('Cached ${ads.length} advertisements for page $page');
     } catch (e, stack) {
@@ -213,7 +213,7 @@ class LocalStorageService {
       final filterKey = _getFilterKey(filterParams);
       await _adsBox?.put(
         filterKey,
-        ads.map((e) => LocalAdvertModel.fromAdvertModel(e)).toList(),
+        ads.map(LocalAdvertModel.fromAdvertModel).toList(),
       );
       _talker.info('Cached ${ads.length} filtered ads for key $filterKey');
     } catch (e, stack) {
@@ -282,7 +282,7 @@ class LocalStorageService {
   static void debugCache() {
     final box = _adsBox ?? Hive.box<List<dynamic>>(_adsBoxName);
     _talker.info('Cache keys: ${box.keys}');
-    for (var key in box.keys) {
+    for (final key in box.keys) {
       final items = box.get(key);
       _talker.info('Key $key: ${items?.length ?? 0} items');
     }
@@ -295,7 +295,7 @@ class LocalStorageService {
           box.keys
               .where((key) => key.toString().startsWith(_filterPrefix))
               .toList();
-      for (var key in filterKeys) {
+      for (final key in filterKeys) {
         await box.delete(key);
         _talker.info('🧹 Deleted filtered ads cache for key $key');
       }

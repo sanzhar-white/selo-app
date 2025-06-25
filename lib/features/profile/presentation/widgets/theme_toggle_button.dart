@@ -29,7 +29,6 @@ class ThemeToggleButton extends ConsumerWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SvgPicture.asset(
               theme.brightness == Brightness.light
@@ -48,8 +47,8 @@ class ThemeToggleButton extends ConsumerWidget {
             Expanded(
               child: Text(
                 theme.brightness == Brightness.light
-                    ? S.of(context).theme_light
-                    : S.of(context).theme_dark,
+                    ? S.of(context)!.theme_light
+                    : S.of(context)!.theme_dark,
                 overflow: TextOverflow.ellipsis,
                 style: contrastM(context),
                 textAlign: TextAlign.center,

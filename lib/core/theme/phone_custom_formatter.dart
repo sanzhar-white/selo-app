@@ -9,18 +9,18 @@ class PhoneNumberFormatter extends TextInputFormatter {
     final digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
 
     final buffer = StringBuffer();
-    int selectionIndex = newValue.selection.end;
+    final selectionIndex = newValue.selection.end;
 
     if (digitsOnly.isEmpty) {
       return newValue.copyWith(
         text: '',
-        selection: TextSelection.collapsed(offset: 0),
+        selection: const TextSelection.collapsed(offset: 0),
       );
     }
 
     buffer.write('+7');
 
-    if (digitsOnly.length >= 1) {
+    if (digitsOnly.isNotEmpty) {
       buffer.write(' (');
       buffer.write(digitsOnly.substring(1, digitsOnly.length.clamp(4, 4)));
     }

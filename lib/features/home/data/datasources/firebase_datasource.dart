@@ -9,12 +9,12 @@ import 'package:talker_flutter/talker_flutter.dart';
 
 class FirebaseHomeScreenRemoteDataSource
     implements HomeScreenRemoteDataSourceInterface {
+
+  FirebaseHomeScreenRemoteDataSource(this._firestore, this._talker);
   final FirebaseFirestore _firestore;
   final Talker _talker;
 
   final Map<String, DocumentSnapshot?> _lastDocuments = {};
-
-  FirebaseHomeScreenRemoteDataSource(this._firestore, this._talker);
 
   String _filterKey({
     int? category,
@@ -195,7 +195,7 @@ class FirebaseHomeScreenRemoteDataSource
         result =
             result.where((element) {
               final title = element.title.toLowerCase();
-              final description = element.description?.toLowerCase() ?? '';
+              final description = element.description.toLowerCase() ?? '';
               return title.contains(query) || description.contains(query);
             }).toList();
         _talker.debug(
@@ -214,7 +214,7 @@ class FirebaseHomeScreenRemoteDataSource
         stackTrace,
       );
       if (e.toString().contains('failed-precondition')) {
-        _talker.error('${ErrorMessages.firestoreIndexRequired}');
+        _talker.error(ErrorMessages.firestoreIndexRequired);
         return DataFailed(
           Exception(ErrorMessages.firestoreIndexRequired),
           stackTrace,
@@ -233,7 +233,7 @@ class FirebaseHomeScreenRemoteDataSource
           .doc(advertUid)
           .update({'views': FieldValue.increment(1)});
       _talker.info('✅ Successfully incremented view count');
-      return DataSuccess(null);
+      return const DataSuccess(null);
     } catch (e, stackTrace) {
       _talker.error(ErrorMessages.failedToIncrementViewCount, e, stackTrace);
       return DataFailed(Exception(e), stackTrace);
@@ -243,7 +243,7 @@ class FirebaseHomeScreenRemoteDataSource
   List<AdvertModel> _parseDocuments(List<QueryDocumentSnapshot> docs) {
     final events = <AdvertModel>[];
     final errors = <String>[];
-    for (var doc in docs) {
+    for (final doc in docs) {
       final data = doc.data();
       if (data is Map<String, dynamic>) {
         try {
@@ -302,23 +302,18 @@ class FirebaseHomeScreenRemoteDataSource
       case 0: // По умолчанию (новые)
         query = query.orderBy('createdAt', descending: true);
         _talker.debug('📊 Applied default sorting (newest first)');
-        break;
       case 1: // Сначала дешёвые
         query = query.orderBy('price');
         _talker.debug('📊 Applied sorting by price (ascending)');
-        break;
       case 2: // Сначала дорогие
         query = query.orderBy('price', descending: true);
         _talker.debug('📊 Applied sorting by price (descending)');
-        break;
       case 3: // Сначала новые
         query = query.orderBy('createdAt', descending: true);
         _talker.debug('📊 Applied sorting by creation date (newest first)');
-        break;
       case 4: // Сначала старые
         query = query.orderBy('createdAt');
         _talker.debug('📊 Applied sorting by creation date (oldest first)');
-        break;
       default:
         final msg = 'Unknown sortBy: $sortBy';
         _talker.error(msg);

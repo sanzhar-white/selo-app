@@ -25,7 +25,7 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:selo/core/constants/error_message.dart';
 
 class CreateAdvertPage extends ConsumerStatefulWidget {
-  const CreateAdvertPage({super.key, required this.category});
+  const CreateAdvertPage({required this.category, super.key});
   final AdCategory category;
 
   @override
@@ -59,7 +59,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   late final Map<String, TextEditingController> settingsControllers;
 
   final ImagePicker _picker = ImagePicker();
-  List<XFile?> _images = [];
+  final List<XFile?> _images = [];
 
   Talker get _talker => di<Talker>();
 
@@ -80,8 +80,8 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _quantityUnit = S.of(context).unit_kg;
-    _pricePerUnit = S.of(context).unit_kg;
+    _quantityUnit = S.of(context)!.unit_kg;
+    _pricePerUnit = S.of(context)!.unit_kg;
   }
 
   @override
@@ -168,7 +168,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     return _validationState.values.every((isValid) => isValid);
   }
 
-  void _handleCreateAdvert() async {
+  Future<void> _handleCreateAdvert() async {
     final now = Timestamp.now();
     _validateFields();
 
@@ -180,7 +180,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            S.of(context).fill_all_fields,
+            S.of(context)!.fill_all_fields,
             style: contrastBoldM(context),
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -191,10 +191,10 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
 
     try {
       _talker.info('🟢 Creating advert...');
-      int price = 0;
-      int maxPrice = 0;
-      String priceUnit = _pricePerUnit;
-      bool tradeable = false;
+      var price = 0;
+      var maxPrice = 0;
+      final priceUnit = _pricePerUnit;
+      var tradeable = false;
       if (widget.category.settings['tradeable'] == true) {
         tradeable = _isTradeable;
       }
@@ -202,13 +202,13 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       if (_isPriceFixed) {
         price =
             int.tryParse(
-              priceController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+              priceController.text.replaceAll(RegExp('[^0-9]'), ''),
             ) ??
             0;
         if (widget.category.settings['maxPrice'] == true) {
           maxPrice =
               int.tryParse(
-                maxPriceController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+                maxPriceController.text.replaceAll(RegExp('[^0-9]'), ''),
               ) ??
               0;
         }
@@ -219,20 +219,20 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         }
       }
 
-      int quantity = 0;
-      int maxQuantity = 0;
-      String quantityUnit = _quantityUnit;
+      var quantity = 0;
+      var maxQuantity = 0;
+      final quantityUnit = _quantityUnit;
 
       if (widget.category.settings['quantity'] == true && _isQuantityFixed) {
         quantity =
             int.tryParse(
-              quantityController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+              quantityController.text.replaceAll(RegExp('[^0-9]'), ''),
             ) ??
             0;
         if (widget.category.settings['maxQuantity'] == true) {
           maxQuantity =
               int.tryParse(
-                maxQuantityController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+                maxQuantityController.text.replaceAll(RegExp('[^0-9]'), ''),
               ) ??
               0;
         }
@@ -241,9 +241,6 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       final advert = AdvertModel(
         uid: '',
         ownerUid: _uid,
-        active: true,
-        views: 0,
-        likes: 0,
         createdAt: now,
         updatedAt: now,
         title: titleController.text,
@@ -289,7 +286,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              S.of(context).advertisement_created,
+              S.of(context)!.advertisement_created,
               style: contrastBoldM(context),
             ),
             backgroundColor: Colors.green,
@@ -302,7 +299,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              error ?? S.of(context).failed_to_created_advertisement,
+              error ?? S.of(context)!.failed_to_created_advertisement,
               style: contrastBoldM(context),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
@@ -314,7 +311,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${S.of(context).error_creating_advert}: ${e.toString()}',
+            '${S.of(context)!.error_creating_advert}: $e',
             style: contrastBoldM(context),
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -329,7 +326,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            S.of(context).max_images,
+            S.of(context)!.max_images,
             style: contrastBoldM(context),
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -339,7 +336,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     }
 
     try {
-      final XFile? image = await _picker.pickImage(
+      final image = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 80,
       );
@@ -352,7 +349,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                S.of(context).selected_image_file_not_found,
+                S.of(context)!.selected_image_file_not_found,
                 style: contrastBoldM(context),
               ),
               backgroundColor: Theme.of(context).colorScheme.error,
@@ -368,7 +365,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                S.of(context).image_less_size,
+                S.of(context)!.image_less_size,
                 style: contrastBoldM(context),
               ),
               backgroundColor: Theme.of(context).colorScheme.error,
@@ -386,7 +383,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${S.of(context).error_selecting_image}: ${e.toString()}',
+            '${S.of(context)!.error_selecting_image}: $e',
             style: contrastBoldM(context),
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -408,7 +405,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     final screenSize = MediaQuery.of(context).size;
     final radius = ResponsiveRadius.screenBased(context);
     final advertState = ref.watch(advertNotifierProvider);
-    final List<String> units = [S.of(context).unit_kg, S.of(context).unit_ton];
+    final units = <String>[S.of(context)!.unit_kg, S.of(context)!.unit_ton];
 
     if (advertState.isLoading) {
       _talker.info('⏳ Advert creation/loading in progress...');
@@ -421,7 +418,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
             slivers: [
               SliverAppBar(
                 title: Text(
-                  S.of(context).create_advert,
+                  S.of(context)!.create_advert,
                   style: contrastL(context),
                 ),
                 iconTheme: IconThemeData(color: colorScheme.inversePrimary),
@@ -431,29 +428,28 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: S.of(context).title_of_ad,
+                  title: S.of(context)!.title_of_ad,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: titleController,
                     theme: colorScheme,
                     style: greenM(context),
-                    hintText: S.of(context).title_of_ad_hint,
-                    border: true,
+                    hintText: S.of(context)!.title_of_ad_hint,
                     error:
                         _showValidation && !(_validationState['title'] ?? true),
-                    errorText: S.of(context).title_of_ad_required,
+                    errorText: S.of(context)!.title_of_ad_required,
                   ),
                 ),
               ),
               if (widget.category.settings['condition'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: S.of(context).condition,
+                    title: S.of(context)!.condition,
                     titleStyle: contrastBoldM(context),
                     child: CustomToggleButtons(
                       options: [
-                        S.of(context).condition_new,
-                        S.of(context).condition_used,
+                        S.of(context)!.condition_new,
+                        S.of(context)!.condition_used,
                       ],
                       selectedIndex: _isNew ? 0 : 1,
                       onChanged: (index) => setState(() => _isNew = index == 0),
@@ -463,7 +459,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               if (widget.category.settings['year'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: S.of(context).year_of_release,
+                    title: S.of(context)!.year_of_release,
                     titleStyle: contrastBoldM(context),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -503,7 +499,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              S.of(context).trade_possible,
+                              S.of(context)!.trade_possible,
                               style: contrastBoldM(context),
                             ),
                             Switch(
@@ -563,7 +559,8 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                       maxQuantityError:
                           _showValidation &&
                           !(_validationState['maxQuantity'] ?? true),
-                      maxQuantityErrorText: S.of(context).max_quantity_required,
+                      maxQuantityErrorText:
+                          S.of(context)!.max_quantity_required,
                       showUnitSelector:
                           widget.category.settings['unitPer'] == true,
                     ),
@@ -571,7 +568,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                 ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: S.of(context).location,
+                  title: S.of(context)!.location,
                   titleStyle: contrastBoldM(context),
                   child: LocationSection(
                     region: _region,
@@ -594,7 +591,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: S.of(context).description,
+                  title: S.of(context)!.description,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: descriptionController,
@@ -602,67 +599,63 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                     style: contrastM(context),
                     minLines: 3,
                     maxLines: 10,
-                    hintText: S.of(context).description_hint,
-                    border: true,
+                    hintText: S.of(context)!.description_hint,
                     error:
                         _showValidation &&
                         !(_validationState['description'] ?? true),
-                    errorText: S.of(context).description_required,
+                    errorText: S.of(context)!.description_required,
                   ),
                 ),
               ),
               if (widget.category.settings['companyName'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: S.of(context).company,
+                    title: S.of(context)!.company,
                     titleStyle: contrastBoldM(context),
                     child: CustomTextField(
                       controller: settingsControllers['companyName']!,
                       theme: colorScheme,
                       style: contrastM(context),
-                      hintText: S.of(context).company_hint,
-                      border: true,
+                      hintText: S.of(context)!.company_hint,
                       error:
                           _showValidation &&
                           !(_validationState['companyName'] ?? true),
-                      errorText: S.of(context).company_required,
+                      errorText: S.of(context)!.company_required,
                     ),
                   ),
                 ),
               if (widget.category.settings['contactPerson'] == true)
                 SliverToBoxAdapter(
                   child: FormSection(
-                    title: S.of(context).contact_person,
+                    title: S.of(context)!.contact_person,
                     titleStyle: contrastBoldM(context),
                     child: CustomTextField(
                       controller: settingsControllers['contactPerson']!,
                       theme: colorScheme,
                       style: contrastM(context),
-                      hintText: S.of(context).contact_person_hint,
-                      border: true,
+                      hintText: S.of(context)!.contact_person_hint,
                       error:
                           _showValidation &&
                           !(_validationState['contactPerson'] ?? true),
-                      errorText: S.of(context).contact_person_required,
+                      errorText: S.of(context)!.contact_person_required,
                     ),
                   ),
                 ),
               SliverToBoxAdapter(
                 child: FormSection(
-                  title: S.of(context).phone_number,
+                  title: S.of(context)!.phone_number,
                   titleStyle: contrastBoldM(context),
                   child: CustomTextField(
                     controller: phoneController,
                     theme: colorScheme,
                     style: contrastM(context),
-                    hintText: S.of(context).phone_number_hint,
-                    border: true,
+                    hintText: S.of(context)!.phone_number_hint,
                     formatters: [PhoneNumberFormatter()],
                     keyboardType: TextInputType.phone,
                     error:
                         _showValidation &&
                         !(_validationState['phoneNumber'] ?? true),
-                    errorText: S.of(context).phone_number_required,
+                    errorText: S.of(context)!.phone_number_required,
                   ),
                 ),
               ),
@@ -688,7 +681,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                       ),
                       child: Center(
                         child: Text(
-                          S.of(context).create_advert,
+                          S.of(context)!.create_advert,
                           style: overGreenBoldM(context),
                         ),
                       ),
@@ -699,9 +692,9 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
             ],
           ),
           if (advertState.isLoading)
-            Container(
+            const ColoredBox(
               color: Colors.black54,
-              child: const Center(child: CircularProgressIndicator()),
+              child: Center(child: CircularProgressIndicator()),
             ),
         ],
       ),

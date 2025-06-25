@@ -7,10 +7,10 @@ import 'package:selo/features/home/domain/repositories/home_repository.dart';
 import 'package:selo/shared/models/advert_model.dart';
 
 class HomeRepositoryImpl extends HomeRepository {
-  final HomeScreenRemoteDataSourceInterface _homeInterface;
-  final CacheManager _cacheManager;
 
   HomeRepositoryImpl(this._homeInterface, this._cacheManager);
+  final HomeScreenRemoteDataSourceInterface _homeInterface;
+  final CacheManager _cacheManager;
 
   @override
   Future<DataState<List<String>>> getBanners() async {
@@ -92,7 +92,7 @@ class HomeRepositoryImpl extends HomeRepository {
 
       final result = await _homeInterface.getFilteredAdvertisements(
         searchModel.copyWith(
-          category: searchModel.category == null ? null : searchModel.category,
+          category: searchModel.category,
         ),
         paginationModel,
       );

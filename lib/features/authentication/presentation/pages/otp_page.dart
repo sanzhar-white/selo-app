@@ -16,9 +16,8 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:selo/core/constants/error_message.dart';
 
 class OTPPage extends ConsumerStatefulWidget {
-  final AuthStatusModel? authStatus;
-
   const OTPPage({super.key, this.authStatus});
+  final AuthStatusModel? authStatus;
 
   @override
   ConsumerState<OTPPage> createState() => _OTPPageState();
@@ -48,7 +47,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
   void startTimer() {
     _start = 45;
-    timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_start == 0) {
         timer.cancel();
         if (mounted) {
@@ -93,7 +92,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              S.of(context).code_resent_success,
+              S.of(context)!.code_resent_success,
               style: contrastBoldM(context),
             ),
             backgroundColor: Colors.green,
@@ -104,7 +103,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              S.of(context).resend_code_error + ': ${result.error}',
+              '${S.of(context)!.resend_code_error}: ${result.error}',
               style: contrastBoldM(context),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
@@ -117,7 +116,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              S.of(context).resend_code_error + ': $e',
+              '${S.of(context)!.resend_code_error}: $e',
               style: contrastBoldM(context),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
@@ -141,7 +140,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            S.of(context).otp_empty_error,
+            S.of(context)!.otp_empty_error,
             style: contrastBoldM(context),
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -156,7 +155,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            S.of(context).otp_empty_error,
+            S.of(context)!.otp_empty_error,
             style: contrastBoldM(context),
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -193,7 +192,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                S.of(context).otp_verification_success,
+                S.of(context)!.otp_verification_success,
                 style: contrastBoldM(context),
               ),
               backgroundColor: Colors.green,
@@ -205,7 +204,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  S.of(context).otp_verification_failed,
+                  S.of(context)!.otp_verification_failed,
                   style: contrastBoldM(context),
                 ),
                 backgroundColor: Theme.of(context).colorScheme.error,
@@ -223,8 +222,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                S.of(context).otp_verification_failed +
-                    ': ${error.contains('invalid-verification-code') ? S.of(context).invalid_code_entered : error}',
+                '${S.of(context)!.otp_verification_failed}: ${error.contains('invalid-verification-code') ? S.of(context)!.invalid_code_entered : error}',
                 style: contrastBoldM(context),
               ),
               backgroundColor: Theme.of(context).colorScheme.error,
@@ -239,7 +237,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              S.of(context).otp_verification_failed + ': ${e.toString()}',
+              '${S.of(context)!.otp_verification_failed}: $e',
               style: contrastBoldM(context),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
@@ -266,7 +264,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         Scaffold(
           appBar: AppBar(
             title: Text(
-              S.of(context).enter_verification_code,
+              S.of(context)!.enter_verification_code,
               style: contrastL(context),
             ),
             backgroundColor: colorScheme.surface,
@@ -281,7 +279,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    S.of(context).enter_code_sent_to_your_phone,
+                    S.of(context)!.enter_code_sent_to_your_phone,
                     style: contrastM(context),
                   ),
                   SizedBox(height: screenSize.height * 0.03),
@@ -289,13 +287,12 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                     key: formKey,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
+                        vertical: 8,
                         horizontal: 30,
                       ),
                       child: PinCodeTextField(
                         appContext: context,
                         length: 6,
-                        obscureText: false,
                         animationType: AnimationType.fade,
                         pinTheme: PinTheme(
                           shape: PinCodeFieldShape.box,
@@ -335,7 +332,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                       GestureDetector(
                         onTap: _start == 0 && !isLoading ? resendCode : null,
                         child: Text(
-                          S.of(context).resend_code,
+                          S.of(context)!.resend_code,
                           style: TextStyle(
                             color:
                                 _start == 0 && !isLoading
@@ -375,7 +372,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
               ),
               onPressed: isActive ? verifyOTP : null,
               child: Text(
-                S.of(context).verify,
+                S.of(context)!.verify,
                 style: overGreenBoldM(context).copyWith(
                   color: isActive ? colorScheme.onPrimary : colorScheme.primary,
                 ),
@@ -384,9 +381,9 @@ class _OTPPageState extends ConsumerState<OTPPage> {
           ),
         ),
         if (isLoading)
-          Container(
+          const ColoredBox(
             color: Colors.black54,
-            child: const Center(child: CircularProgressIndicator()),
+            child: Center(child: CircularProgressIndicator()),
           ),
       ],
     );

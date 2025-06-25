@@ -64,9 +64,9 @@ class _MyAdsPageState extends ConsumerState<MyAdsPage> {
     if (_authNavigationHandler.isAnonymous(userState)) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Text(
-            S.of(context).edit_anonymous_window,
+            S.of(context)!.edit_anonymous_window,
             style: contrastM(context),
             textAlign: TextAlign.center,
           ),
@@ -81,7 +81,7 @@ class _MyAdsPageState extends ConsumerState<MyAdsPage> {
 
   SliverAppBar _buildAppBar(BuildContext context, ColorScheme colorScheme) {
     return SliverAppBar(
-      title: Text(S.of(context).my_ads_title, style: contrastBoldL(context)),
+      title: Text(S.of(context)!.my_ads_title, style: contrastBoldL(context)),
       iconTheme: IconThemeData(color: colorScheme.inversePrimary),
       centerTitle: true,
       elevation: 0,
@@ -115,11 +115,11 @@ class _MyAdsPageState extends ConsumerState<MyAdsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(S.of(context).error, style: contrastM(context)),
+            Text(S.of(context)!.error, style: contrastM(context)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadMyAds,
-              child: Text(S.of(context).retry),
+              child: Text(S.of(context)!.retry),
             ),
           ],
         ),
@@ -130,7 +130,7 @@ class _MyAdsPageState extends ConsumerState<MyAdsPage> {
   Widget _buildEmptyState(BuildContext context) {
     return SliverFillRemaining(
       child: Center(
-        child: Text(S.of(context).no_ads_found, style: contrastM(context)),
+        child: Text(S.of(context)!.no_ads_found, style: contrastM(context)),
       ),
     );
   }
@@ -138,12 +138,12 @@ class _MyAdsPageState extends ConsumerState<MyAdsPage> {
   Widget _buildAdsList(BuildContext context, ProfileState profileState) {
     final adverts = profileState.myAdverts!;
     return SliverPadding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           final advert = adverts[index];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+            padding: const EdgeInsets.only(bottom: 8),
             child: RepaintBoundary(
               child: AdvertWideCard(key: ValueKey(advert.uid), advert: advert),
             ),

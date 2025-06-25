@@ -6,7 +6,7 @@ import 'package:talker_flutter/talker_flutter.dart';
 import 'package:selo/core/services/crashlytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
-final di = GetIt.instance;
+final GetIt di = GetIt.instance;
 void initDependencies() {
   di.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
   di.registerSingleton<FirebaseAuth>(FirebaseAuth.instance);

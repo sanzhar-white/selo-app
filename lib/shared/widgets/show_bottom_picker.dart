@@ -17,7 +17,7 @@ Future<T?> showBottomPicker<T>({
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: colorScheme.background,
+    backgroundColor: colorScheme.surface,
     shape: RoundedRectangleBorder(
       borderRadius: ResponsiveRadius.screenBased(context),
     ),

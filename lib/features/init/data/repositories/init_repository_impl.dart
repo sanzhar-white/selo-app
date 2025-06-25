@@ -5,9 +5,9 @@ import 'package:selo/features/init/data/models/init_state_model.dart';
 import 'package:selo/features/init/domain/repositories/init_repository.dart';
 
 class InitRepositoryImpl implements InitRepository {
-  final InitDatasourceInterface _datasource;
 
   InitRepositoryImpl(this._datasource);
+  final InitDatasourceInterface _datasource;
 
   @override
   Future<DataState<UserModel?>> getCachedUser() {

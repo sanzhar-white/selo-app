@@ -4,22 +4,21 @@ import 'package:selo/shared/widgets/location_picker.dart';
 import 'package:selo/generated/l10n.dart';
 
 class LocationSection extends StatelessWidget {
+  const LocationSection({
+    required this.region,
+    required this.district,
+    required this.onRegionChanged,
+    required this.onDistrictChanged,
+    super.key,
+    this.regionError = false,
+    this.districtError = false,
+  });
   final String region;
   final String district;
   final ValueChanged<String> onRegionChanged;
   final ValueChanged<String> onDistrictChanged;
   final bool regionError;
   final bool districtError;
-
-  const LocationSection({
-    super.key,
-    required this.region,
-    required this.district,
-    required this.onRegionChanged,
-    required this.onDistrictChanged,
-    this.regionError = false,
-    this.districtError = false,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +28,12 @@ class LocationSection extends StatelessWidget {
       locations: regions,
       onRegionChanged: onRegionChanged,
       onDistrictChanged: onDistrictChanged,
-      regionLabel: S.of(context).region,
-      districtLabel: S.of(context).district,
+      regionLabel: S.of(context)!.region,
+      districtLabel: S.of(context)!.district,
       regionError: regionError,
       districtError: districtError,
-      regionErrorText: S.of(context).region_required,
-      districtErrorText: S.of(context).district_required,
+      regionErrorText: S.of(context)!.region_required,
+      districtErrorText: S.of(context)!.district_required,
     );
   }
 }

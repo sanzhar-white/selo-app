@@ -21,8 +21,8 @@ class AuthNavigationHandler {
   ) {
     if (isAnonymous(userState)) {
       PopupWindow(
-        message: S.of(context).edit_anonymous_window,
-        buttonText: S.of(context).login,
+        message: S.of(context)!.edit_anonymous_window,
+        buttonText: S.of(context)!.login,
         onButtonPressed: () {
           ref.read(userNotifierProvider.notifier).logOut();
           context.push(Routes.authenticationPage);

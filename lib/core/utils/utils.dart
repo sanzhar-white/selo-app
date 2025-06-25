@@ -5,7 +5,7 @@ import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/core/constants/conditions.dart';
 
 String getLocalizedCategory(AdCategory category, BuildContext context) {
-  final s = S.of(context);
+  final s = S.of(context)!;
   if (s.language_code == 'en') {
     return category.nameEn;
   } else if (s.language_code == 'ru') {
@@ -13,7 +13,7 @@ String getLocalizedCategory(AdCategory category, BuildContext context) {
   } else if (s.language_code == 'kk') {
     return category.nameKk;
   }
-  throw Exception('Didn\'t add the localisation correctly');
+  throw Exception("Didn't add the localisation correctly");
 }
 
 int getRegionID(String name) {
@@ -43,7 +43,7 @@ String getDistrictName(int id, int regionID) {
 }
 
 String getConditionName(int id, BuildContext context) {
-  final s = S.of(context);
+  final s = S.of(context)!;
   if (s.language_code == 'en') {
     return conditions.firstWhere((element) => element.id == id).nameEn;
   } else if (s.language_code == 'ru') {
@@ -51,7 +51,7 @@ String getConditionName(int id, BuildContext context) {
   } else if (s.language_code == 'kk') {
     return conditions.firstWhere((element) => element.id == id).nameKk;
   }
-  throw Exception('Didn\'t add the localisation correctly');
+  throw Exception("Didn't add the localisation correctly");
 }
 
 String formatPhoneNumber(String input) {
@@ -59,11 +59,11 @@ String formatPhoneNumber(String input) {
 
   if (digits.isEmpty) return '';
 
-  String cleanedDigits = digits;
+  var cleanedDigits = digits;
   if (cleanedDigits.startsWith('8')) {
-    cleanedDigits = '7' + cleanedDigits.substring(1);
+    cleanedDigits = '7${cleanedDigits.substring(1)}';
   } else if (!cleanedDigits.startsWith('7')) {
-    cleanedDigits = '7' + cleanedDigits;
+    cleanedDigits = '7$cleanedDigits';
   }
 
   if (cleanedDigits.length > 11) {

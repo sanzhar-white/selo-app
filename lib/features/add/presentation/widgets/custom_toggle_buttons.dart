@@ -3,6 +3,16 @@ import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 
 class CustomToggleButtons extends StatelessWidget {
+
+  const CustomToggleButtons({
+    required this.options, required this.selectedIndex, required this.onChanged, super.key,
+    this.height,
+    this.selectedColor,
+    this.unselectedColor,
+    this.selectedTextColor,
+    this.unselectedTextColor,
+    this.textStyle,
+  }) : assert(selectedIndex >= 0 && selectedIndex < options.length);
   final List<String> options;
   final int selectedIndex;
   final ValueChanged<int> onChanged;
@@ -12,19 +22,6 @@ class CustomToggleButtons extends StatelessWidget {
   final Color? selectedTextColor;
   final Color? unselectedTextColor;
   final TextStyle? textStyle;
-
-  const CustomToggleButtons({
-    super.key,
-    required this.options,
-    required this.selectedIndex,
-    required this.onChanged,
-    this.height,
-    this.selectedColor,
-    this.unselectedColor,
-    this.selectedTextColor,
-    this.unselectedTextColor,
-    this.textStyle,
-  }) : assert(selectedIndex >= 0 && selectedIndex < options.length);
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +60,7 @@ class CustomToggleButtons extends StatelessWidget {
               (index) => index == selectedIndex,
             ),
             onPressed: onChanged,
-            children: options.map((option) => Text(option)).toList(),
+            children: options.map(Text.new).toList(),
           );
         },
       ),

@@ -5,9 +5,9 @@ import 'package:selo/features/init/domain/repositories/init_repository.dart';
 
 class GetInitialStateUseCase
     implements UseCase<DataState<InitStateModel>, void> {
-  final InitRepository _repository;
 
   GetInitialStateUseCase(this._repository);
+  final InitRepository _repository;
 
   @override
   Future<DataState<InitStateModel>> call({void params}) {
