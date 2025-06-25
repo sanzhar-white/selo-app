@@ -14,7 +14,6 @@ class InitDatasource implements InitDatasourceInterface {
         return const DataSuccess(null);
       }
 
-      // Convert LocalUserModel to UserModel
       final userModel = UserModel(
         uid: localUser.user.uid,
         phoneNumber: localUser.user.phoneNumber,
@@ -37,8 +36,6 @@ class InitDatasource implements InitDatasourceInterface {
   @override
   Future<DataState<Map<String, dynamic>>> getCachedSettings() async {
     try {
-      // Implement getting cached settings from LocalStorageService
-      // For now returning empty map
       return const DataSuccess({});
     } catch (e, st) {
       return DataFailed(Exception(e.toString()), st);
@@ -48,8 +45,6 @@ class InitDatasource implements InitDatasourceInterface {
   @override
   Future<DataState<bool>> initializeServices() async {
     try {
-      // Initialize any required services here
-      // For example: analytics, crash reporting, etc.
       return const DataSuccess(true);
     } catch (e, st) {
       return DataFailed(Exception(e.toString()), st);

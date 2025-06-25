@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/features/home/presentation/widgets/search_appbar.dart';
+import 'package:selo/generated/l10n.dart';
 import 'package:selo/shared/widgets/shimmer_effect.dart';
 
 class HomePageShimmer extends StatelessWidget {
@@ -22,7 +23,10 @@ class HomePageShimmer extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Text('All categories', style: contrastBoldL(context)),
+              child: Text(
+                S.of(context).all_categories,
+                style: contrastBoldL(context),
+              ),
             ),
           ),
           const SliverPadding(
@@ -32,7 +36,7 @@ class HomePageShimmer extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.only(left: 16, top: 16),
-              child: Text('All adverts', style: contrastBoldL(context)),
+              child: Text(S.of(context).all_ads, style: contrastBoldL(context)),
             ),
           ),
           const SliverPadding(

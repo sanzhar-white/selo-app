@@ -113,7 +113,6 @@ class LocationPicker extends StatelessWidget {
           ),
           if (showDistrict) ...[
             SizedBox(height: verticalSpacing),
-            // Всегда показываем и делаем кнопку активной
             _buildLocationField(
               context,
               title: districtLabel,

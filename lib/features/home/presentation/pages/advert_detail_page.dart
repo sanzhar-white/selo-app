@@ -90,7 +90,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Share functionality coming soon!',
+          S.of(context).share_functionality_coming_soon,
           style: contrastBoldM(context),
         ),
       ),
@@ -275,7 +275,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                     Text(
                       widget.advert.title,
                       style: contrastBoldM(context).copyWith(fontSize: 22),
-                      semanticsLabel: S.of(context)!.title_of_ad,
+                      semanticsLabel: S.of(context).title_of_ad,
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -290,7 +290,7 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                         Text(
                           '${getRegionName(widget.advert.region ?? 0)}, ${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
                           style: grayM(context),
-                          semanticsLabel: S.of(context)!.location,
+                          semanticsLabel: S.of(context).location,
                         ),
                       ],
                     ),
@@ -503,14 +503,14 @@ class _PriceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context)!.price,
+              S.of(context).price,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context)!.price,
+              semanticsLabel: S.of(context).price,
             ),
             const SizedBox(height: 8),
             if (advert.price == 0)
               Text(
-                S.of(context)!.negotiable,
+                S.of(context).negotiable,
                 style: grayM(context).copyWith(fontSize: 16),
               )
             else ...[
@@ -523,9 +523,9 @@ class _PriceCard extends StatelessWidget {
                   category.settings['tradeable'] == true) ...[
                 const SizedBox(height: 8),
                 Text(
-                  S.of(context)!.trade_possible,
+                  S.of(context).trade_possible,
                   style: grayS(context).copyWith(color: colorScheme.secondary),
-                  semanticsLabel: S.of(context)!.trade_possible,
+                  semanticsLabel: S.of(context).trade_possible,
                 ),
               ],
             ],
@@ -551,7 +551,7 @@ class _PriceRange extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '${S.of(context)!.from}: ${minPrice.toStringAsFixed(0)} ₸\n${S.of(context)!.to}: ${maxPrice.toStringAsFixed(0)} ₸',
+      '${S.of(context).from}: ${minPrice.toStringAsFixed(0)} ₸\n${S.of(context).to}: ${maxPrice.toStringAsFixed(0)} ₸',
       style: contrastBoldM(context),
     );
   }
@@ -583,54 +583,54 @@ class _DetailsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context)!.details,
+              S.of(context).details,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context)!.details,
+              semanticsLabel: S.of(context).details,
             ),
             const SizedBox(height: 12),
             _InfoRow(
-              title: S.of(context)!.phone_number,
+              title: S.of(context).phone_number,
               value:
                   advert.phoneNumber.isNotEmpty
                       ? advert.phoneNumber
-                      : S.of(context)!.unknown,
+                      : S.of(context).unknown,
               isVisible: true,
               icon: Icons.phone,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context)!.phone_number,
+              semanticsLabel: S.of(context).phone_number,
             ),
             _InfoRow(
-              title: S.of(context)!.category,
+              title: S.of(context).category,
               value:
                   getLocalizedCategory(category, context).isNotEmpty
                       ? getLocalizedCategory(category, context)
-                      : S.of(context)!.unknown,
+                      : S.of(context).unknown,
               isVisible: true,
               icon: Icons.category,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context)!.category,
+              semanticsLabel: S.of(context).category,
             ),
             _InfoRow(
-              title: S.of(context)!.contact_person,
+              title: S.of(context).contact_person,
               value:
                   advert.contactPerson?.isNotEmpty == true
                       ? advert.contactPerson!
-                      : S.of(context)!.unknown,
+                      : S.of(context).unknown,
               isVisible: category.settings['contactPerson'] == true,
               icon: Icons.person,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context)!.contact_person,
+              semanticsLabel: S.of(context).contact_person,
             ),
             _InfoRow(
-              title: S.of(context)!.company,
+              title: S.of(context).company,
               value:
                   advert.companyName?.isNotEmpty == true
                       ? advert.companyName!
-                      : S.of(context)!.unknown,
+                      : S.of(context).unknown,
               isVisible: category.settings['companyName'] == true,
               icon: Icons.business,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context)!.company,
+              semanticsLabel: S.of(context).company,
             ),
           ],
         ),
@@ -666,9 +666,9 @@ class _QuantityCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context)!.quantity,
+              S.of(context).quantity,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context)!.quantity,
+              semanticsLabel: S.of(context).quantity,
             ),
             const SizedBox(height: 12),
             if (category.settings['quantity'] == true &&
@@ -679,7 +679,7 @@ class _QuantityCard extends StatelessWidget {
                 advert.maxQuantity! > 0)
               _QuantityTag(
                 value:
-                    '${S.of(context)!.from} ${advert.quantity} $unit \n${S.of(context)!.to} ${advert.maxQuantity} $unit',
+                    '${S.of(context).from} ${advert.quantity} $unit \n${S.of(context).to} ${advert.maxQuantity} $unit',
                 colorScheme: colorScheme,
               )
             else if (category.settings['quantity'] == true &&
@@ -698,7 +698,7 @@ class _QuantityCard extends StatelessWidget {
               )
             else
               Text(
-                S.of(context)!.unknown,
+                S.of(context).unknown,
                 style: grayM(context).copyWith(fontSize: 16),
               ),
           ],
@@ -752,32 +752,32 @@ class _ItemDetailsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context)!.item_details,
+              S.of(context).item_details,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context)!.item_details,
+              semanticsLabel: S.of(context).item_details,
             ),
             const SizedBox(height: 12),
             _InfoRow(
-              title: S.of(context)!.condition,
+              title: S.of(context).condition,
               value:
                   advert.condition != null && advert.condition != 0
                       ? getConditionName(advert.condition!, context)
-                      : S.of(context)!.unknown,
+                      : S.of(context).unknown,
               isVisible: category.settings['condition'] == true,
               icon: Icons.build,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context)!.condition,
+              semanticsLabel: S.of(context).condition,
             ),
             _InfoRow(
-              title: S.of(context)!.year_of_release,
+              title: S.of(context).year_of_release,
               value:
                   advert.year != null && advert.year! > 0
                       ? advert.year.toString()
-                      : S.of(context)!.unknown,
+                      : S.of(context).unknown,
               isVisible: category.settings['year'] == true,
               icon: Icons.calendar_today,
               colorScheme: colorScheme,
-              semanticsLabel: S.of(context)!.year_of_release,
+              semanticsLabel: S.of(context).year_of_release,
             ),
           ],
         ),
@@ -806,7 +806,7 @@ class _DescriptionCard extends StatelessWidget {
     final description =
         advert.description.isNotEmpty
             ? advert.description
-            : S.of(context)!.unknown;
+            : S.of(context).unknown;
     final isLong = description.length > 180;
     return Container(
       decoration: BoxDecoration(
@@ -819,9 +819,9 @@ class _DescriptionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              S.of(context)!.description,
+              S.of(context).description,
               style: greenBoldM(context).copyWith(fontSize: 18),
-              semanticsLabel: S.of(context)!.description,
+              semanticsLabel: S.of(context).description,
             ),
             const SizedBox(height: 12),
             Text(
@@ -829,12 +829,14 @@ class _DescriptionCard extends StatelessWidget {
                   ? description.substring(0, 180) + '...'
                   : description,
               style: grayM(context).copyWith(fontSize: 14, height: 1.6),
-              semanticsLabel: S.of(context)!.description,
+              semanticsLabel: S.of(context).description,
             ),
             if (isLong)
               TextButton(
                 onPressed: onToggle,
-                child: Text(expanded ? 'Show less' : 'Show more'),
+                child: Text(
+                  expanded ? S.of(context).show_less : S.of(context).show_less,
+                ),
               ),
           ],
         ),
@@ -872,9 +874,9 @@ class _StatsCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Semantics(
-                  label: S.of(context)!.views,
+                  label: S.of(context).views,
                   child: Text(
-                    '${advert.views} ${S.of(context)!.views}',
+                    '${advert.views} ${S.of(context).views}',
                     style: grayS(context),
                   ),
                 ),
@@ -885,9 +887,9 @@ class _StatsCard extends StatelessWidget {
                 Icon(Icons.favorite, size: 16, color: colorScheme.secondary),
                 const SizedBox(width: 4),
                 Semantics(
-                  label: S.of(context)!.likes,
+                  label: S.of(context).likes,
                   child: Text(
-                    '${advert.likes} ${S.of(context)!.likes}',
+                    '${advert.likes} ${S.of(context).likes}',
                     style: grayS(context),
                   ),
                 ),
@@ -911,7 +913,7 @@ class _ActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _ActionButton(
       icon: Icons.call,
-      label: S.of(context)!.call,
+      label: S.of(context).call,
       onTap: onCall,
       colorScheme: colorScheme,
     );

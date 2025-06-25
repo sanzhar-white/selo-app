@@ -207,7 +207,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   vertical: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context)!.all_categories,
+                  S.of(context).all_categories,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -251,7 +251,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   top: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context)!.all_ads,
+                  S.of(context).all_ads,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -262,7 +262,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   child: Padding(
                     padding: EdgeInsets.all(screenSize.width * 0.04),
                     child: Text(
-                      S.of(context)!.no_ads_found,
+                      S.of(context).no_ads_found,
                       style: contrastBoldM(context),
                     ),
                   ),

@@ -136,12 +136,9 @@ class FirebaseDatasource implements UserInterface {
     final completer = Completer<DataState<bool>>();
 
     try {
-      // If phone number is empty or null, treat as guest user
       if (phoneNumber.phoneNumber.isEmpty) {
         _talker.info('📱 No phone number provided, treating as guest user');
-        completer.complete(
-          DataSuccess(true),
-        ); // Return true to indicate user can proceed
+        completer.complete(DataSuccess(true));
         return await completer.future;
       }
 

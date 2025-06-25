@@ -8,7 +8,7 @@ import 'package:selo/features/home/presentation/providers/index.dart';
 import 'package:selo/features/home/data/models/home_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:selo/core/constants/routes.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // Add this import
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CategoryCard extends ConsumerWidget {
   const CategoryCard({super.key, required this.category});
@@ -40,7 +40,6 @@ class CategoryCard extends ConsumerWidget {
         ),
         child: Stack(
           children: [
-            // Image — bottom right
             Align(
               alignment: Alignment.bottomRight,
               child:
@@ -76,8 +75,8 @@ class CategoryCard extends ConsumerWidget {
                             ),
                         fadeInDuration: const Duration(milliseconds: 300),
                         fadeOutDuration: const Duration(milliseconds: 300),
-                        memCacheWidth: 150, // Scaled for 100px width at 1.5x
-                        memCacheHeight: 90, // Scaled for 60px height at 1.5x
+                        memCacheWidth: 150,
+                        memCacheHeight: 90,
                       )
                       : Icon(
                         Icons.category_outlined,
@@ -85,7 +84,6 @@ class CategoryCard extends ConsumerWidget {
                         color: colorScheme.inversePrimary,
                       ),
             ),
-            // Text — top left
             Align(
               alignment: Alignment.topLeft,
               child: Text(

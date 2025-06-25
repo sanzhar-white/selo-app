@@ -54,7 +54,6 @@ final List<PlaceCategory> regions = [
     ],
   ),
 
-  // Сельские районы по областям
   PlaceCategory(
     id: 5,
     name: 'Абайская область',

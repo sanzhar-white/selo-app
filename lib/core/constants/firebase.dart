@@ -7,7 +7,7 @@ class FirebaseCollections {
 }
 
 class FirebaseConstants {
-  static const int maxImageSizeBytes = 25 * 1024 * 1024; // 5MB
+  static const int maxImageSizeBytes = 25 * 1024 * 1024;
   static const int maxUploadRetries = 3;
   static const Duration uploadRetryDelay = Duration(seconds: 1);
   static const Duration operationTimeout = Duration(seconds: 60);

@@ -51,9 +51,9 @@ class ImageSection extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Text(S.of(context)!.images, style: contrastBoldM(context)),
+        Text(S.of(context).images, style: contrastBoldM(context)),
         const SizedBox(width: 8),
-        Text('(${S.of(context)!.images_optional})', style: grayM(context)),
+        Text('(${S.of(context).images_optional})', style: grayM(context)),
       ],
     );
   }
@@ -89,9 +89,7 @@ class ImageSection extends StatelessWidget {
     final itemCount = images.length < 10 ? images.length + 1 : 10;
 
     return SizedBox(
-      height:
-          (screenSize.width / 2.1) * (itemCount / 2).ceil() +
-          8, // Примерно высота гридов
+      height: (screenSize.width / 2.1) * (itemCount / 2).ceil() + 8,
       child: GridView.count(
         padding: EdgeInsets.zero,
         crossAxisCount: 2,
@@ -186,7 +184,7 @@ class _AddImagePlaceholder extends StatelessWidget {
               ),
               if (withText) ...[
                 const SizedBox(height: 8),
-                Text(S.of(context)!.add_photo, style: greenM(context)),
+                Text(S.of(context).add_photo, style: greenM(context)),
               ],
             ],
           ),

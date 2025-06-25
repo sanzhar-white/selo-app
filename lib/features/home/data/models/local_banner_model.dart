@@ -4,7 +4,7 @@ import 'package:selo/features/home/data/models/home_model.dart';
 
 part 'local_banner_model.g.dart';
 
-@HiveType(typeId: 2) // Unique typeId (different from LocalAdvertModel)
+@HiveType(typeId: 2)
 class LocalBannerModel extends HiveObject {
   @HiveField(0)
   final String imageUrl;
@@ -23,10 +23,6 @@ class LocalBannerModel extends HiveObject {
     );
   }
 
-  BannerModel get banner => BannerModel(
-    imageUrl: imageUrl,
-    title: title,
-    description: description,
-    // Note: onTap is not persisted as it's a callback
-  );
+  BannerModel get banner =>
+      BannerModel(imageUrl: imageUrl, title: title, description: description);
 }

@@ -10,6 +10,8 @@ import 'package:selo/features/add/data/datasources/advert_interface.dart';
 import 'package:selo/features/add/data/repositories/advert_repository_impl.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'create/advert_state.dart';
+import 'create/advert_notifier.dart';
 
 final firebaseDatasourceProvider = Provider<AdvertInteface>((ref) {
   return FirebaseDatasource(
@@ -29,65 +31,15 @@ final createAdUseCaseProvider = Provider<CreateAdUseCase>((ref) {
   return CreateAdUseCase(repository);
 });
 
-class AdvertState {
-  final AdvertModel? advert;
-  final bool isLoading;
-  final String? error;
-
-  const AdvertState({this.advert, this.isLoading = false, this.error});
-
-  AdvertState copyWith({AdvertModel? advert, bool? isLoading, String? error}) {
-    return AdvertState(
-      advert: advert ?? this.advert,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
-}
-
 final advertNotifierProvider =
     StateNotifierProvider<AdvertNotifier, AdvertState>((ref) {
       return AdvertNotifier(ref);
     });
 
-class AdvertNotifier extends StateNotifier<AdvertState> {
-  final Ref ref;
-
-  AdvertNotifier(this.ref) : super(const AdvertState());
-
-  Future<bool> createAdvert(AdvertModel advert) async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      final useCase = ref.read(createAdUseCaseProvider);
-      final filteredData = advert.toFilteredMap();
-      final cleanAdvert = AdvertModel.fromMap(filteredData);
-      final result = await useCase.call(params: cleanAdvert);
-      if (result is DataSuccess) {
-        state = state.copyWith(
-          advert: result.data,
-          isLoading: false,
-          error: null,
-        );
-        return true;
-      } else if (result is DataFailed) {
-        state = state.copyWith(
-          isLoading: false,
-          error: result.error.toString(),
-        );
-        return false;
-      }
-      return false;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
-  }
-}
-
 extension AdvertModelFirebaseMap on AdvertModel {
   Map<String, dynamic> toFilteredMap() {
     final data = toMap();
-    if (!tradeable) {
+    if (data['price'] == 0) {
       data['price'] = 0;
       data['maxPrice'] = 0;
       data['unitPer'] = 'kg';
@@ -106,7 +58,7 @@ extension AdvertModelFirebaseMap on AdvertModel {
     if (year == 0) {
       data.remove('year');
     }
-    if (condition == 0 && !data.containsKey('condition')) {
+    if (!data.containsKey('condition')) {
       data.remove('condition');
     }
     return data;

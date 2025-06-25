@@ -6,7 +6,7 @@ import 'package:selo/core/constants/routes.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/utils/utils.dart';
-import 'package:selo/features/add/presentation/providers/categories_provider.dart';
+import 'package:selo/features/add/presentation/providers/index.dart';
 import 'package:selo/core/models/category.dart';
 import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/features/favourites/presentation/providers/index.dart';
@@ -240,7 +240,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           borderRadius: radius,
                         ),
                         child: Text(
-                          S.of(context)!.label_new_advert,
+                          S.of(context).label_new_advert,
                           style: overGreenBoldM(context),
                         ),
                       ),
@@ -273,7 +273,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                             widget.advert.price != 0)
                           if (widget.advert.maxPrice != null)
                             Text(
-                              '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
+                              '${S.of(context).to} ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
                             )
                           else
@@ -283,7 +283,7 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                             )
                         else
                           Text(
-                            S.of(context)!.negotiable,
+                            S.of(context).negotiable,
                             style: contrastBoldM(context),
                           ),
                         Text(
@@ -295,13 +295,13 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                         if (widget.advert.tradeable &&
                             category.settings['tradeable'] == true)
                           Text(
-                            S.of(context)!.trade_possible,
+                            S.of(context).trade_possible,
                             style: contrastM(context),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
                         Text(
-                          '${widget.advert.views} ${S.of(context)!.views}, ${widget.advert.createdAt.toDate().toLocal().toString().split(' ')[0]}',
+                          '${widget.advert.views} ${S.of(context).views}, ${widget.advert.createdAt.toDate().toLocal().toString().split(' ')[0]}',
                           style: contrastM(context),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
@@ -408,7 +408,7 @@ class CallButton extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              S.of(context)!.call,
+              S.of(context).call,
               style: overGreenBoldM(context),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

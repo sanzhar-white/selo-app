@@ -19,26 +19,21 @@ import 'package:recaptcha_enterprise_flutter/recaptcha.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Класс для инициализации всех сервисов приложения
 class AppInitializer {
   static Future<void> initialize() async {
-    // 1. Firebase Core MUST be initialized first as other services depend on it.
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp();
     }
 
-    // 2. Now that Firebase is ready, initialize dependencies (like Talker with Crashlytics).
     initDependencies();
     final talker = di<Talker>();
     talker.info('Starting app initialization...');
 
-    // 3. System UI
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top],
     );
 
-    // 4. Parallel initialization of other services
     talker.info('Initializing other services in parallel...');
     final initializations = [
       _initAppCheck(),
@@ -48,7 +43,6 @@ class AppInitializer {
     await Future.wait(initializations);
     talker.info('All services initialized successfully.');
 
-    // 5. Post-initialization settings for debug mode
     if (kDebugMode) {
       talker.info('Applying debug settings...');
       di<FirebaseAuth>().setSettings(appVerificationDisabledForTesting: true);
@@ -56,7 +50,6 @@ class AppInitializer {
     }
   }
 
-  // Приватные методы для ясности и параллельного выполнения
   static Future<void> _initAppCheck() async {
     final talker = di<Talker>();
     talker.info('Initializing Firebase App Check...');
@@ -80,8 +73,12 @@ class AppInitializer {
     talker.info('Initializing Recaptcha...');
     final siteKey =
         Platform.isAndroid
-            ? '6Lep4kUrAAAAAPr_NDPAVZ3OX5WNWdAWznoghrau'
-            : '6LdX4kUrAAAAAHM8ygKWOLYEwA-YtPx-6SaW_J2P';
+            ? dotenv.env['RECAPTCHA_SITE_KEY_ANDROID']
+            : dotenv.env['RECAPTCHA_SITE_KEY_IOS'];
+    if (siteKey == null || siteKey.isEmpty) {
+      talker.error('Recaptcha siteKey not found in environment variables');
+      throw Exception('Recaptcha siteKey not found in environment variables');
+    }
     await Recaptcha.fetchClient(siteKey);
     talker.info('Recaptcha initialized.');
   }
@@ -130,7 +127,7 @@ class InitializationErrorScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Критическая ошибка при запуске приложения:\n\n$error',
+              '${S.of(context).critical_error_when_launching_app}:\n\n$error',
               textAlign: TextAlign.center,
               style: contrastBoldM(context),
             ),

@@ -22,7 +22,7 @@ class _InitPageState extends ConsumerState<InitPage> {
   bool _videoInitialized = false;
   bool _videoError = false;
   bool _videoFinished = false;
-  double _videoSizeFactor = 0.5; // 80% of screen width, can be adjusted
+  double _videoSizeFactor = 0.5;
 
   @override
   void initState() {
@@ -32,7 +32,6 @@ class _InitPageState extends ConsumerState<InitPage> {
 
   Future<void> _initializeVideo() async {
     try {
-      // 1 second delay before starting video
       await Future.delayed(const Duration(seconds: 1));
 
       print('Starting video initialization...');
@@ -54,7 +53,6 @@ class _InitPageState extends ConsumerState<InitPage> {
       print('Video duration: ${_controller.value.duration}');
       print('Video size: ${_controller.value.size}');
 
-      // Listen for video completion
       _controller.addListener(() {
         if (_controller.value.position >= _controller.value.duration) {
           setState(() {
@@ -89,7 +87,6 @@ class _InitPageState extends ConsumerState<InitPage> {
   Widget build(BuildContext context) {
     final initState = ref.watch(initStateProvider);
 
-    // Check if video finished and navigate immediately
     if (_videoFinished && initState.isInitialized) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (initState.user != null) {
@@ -105,9 +102,7 @@ class _InitPageState extends ConsumerState<InitPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Primary color background
           Container(color: Color(0xff2a5a46)),
-          // Video centered on screen
           if (_videoInitialized)
             Center(
               child: SizedBox(
@@ -118,7 +113,6 @@ class _InitPageState extends ConsumerState<InitPage> {
                 ),
               ),
             ),
-          // Loading indicator or error message
           if (!_videoInitialized && !_videoError)
             const Center(child: SizedBox.shrink()),
           if (_videoError)
@@ -132,7 +126,7 @@ class _InitPageState extends ConsumerState<InitPage> {
                     Column(
                       children: [
                         SelectableText(
-                          '${S.of(context)!.error}: ${initState.error}, ${initState.stackTrace?.toString()}',
+                          '${S.of(context).error}: ${initState.error}, ${initState.stackTrace?.toString()}',
                           style: const TextStyle(color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
@@ -141,7 +135,7 @@ class _InitPageState extends ConsumerState<InitPage> {
                           onPressed: () {
                             ref.read(initStateProvider.notifier).initialize();
                           },
-                          child: Text(S.of(context)!.retry),
+                          child: Text(S.of(context).retry),
                         ),
                       ],
                     ),

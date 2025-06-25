@@ -48,7 +48,6 @@ final favouritesNotifierProvider =
       return FavouritesNotifier(ref);
     });
 
-// Provider для отслеживания состояния лайков
 final favouriteStatusProvider =
     StateNotifierProvider<FavouriteStatusNotifier, Set<String>>((ref) {
       return FavouriteStatusNotifier();

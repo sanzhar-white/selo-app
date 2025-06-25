@@ -25,9 +25,7 @@ class _BannersBodyWidgetState extends State<BannersBodyWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.banners.isEmpty) {
-      return const SliverToBoxAdapter(
-        child: SizedBox.shrink(), // или можно показать заглушку
-      );
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
 
     return SliverToBoxAdapter(

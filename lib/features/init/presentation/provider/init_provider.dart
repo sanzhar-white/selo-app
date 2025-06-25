@@ -5,7 +5,6 @@ import 'package:selo/features/init/data/repositories/init_repository_impl.dart';
 import 'package:selo/features/init/domain/usecases/get_initial_state_usecase.dart';
 import 'package:selo/core/resources/data_state.dart';
 
-// Providers
 final initDatasourceProvider = Provider((ref) => InitDatasource());
 
 final initRepositoryProvider = Provider(
@@ -21,7 +20,6 @@ final initStateProvider =
       return InitStateNotifier(ref.watch(getInitialStateUseCaseProvider));
     });
 
-// Notifier
 class InitStateNotifier extends StateNotifier<InitStateModel> {
   final GetInitialStateUseCase _getInitialStateUseCase;
 

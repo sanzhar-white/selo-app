@@ -16,7 +16,6 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
   SearchModel? currentFilters,
   required Function(SearchModel?) onApply,
 }) async {
-  // Use int? to track a single selected category (null if none selected)
   int? selectedCategory = currentFilters?.category;
   final priceFromController = TextEditingController(
     text: currentFilters?.priceFrom?.toString() ?? '',
@@ -29,11 +28,11 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
   int selectedSorting = currentFilters?.sortBy ?? 0;
 
   final sortingOptions = {
-    0: S.of(context)!.default_sorting,
-    1: S.of(context)!.cheapest_first,
-    2: S.of(context)!.most_expensive_first,
-    3: S.of(context)!.newest_first,
-    4: S.of(context)!.oldest_first,
+    0: S.of(context).default_sorting,
+    1: S.of(context).cheapest_first,
+    2: S.of(context).most_expensive_first,
+    3: S.of(context).newest_first,
+    4: S.of(context).oldest_first,
   };
 
   SearchModel? result;
@@ -66,14 +65,11 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        S.of(context)!.filter,
-                        style: contrastBoldL(context),
-                      ),
+                      Text(S.of(context).filter, style: contrastBoldL(context)),
                       TextButton(
                         onPressed: () {
                           setState(() {
-                            selectedCategory = null; // Clear category
+                            selectedCategory = null;
                             selectedRegion = '';
                             selectedCity = '';
                             selectedSorting = 0;
@@ -82,17 +78,14 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                           });
                         },
                         child: Text(
-                          S.of(context)!.reset,
+                          S.of(context).reset,
                           style: TextStyle(color: colorScheme.primary),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Text(
-                    S.of(context)!.category,
-                    style: contrastBoldM(context),
-                  ), // Updated label to singular
+                  Text(S.of(context).category, style: contrastBoldM(context)),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -113,11 +106,9 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                             onSelected: (selected) {
                               setState(() {
                                 if (selected) {
-                                  selectedCategory =
-                                      category.id; // Select new category
+                                  selectedCategory = category.id;
                                 } else {
-                                  selectedCategory =
-                                      null; // Deselect if already selected
+                                  selectedCategory = null;
                                 }
                               });
                             },
@@ -135,7 +126,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                         }).toList(),
                   ),
                   const SizedBox(height: 20),
-                  Text(S.of(context)!.price, style: contrastBoldM(context)),
+                  Text(S.of(context).price, style: contrastBoldM(context)),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -143,7 +134,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                         child: CustomTextField(
                           style: contrastBoldL(context),
                           controller: priceFromController,
-                          hintText: S.of(context)!.from,
+                          hintText: S.of(context).from,
                           keyboardType: TextInputType.number,
                           theme: colorScheme,
                         ),
@@ -153,7 +144,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                         child: CustomTextField(
                           style: contrastBoldL(context),
                           controller: priceToController,
-                          hintText: S.of(context)!.to,
+                          hintText: S.of(context).to,
                           keyboardType: TextInputType.number,
                           theme: colorScheme,
                         ),
@@ -161,14 +152,14 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Text(S.of(context)!.location, style: contrastBoldM(context)),
+                  Text(S.of(context).location, style: contrastBoldM(context)),
                   const SizedBox(height: 10),
                   LocationPicker(
                     locations: regions,
                     region: selectedRegion,
                     district: selectedCity,
-                    regionLabel: S.of(context)!.region,
-                    districtLabel: S.of(context)!.district,
+                    regionLabel: S.of(context).region,
+                    districtLabel: S.of(context).district,
                     showDistrict: true,
                     onRegionChanged: (region) {
                       setState(() {
@@ -183,7 +174,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                     },
                   ),
                   const SizedBox(height: 20),
-                  Text(S.of(context)!.sort, style: contrastBoldM(context)),
+                  Text(S.of(context).sort, style: contrastBoldM(context)),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<int>(
                     value: selectedSorting,
@@ -214,7 +205,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                     child: ElevatedButton(
                       onPressed: () {
                         result = SearchModel(
-                          category: selectedCategory, // Use single category
+                          category: selectedCategory,
                           priceFrom: int.tryParse(priceFromController.text),
                           priceTo: int.tryParse(priceToController.text),
                           region: int.tryParse(selectedRegion),
@@ -231,7 +222,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                         shape: RoundedRectangleBorder(borderRadius: radius),
                       ),
                       child: Text(
-                        S.of(context)!.apply,
+                        S.of(context).apply,
                         style: TextStyle(color: colorScheme.onPrimary),
                       ),
                     ),

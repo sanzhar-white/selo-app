@@ -7,6 +7,7 @@ import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:selo/generated/l10n.dart';
 import 'package:selo/shared/models/user_model.dart';
 import 'package:selo/core/resources/data_state.dart';
 import 'package:flutter/services.dart';
@@ -33,13 +34,15 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
   bool isActive = false;
   bool isLoading = false;
-  bool _mounted = true;
+
+  late AuthStatusModel? _authStatus;
 
   Talker get _talker => di<Talker>();
 
   @override
   void initState() {
     super.initState();
+    _authStatus = widget.authStatus;
     startTimer();
   }
 
@@ -48,11 +51,11 @@ class _OTPPageState extends ConsumerState<OTPPage> {
     timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       if (_start == 0) {
         timer.cancel();
-        if (_mounted) {
+        if (mounted) {
           setState(() {});
         }
       } else {
-        if (_mounted) {
+        if (mounted) {
           setState(() {
             _start--;
           });
@@ -63,24 +66,86 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
   @override
   void dispose() {
-    _mounted = false;
-
     if (timer.isActive) {
       timer.cancel();
     }
-
     codeController.dispose();
     super.dispose();
   }
 
+  Future<void> resendCode() async {
+    if (isLoading || _authStatus == null) return;
+    setState(() => isLoading = true);
+    try {
+      final phoneNumber = _authStatus!.user.phoneNumber;
+      _talker.info('🔄 Resending code to $phoneNumber');
+      final result = await ref
+          .read(logInUseCaseProvider)
+          .call(params: PhoneNumberModel(phoneNumber: phoneNumber));
+      if (!mounted) return;
+      if (result is DataSuccess<AuthStatusModel>) {
+        _talker.info('✅ Resend code success: ${result.data}');
+        setState(() {
+          _authStatus = result.data;
+          _start = 45;
+        });
+        startTimer();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              S.of(context).code_resent_success,
+              style: contrastBoldM(context),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else if (result is DataFailed<AuthStatusModel>) {
+        _talker.error('❌ Resend code failed: ${result.error}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              S.of(context).resend_code_error + ': ${result.error}',
+              style: contrastBoldM(context),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } catch (e, st) {
+      _talker.error('❌ Exception in resendCode', e, st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              S.of(context).resend_code_error + ': $e',
+              style: contrastBoldM(context),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
   Future<void> verifyOTP() async {
-    if (!_mounted || !isActive || widget.authStatus == null) {
+    if (!mounted || !isActive || _authStatus == null) {
       _talker.error(
         '${ErrorMessages.cannotVerifyOTP}: ${!isActive
             ? 'inactive'
-            : !_mounted
+            : !mounted
             ? 'disposed'
             : 'no auth status'}',
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context).otp_empty_error,
+            style: contrastBoldM(context),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
       return;
     }
@@ -88,41 +153,59 @@ class _OTPPageState extends ConsumerState<OTPPage> {
     _capturedCode = codeController.text;
     if (_capturedCode == null || _capturedCode!.isEmpty) {
       _talker.error(ErrorMessages.noVerificationCodeEntered);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context).otp_empty_error,
+            style: contrastBoldM(context),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
       return;
     }
 
-    if (!_mounted) return;
+    if (!mounted) return;
     setState(() => isLoading = true);
 
     try {
       _talker.info('🔐 Starting OTP verification');
-      _talker.debug('📝 Verification ID: ${widget.authStatus!.value}');
+      _talker.debug('📝 Verification ID: ${_authStatus!.value}');
       _talker.debug('📱 SMS Code: $_capturedCode');
 
-      if (!_mounted) return;
+      if (!mounted) return;
       final result = await ref
           .read(signInWithCredentialUseCaseProvider)
           .call(
             params: SignInWithCredentialModel(
-              verificationId: widget.authStatus!.value,
+              verificationId: _authStatus!.value,
               smsCode: _capturedCode!,
-              user: widget.authStatus!.user,
+              user: _authStatus!.user,
             ),
           );
 
-      if (!_mounted) return;
+      if (!mounted) return;
 
       if (result is DataSuccess<bool>) {
         final success = result.data;
         _talker.info('✅ OTP verification result: $success');
-        if (success! && _mounted) {
+        if (success! && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                S.of(context).otp_verification_success,
+                style: contrastBoldM(context),
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
           context.go(Routes.homePage);
         } else {
-          if (_mounted) {
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Verification failed - please check the code and try again',
+                  S.of(context).otp_verification_failed,
                   style: contrastBoldM(context),
                 ),
                 backgroundColor: Theme.of(context).colorScheme.error,
@@ -136,11 +219,12 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         _talker.error(
           '${ErrorMessages.otpVerificationFailedWithError}: $error',
         );
-        if (_mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Verification error: ${error.contains('invalid-verification-code') ? 'Invalid code entered' : error}',
+                S.of(context).otp_verification_failed +
+                    ': ${error.contains('invalid-verification-code') ? S.of(context).invalid_code_entered : error}',
                 style: contrastBoldM(context),
               ),
               backgroundColor: Theme.of(context).colorScheme.error,
@@ -151,11 +235,11 @@ class _OTPPageState extends ConsumerState<OTPPage> {
       }
     } catch (e, stack) {
       _talker.error(ErrorMessages.exceptionInOtpVerification, e, stack);
-      if (_mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Error during verification: ${e.toString()}',
+              S.of(context).otp_verification_failed + ': ${e.toString()}',
               style: contrastBoldM(context),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
@@ -165,7 +249,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
       }
     } finally {
       _capturedCode = null;
-      if (_mounted) {
+      if (mounted) {
         setState(() => isLoading = false);
       }
     }
@@ -181,7 +265,10 @@ class _OTPPageState extends ConsumerState<OTPPage> {
       children: [
         Scaffold(
           appBar: AppBar(
-            title: Text('Enter verification code', style: contrastL(context)),
+            title: Text(
+              S.of(context).enter_verification_code,
+              style: contrastL(context),
+            ),
             backgroundColor: colorScheme.surface,
           ),
           body: SafeArea(
@@ -194,7 +281,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Enter the 6-digit code sent to your phone',
+                    S.of(context).enter_code_sent_to_your_phone,
                     style: contrastM(context),
                   ),
                   SizedBox(height: screenSize.height * 0.03),
@@ -246,28 +333,18 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       GestureDetector(
-                        onTap:
-                            _start == 0
-                                ? () {
-                                  // Handle resend code
-                                  setState(() {
-                                    isLoading = true;
-                                    _start = 45;
-                                  });
-                                  startTimer();
-                                  // TODO: Implement resend code logic
-                                  setState(() => isLoading = false);
-                                }
-                                : null,
+                        onTap: _start == 0 && !isLoading ? resendCode : null,
                         child: Text(
-                          'Resend Code',
+                          S.of(context).resend_code,
                           style: TextStyle(
                             color:
-                                _start == 0
+                                _start == 0 && !isLoading
                                     ? colorScheme.primary
                                     : colorScheme.onSurface,
                             decoration:
-                                _start == 0 ? TextDecoration.underline : null,
+                                _start == 0 && !isLoading
+                                    ? TextDecoration.underline
+                                    : null,
                           ),
                         ),
                       ),
@@ -298,7 +375,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
               ),
               onPressed: isActive ? verifyOTP : null,
               child: Text(
-                'Verify',
+                S.of(context).verify,
                 style: overGreenBoldM(context).copyWith(
                   color: isActive ? colorScheme.onPrimary : colorScheme.primary,
                 ),

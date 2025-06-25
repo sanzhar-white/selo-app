@@ -21,10 +21,8 @@ class ThemeToggleButton extends ConsumerWidget {
       onTap: () => ref.read(themeProvider.notifier).toggleTheme(),
       child: Container(
         width: screenSize.width * 0.3,
-        height: screenSize.height * 0.07, // _headerHeightFactor
-        padding: EdgeInsets.symmetric(
-          horizontal: screenSize.width * 0.02, // _paddingFactor
-        ),
+        height: screenSize.height * 0.07,
+        padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.02),
         decoration: BoxDecoration(
           color: colorScheme.onSurface,
           borderRadius: radius,
@@ -50,8 +48,8 @@ class ThemeToggleButton extends ConsumerWidget {
             Expanded(
               child: Text(
                 theme.brightness == Brightness.light
-                    ? S.of(context)!.theme_light
-                    : S.of(context)!.theme_dark,
+                    ? S.of(context).theme_light
+                    : S.of(context).theme_dark,
                 overflow: TextOverflow.ellipsis,
                 style: contrastM(context),
                 textAlign: TextAlign.center,

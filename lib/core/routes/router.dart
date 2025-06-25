@@ -19,10 +19,8 @@ import 'package:selo/shared/models/user_model.dart';
 import 'package:selo/features/init/presentation/pages/init_page.dart';
 import 'package:selo/shared/models/advert_model.dart';
 
-// Ключ для root-навигации
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
-// Универсальный красивый fade+scale transition для всех страниц
 Widget defaultTransitionBuilder(
   BuildContext context,
   Animation<double> animation,
@@ -53,7 +51,6 @@ final router = GoRouter(
   debugLogDiagnostics: true,
   redirectLimit: 5,
   redirect: (context, state) {
-    // Handle Firebase Auth deep links
     if (state.uri.toString().contains('firebaseauth')) {
       return Routes.authenticationPage;
     }

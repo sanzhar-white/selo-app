@@ -29,7 +29,7 @@ class LanguageSwitchButton extends ConsumerWidget {
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: screenSize.width * 0.04),
         width: screenSize.width * 0.25,
-        height: screenSize.height * 0.07, // _headerHeightFactor
+        height: screenSize.height * 0.07,
         decoration: BoxDecoration(
           color: colorScheme.onSurface,
           borderRadius: radius,
@@ -45,7 +45,7 @@ class LanguageSwitchButton extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                S.of(context)!.language_display_code,
+                S.of(context).language_display_code,
                 style: contrastBoldM(context),
               ),
             ],

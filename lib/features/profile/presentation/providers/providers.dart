@@ -26,7 +26,6 @@ final cacheManagerProvider = Provider<CacheManager>((ref) => CacheManager());
 
 final selectedImageProvider = StateProvider<XFile?>((ref) => null);
 
-// Provider для ImagePicker, чтобы его можно было легко мокировать в тестах
 final imagePickerProvider = Provider((_) => ImagePicker());
 
 final editProfileNotifierProvider =

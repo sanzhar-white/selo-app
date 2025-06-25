@@ -99,14 +99,13 @@ class _FilterPageState extends ConsumerState<FilterPage> {
 
     await categoriesNotifier.loadCategories();
 
-    // Reset pagination and clear cache
     setState(() {
       _paginationModel = _paginationModel.copyWith(
         refresh: true,
         currentPage: 1,
       );
     });
-    await homeNotifier.clearFilteredCache(); // Clear cache before loading
+    await homeNotifier.clearFilteredCache();
 
     if (_isFilterEmpty(currentFilters)) {
       currentFilters = null;
@@ -216,7 +215,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
         SnackBar(
           content: Text(
             error.contains('failed-precondition') || error.contains('Failed')
-                ? S.of(context)!.error
+                ? S.of(context).error
                 : error,
 
             style: contrastBoldM(context),
@@ -241,8 +240,8 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     final categoriesList = categoriesAsync.value ?? [];
     final uiCategories =
         categoriesList.map((e) => getLocalizedCategory(e, context)).toList();
-    if (!uiCategories.contains(S.of(context)!.all_ads)) {
-      uiCategories.add(S.of(context)!.all_ads);
+    if (!uiCategories.contains(S.of(context).all_ads)) {
+      uiCategories.add(S.of(context).all_ads);
     }
 
     final adverts =
@@ -365,7 +364,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   vertical: screenSize.height * 0.02,
                 ),
                 child: Text(
-                  S.of(context)!.all_ads,
+                  S.of(context).all_ads,
                   style: contrastBoldL(context),
                 ),
               ),
@@ -399,7 +398,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                   child: Padding(
                     padding: EdgeInsets.all(screenSize.width * 0.04),
                     child: Text(
-                      S.of(context)!.no_ads_found,
+                      S.of(context).no_ads_found,
                       style: contrastBoldM(context),
                     ),
                   ),
@@ -447,7 +446,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     );
   }
 
-  // Метод для шиммера (перенесен из AdvertDetailCard)
   Widget _buildShimmerCard(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final radius = ResponsiveRadius.screenBased(context);
@@ -497,7 +495,6 @@ class _FilterPageState extends ConsumerState<FilterPage> {
   }
 }
 
-// 1. Новый виджет shimmer-карточки
 class ShimmerAdvertDetailCard extends StatelessWidget {
   const ShimmerAdvertDetailCard({super.key});
 
@@ -544,7 +541,6 @@ class ShimmerAdvertDetailCard extends StatelessWidget {
   }
 }
 
-// 2. Новый виджет для фильтр-чипов
 class FilterChipsBar extends StatelessWidget {
   final TextEditingController searchController;
   final SearchModel? currentFilters;
@@ -570,7 +566,7 @@ class FilterChipsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final S s = S.of(context)!;
+    final S s = S.of(context);
     List<Widget> chips = [];
     if (searchController.text.isNotEmpty) {
       chips.add(

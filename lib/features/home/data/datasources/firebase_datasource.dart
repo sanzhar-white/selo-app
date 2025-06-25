@@ -12,12 +12,10 @@ class FirebaseHomeScreenRemoteDataSource
   final FirebaseFirestore _firestore;
   final Talker _talker;
 
-  /// Для поддержки независимой пагинации по разным фильтрам
   final Map<String, DocumentSnapshot?> _lastDocuments = {};
 
   FirebaseHomeScreenRemoteDataSource(this._firestore, this._talker);
 
-  /// Генерирует уникальный ключ для фильтрации и пагинации
   String _filterKey({
     int? category,
     int? district,
@@ -43,7 +41,6 @@ class FirebaseHomeScreenRemoteDataSource
   }
 
   @override
-  /// Получает список баннеров
   Future<DataState<List<String>>> getBanners() async {
     _talker.info('🔄 Fetching banners');
     try {
@@ -63,7 +60,6 @@ class FirebaseHomeScreenRemoteDataSource
   }
 
   @override
-  /// Получает список объявлений с пагинацией
   Future<DataState<List<AdvertModel>>> getAllAdvertisements(
     PaginationModel paginationModel,
   ) async {
@@ -114,7 +110,6 @@ class FirebaseHomeScreenRemoteDataSource
   }
 
   @override
-  /// Получает отфильтрованные объявления с пагинацией
   Future<DataState<List<AdvertModel>>> getFilteredAdvertisements(
     SearchModel? searchModel,
     PaginationModel paginationModel,
@@ -230,7 +225,6 @@ class FirebaseHomeScreenRemoteDataSource
   }
 
   @override
-  /// Инкрементирует просмотры объявления
   Future<DataState<void>> viewAdvert(String advertUid) async {
     _talker.info('🔄 Incrementing view count for advert: $advertUid');
     try {
@@ -246,7 +240,6 @@ class FirebaseHomeScreenRemoteDataSource
     }
   }
 
-  /// Парсит документы Firestore в AdvertModel, логирует ошибки парсинга
   List<AdvertModel> _parseDocuments(List<QueryDocumentSnapshot> docs) {
     final events = <AdvertModel>[];
     final errors = <String>[];
@@ -273,7 +266,6 @@ class FirebaseHomeScreenRemoteDataSource
     return events;
   }
 
-  /// Применяет фильтры к Firestore-запросу
   Query _applyFilters(
     Query query, {
     int? category,
@@ -305,7 +297,6 @@ class FirebaseHomeScreenRemoteDataSource
     return query;
   }
 
-  /// Применяет сортировку к Firestore-запросу
   Query _applySort(Query query, int sortBy) {
     switch (sortBy) {
       case 0: // По умолчанию (новые)

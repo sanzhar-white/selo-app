@@ -14,7 +14,6 @@ import 'package:selo/shared/widgets/popup_window.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:selo/core/constants/images.dart';
 
-// Константы для размеров и отступов
 const _headerHeightFactor = 0.07;
 const _profileSectionHeightFactor = 0.35;
 const _avatarRadius = 60.0;
@@ -34,7 +33,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Загружаем данные пользователя при входе на страницу
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = ref.read(userNotifierProvider).user;
       if (user != null && user.uid.isNotEmpty) {
@@ -43,7 +41,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     });
   }
 
-  // Проверка, является ли пользователь анонимным
   bool _isAnonymous(UserState userState) {
     return userState.user?.uid == null ||
         userState.user?.uid == '' ||
@@ -51,7 +48,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         userState.user?.phoneNumber == '';
   }
 
-  // Обработчик нажатия на "Мои объявления" или "Редактировать профиль"
   void _navigateIfAuthenticated(
     BuildContext context,
     String route,
@@ -59,8 +55,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   ) {
     if (_isAnonymous(userState)) {
       PopupWindow(
-        message: S.of(context)!.edit_anonymous_window,
-        buttonText: S.of(context)!.login,
+        message: S.of(context).edit_anonymous_window,
+        buttonText: S.of(context).login,
         onButtonPressed: () {
           ref.read(userNotifierProvider.notifier).logOut();
           context.push(Routes.authenticationPage);
@@ -85,10 +81,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            title: Text(
-              S.of(context)!.profile_title,
-              style: contrastL(context),
-            ),
+            title: Text(S.of(context).profile_title, style: contrastL(context)),
             centerTitle: false,
             expandedHeight: screenSize.height * _headerHeightFactor,
             actions: [
@@ -123,8 +116,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       Expanded(
                         child: Text(
                           theme.brightness == Brightness.light
-                              ? S.of(context)!.theme_light
-                              : S.of(context)!.theme_dark,
+                              ? S.of(context).theme_light
+                              : S.of(context).theme_dark,
                           overflow: TextOverflow.ellipsis,
                           style: contrastM(context),
                           textAlign: TextAlign.center,
@@ -164,7 +157,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          S.of(context)!.language_display_code,
+                          S.of(context).language_display_code,
                           style: contrastBoldM(context),
                         ),
                       ],
@@ -184,7 +177,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ? const CircularProgressIndicator()
                         : userState.user == null
                         ? Text(
-                          S.of(context)!.my_ads_empty,
+                          S.of(context).my_ads_empty,
                           style: contrastL(context),
                         )
                         : Column(
@@ -202,7 +195,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 Text(
                                   userState.user!.name.isNotEmpty
                                       ? userState.user!.name
-                                      : S.of(context)!.anonymous_user,
+                                      : S.of(context).anonymous_user,
                                   style: contrastL(context),
                                 ),
                                 if (userState.user!.lastName.isNotEmpty) ...[
@@ -218,7 +211,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             Text(
                               userState.user!.phoneNumber.isNotEmpty
                                   ? userState.user!.phoneNumber
-                                  : S.of(context)!.no_phone_number,
+                                  : S.of(context).no_phone_number,
                               style: contrastM(context),
                             ),
                             SizedBox(height: screenSize.height * 0.01),
@@ -230,7 +223,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     userState,
                                   ),
                               child: Text(
-                                S.of(context)!.edit_profile,
+                                S.of(context).edit_profile,
                                 style: contrastBoldM(context),
                               ),
                             ),
@@ -251,7 +244,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                   child: ProfileButton(
                     icon: Images.myAdvertSvg,
-                    label: S.of(context)!.my_ads,
+                    label: S.of(context).my_ads,
                     screenSize: screenSize,
                     colorScheme: colorScheme,
                   ),
@@ -265,7 +258,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                   child: ProfileButton(
                     icon: Images.publicSvg,
-                    label: S.of(context)!.terms_and_conditions,
+                    label: S.of(context).terms_and_conditions,
                     screenSize: screenSize,
                     colorScheme: colorScheme,
                   ),
@@ -281,7 +274,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            S.of(context)!.logged_out,
+                            S.of(context).logged_out,
                             style: contrastBoldM(context),
                           ),
                         ),
@@ -290,7 +283,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   },
                   child: ProfileButton(
                     icon: Images.leaveSvg,
-                    label: S.of(context)!.logout,
+                    label: S.of(context).logout,
                     screenSize: screenSize,
                     colorScheme: colorScheme,
                   ),
@@ -304,7 +297,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 }
 
-// Виджет для кнопок профиля
 class ProfileButton extends StatelessWidget {
   final String icon;
   final String label;
@@ -348,7 +340,6 @@ class ProfileButton extends StatelessWidget {
   }
 }
 
-// Виджет для аватара (перенесён из EditProfilePage)
 class ProfileAvatar extends StatelessWidget {
   final String? imageUrl;
   final double radius;

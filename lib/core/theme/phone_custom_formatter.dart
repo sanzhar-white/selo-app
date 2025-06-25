@@ -18,7 +18,6 @@ class PhoneNumberFormatter extends TextInputFormatter {
       );
     }
 
-    // Формат: +7 (XXX) XXX XXXX
     buffer.write('+7');
 
     if (digitsOnly.length >= 1) {

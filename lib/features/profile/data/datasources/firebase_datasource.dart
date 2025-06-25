@@ -112,7 +112,6 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
       _talker.debug('Deleted old image: $oldImageUrl');
     } catch (e, stack) {
       _talker.error('Failed to delete old image', e, stack);
-      // Продолжаем выполнение
     }
   }
 

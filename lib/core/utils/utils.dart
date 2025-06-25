@@ -5,7 +5,7 @@ import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/core/constants/conditions.dart';
 
 String getLocalizedCategory(AdCategory category, BuildContext context) {
-  final s = S.of(context)!;
+  final s = S.of(context);
   if (s.language_code == 'en') {
     return category.nameEn;
   } else if (s.language_code == 'ru') {
@@ -43,7 +43,7 @@ String getDistrictName(int id, int regionID) {
 }
 
 String getConditionName(int id, BuildContext context) {
-  final s = S.of(context)!;
+  final s = S.of(context);
   if (s.language_code == 'en') {
     return conditions.firstWhere((element) => element.id == id).nameEn;
   } else if (s.language_code == 'ru') {
@@ -59,7 +59,6 @@ String formatPhoneNumber(String input) {
 
   if (digits.isEmpty) return '';
 
-  // Ensure the number starts with '7' and prepend '+7' if not, and limit to 11 digits
   String cleanedDigits = digits;
   if (cleanedDigits.startsWith('8')) {
     cleanedDigits = '7' + cleanedDigits.substring(1);
@@ -67,12 +66,10 @@ String formatPhoneNumber(String input) {
     cleanedDigits = '7' + cleanedDigits;
   }
 
-  // Limit to a maximum of 11 digits (including the initial 7)
   if (cleanedDigits.length > 11) {
     cleanedDigits = cleanedDigits.substring(0, 11);
   }
 
-  // Remove the initial '7' for formatting purposes
   final effectiveDigits =
       cleanedDigits.length > 1 ? cleanedDigits.substring(1) : '';
   final buffer = StringBuffer('+7');

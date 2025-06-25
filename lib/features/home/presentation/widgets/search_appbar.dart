@@ -93,7 +93,7 @@ class _SearchAppBarWidgetState extends State<SearchAppBarWidget> {
                               controller: widget.searchQuery,
                               theme: theme,
                               style: greenM(context),
-                              hintText: S.of(context)!.search_hint,
+                              hintText: S.of(context).search_hint,
                               border: false,
                               onSubmitted: (value) {
                                 if (value.isNotEmpty) {

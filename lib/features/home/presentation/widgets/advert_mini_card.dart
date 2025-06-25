@@ -8,7 +8,7 @@ import 'package:selo/core/constants/routes.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/utils/utils.dart';
-import 'package:selo/features/add/presentation/providers/categories_provider.dart';
+import 'package:selo/features/add/presentation/providers/index.dart';
 import 'package:selo/core/models/category.dart';
 import 'package:selo/shared/widgets/shimmer_effect.dart';
 import 'package:selo/shared/models/advert_model.dart';
@@ -89,7 +89,6 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
         .read(favouriteStatusProvider)
         .contains(widget.advert.uid);
 
-    // Optimistic update
     ref
         .read(favouriteStatusProvider.notifier)
         .toggleFavourite(widget.advert.uid);
@@ -100,7 +99,6 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
         advertUid: widget.advert.uid,
       );
     } catch (e) {
-      // Revert on error
       ref
           .read(favouriteStatusProvider.notifier)
           .toggleFavourite(widget.advert.uid);
@@ -234,7 +232,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           borderRadius: ResponsiveRadius.screenBased(context),
                         ),
                         child: Text(
-                          S.of(context)!.label_new_advert,
+                          S.of(context).label_new_advert,
                           style: overGreenBoldM(context),
                         ),
                       ),
@@ -324,7 +322,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                             widget.advert.price != 0) ...[
                           if (widget.advert.maxPrice != null) ...[
                             Text(
-                              '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
+                              '${S.of(context).to} ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
                             ),
                           ] else ...[
@@ -335,7 +333,7 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           ],
                         ] else ...[
                           Text(
-                            S.of(context)!.negotiable,
+                            S.of(context).negotiable,
                             style: contrastBoldM(context),
                           ),
                         ],
@@ -463,7 +461,7 @@ class CallButton extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              S.of(context)!.call,
+              S.of(context).call,
               style: overGreenBoldM(context),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

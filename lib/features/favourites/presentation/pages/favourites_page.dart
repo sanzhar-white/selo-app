@@ -50,7 +50,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
       return Scaffold(
         body: Center(
           child: Text(
-            S.of(context)!.favourites_anonymous_window,
+            S.of(context).favourites_anonymous_window,
             style: contrastM(context),
           ),
         ),
@@ -62,7 +62,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
         slivers: [
           SliverAppBar(
             title: Text(
-              S.of(context)!.favourites_title,
+              S.of(context).favourites_title,
               style: contrastBoldL(context),
             ),
             iconTheme: IconThemeData(color: colorScheme.inversePrimary),
@@ -110,7 +110,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
                     ElevatedButton(
                       onPressed: _loadFavourites,
                       child: Text(
-                        S.of(context)!.retry,
+                        S.of(context).retry,
                         style: contrastM(context),
                       ),
                     ),
@@ -123,7 +123,7 @@ class _FavouritesPageState extends ConsumerState<FavouritesPage> {
             SliverFillRemaining(
               child: Center(
                 child: Text(
-                  S.of(context)!.favourites_empty,
+                  S.of(context).favourites_empty,
                   style: contrastM(context),
                 ),
               ),

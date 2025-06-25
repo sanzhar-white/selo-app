@@ -1,5 +1,3 @@
-// lib/features/add/presentation/pages/choose_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,12 +5,12 @@ import 'package:selo/core/constants/routes.dart';
 import 'package:selo/core/utils/utils.dart';
 import 'package:selo/core/theme/text_styles.dart';
 import 'package:selo/core/theme/responsive_radius.dart';
-import 'package:selo/features/add/presentation/providers/categories_provider.dart';
-import 'package:selo/core/models/category.dart';
+import 'package:selo/features/add/presentation/providers/index.dart';
 import 'package:selo/generated/l10n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:selo/shared/widgets/popup_window.dart';
 import 'package:selo/features/authentication/presentation/provider/index.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ChoosePage extends ConsumerStatefulWidget {
   const ChoosePage({super.key});
@@ -25,7 +23,6 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
   @override
   void initState() {
     super.initState();
-    // Загружаем категории при инициализации
     Future.microtask(() {
       ref.read(categoriesNotifierProvider.notifier).loadCategories();
     });
@@ -69,12 +66,12 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        S.of(context)!.add_appbar_title,
+                        S.of(context).add_appbar_title,
                         style: contrastL(context),
                       ),
                       SizedBox(height: screenSize.height * 0.001),
                       Text(
-                        S.of(context)!.add_appbar_pick_category,
+                        S.of(context).add_appbar_pick_category,
                         style: contrastM(context),
                       ),
                     ],
@@ -130,10 +127,61 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                           children: [
                             Row(
                               children: [
-                                Icon(
-                                  Icons.category_outlined,
-                                  color: colorScheme.inversePrimary,
-                                ),
+                                if (category.imageUrl != null &&
+                                    category.imageUrl != '') ...[
+                                  Center(
+                                    child: CachedNetworkImage(
+                                      imageUrl: category.imageUrl,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.fill,
+                                      placeholder:
+                                          (context, url) => Container(
+                                            width: 60,
+                                            height: 60,
+                                            color: colorScheme.onSurface
+                                                .withOpacity(0.1),
+                                            child: const Center(
+                                              child: CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Colors.grey),
+                                              ),
+                                            ),
+                                          ),
+                                      errorWidget:
+                                          (context, url, error) => ClipOval(
+                                            child: Container(
+                                              width: 60,
+                                              height: 60,
+                                              color: colorScheme.inversePrimary,
+                                              child: const Icon(
+                                                Icons.image_not_supported,
+                                                size: 30,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                      fadeInDuration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      fadeOutDuration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      memCacheWidth: 90,
+                                      memCacheHeight: 90,
+                                    ),
+                                  ),
+                                ] else ...[
+                                  Center(
+                                    child: Icon(
+                                      Icons.category_outlined,
+                                      color: colorScheme.inversePrimary,
+                                      size: 40,
+                                    ),
+                                  ),
+                                ],
                                 SizedBox(width: screenSize.width * 0.03),
                                 Text(
                                   getLocalizedCategory(category, context),
@@ -149,29 +197,6 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                           ],
                         ),
                       ),
-
-                      // child: Card(
-                      //   color:
-                      //       selectedCategories.contains(category)
-                      //           ? colorScheme.primary
-                      //           : colorScheme.surface,
-                      //   elevation: 10,
-                      //   shadowColor: colorScheme.primary,
-                      //   shape: RoundedRectangleBorder(
-                      //     borderRadius: radius,
-                      //   ),
-                      //   child: Center(
-                      //     child: Text(
-                      //       getLocalizedCategory(category, context),
-                      //       style: greenM(context).copyWith(
-                      //         color:
-                      //             selectedCategories.contains(category)
-                      //                 ? colorScheme.onPrimary
-                      //                 : null,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                     );
                   }, childCount: categories.length),
                 ),
@@ -183,9 +208,12 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SelectableText('Ошибка: $error', style: greenM(context)),
                   SelectableText(
-                    'Местоположение: ${stack}',
+                    '${S.of(context).error}: $error',
+                    style: greenM(context),
+                  ),
+                  SelectableText(
+                    '${S.of(context).location}: ${stack}',
                     style: greenM(context),
                   ),
                   ElevatedButton(
@@ -194,7 +222,7 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                           .read(categoriesNotifierProvider.notifier)
                           .refreshCategories();
                     },
-                    child: const Text('Повторить'),
+                    child: Text(S.of(context).retry),
                   ),
                 ],
               ),
