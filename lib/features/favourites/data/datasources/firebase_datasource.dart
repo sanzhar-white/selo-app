@@ -9,7 +9,6 @@ import 'favourites_interface.dart';
 import 'dart:io';
 
 class FirebaseDatasource implements FavouritesInterface {
-
   FirebaseDatasource(this._firestore, this._talker);
   final FirebaseFirestore _firestore;
   final Talker _talker;

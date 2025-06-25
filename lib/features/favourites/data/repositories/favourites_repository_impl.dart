@@ -6,7 +6,6 @@ import '../../domain/repositories/favourites_repository.dart';
 
 class FavouritesRepositoryImpl extends FavouritesRepository
     implements FavouritesInterface {
-
   FavouritesRepositoryImpl(this._favouritesInteface);
   final FavouritesInterface _favouritesInteface;
 

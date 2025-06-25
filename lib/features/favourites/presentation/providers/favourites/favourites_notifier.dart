@@ -9,7 +9,6 @@ import '../providers.dart';
 import 'favourites_state.dart';
 
 class FavouritesNotifier extends StateNotifier<FavouritesState> {
-
   FavouritesNotifier(this.ref) : super(const FavouritesState());
   final Ref ref;
   final Talker talker = di<Talker>();

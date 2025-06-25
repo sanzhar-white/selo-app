@@ -5,7 +5,6 @@ import 'package:selo/shared/models/advert_model.dart';
 
 class GetMyAdvertsUseCase
     extends UseCase<DataState<List<AdvertModel>>, String> {
-
   GetMyAdvertsUseCase(this._profileRepository);
   final ProfileRepository _profileRepository;
 

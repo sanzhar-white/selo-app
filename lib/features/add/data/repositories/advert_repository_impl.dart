@@ -4,7 +4,6 @@ import 'package:selo/shared/models/advert_model.dart';
 import '../../domain/repositories/advert_repository.dart';
 
 class AdvertRepositoryImpl extends AdvertRepository implements AdvertInteface {
-
   AdvertRepositoryImpl(this._advertInteface);
   final AdvertInteface _advertInteface;
 

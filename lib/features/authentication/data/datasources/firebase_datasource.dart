@@ -11,7 +11,6 @@ import '../../../../shared/models/local_user_model.dart';
 import 'user_interface.dart';
 
 class FirebaseDatasource implements UserInterface {
-
   FirebaseDatasource(this._firestore, this._auth, this._talker);
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;

@@ -5,7 +5,6 @@ import '../advert_provider.dart';
 import 'package:selo/core/resources/data_state.dart';
 
 class AdvertNotifier extends StateNotifier<AdvertState> {
-
   AdvertNotifier(this.ref) : super(const AdvertState());
   final Ref ref;
 

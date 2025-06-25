@@ -6,7 +6,6 @@ import 'package:selo/shared/models/advert_model.dart';
 
 class ProfileRepositoryImpl extends ProfileRepository
     implements ProfileInterface {
-
   ProfileRepositoryImpl(this._profileInteface);
   final ProfileInterface _profileInteface;
 

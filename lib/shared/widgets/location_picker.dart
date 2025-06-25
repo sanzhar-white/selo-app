@@ -6,9 +6,9 @@ import 'package:selo/shared/widgets/show_bottom_picker.dart';
 import 'package:selo/core/models/category.dart';
 
 class LocationPicker extends StatelessWidget {
-
   const LocationPicker({
-    required this.locations, super.key,
+    required this.locations,
+    super.key,
     this.region,
     this.district,
     this.onRegionChanged,
@@ -128,7 +128,9 @@ class LocationPicker extends StatelessWidget {
 
   Widget _buildLocationField(
     BuildContext context, {
-    required String hint, required VoidCallback onTap, String? title,
+    required String hint,
+    required VoidCallback onTap,
+    String? title,
     String? value,
     bool error = false,
     String? errorText,

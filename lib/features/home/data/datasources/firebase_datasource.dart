@@ -9,7 +9,6 @@ import 'package:talker_flutter/talker_flutter.dart';
 
 class FirebaseHomeScreenRemoteDataSource
     implements HomeScreenRemoteDataSourceInterface {
-
   FirebaseHomeScreenRemoteDataSource(this._firestore, this._talker);
   final FirebaseFirestore _firestore;
   final Talker _talker;

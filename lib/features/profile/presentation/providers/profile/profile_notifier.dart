@@ -11,7 +11,6 @@ import '../providers.dart';
 import 'profile_state.dart';
 
 class ProfileNotifier extends StateNotifier<ProfileState> {
-
   ProfileNotifier({
     required this.ref,
     required this.logger,
@@ -22,7 +21,8 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   final CacheManager cacheManager;
 
   Future<void> getMyAdverts({
-    required String uid, bool forceRefresh = false,
+    required String uid,
+    bool forceRefresh = false,
   }) async {
     if (!forceRefresh && !cacheManager.shouldRefresh()) return;
     await _executeUseCase(

@@ -1,7 +1,6 @@
 import 'package:selo/shared/models/advert_model.dart';
 
 class FavouritesState {
-
   const FavouritesState({
     this.favouritesModel,
     this.isLoading = false,

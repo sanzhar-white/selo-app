@@ -4,7 +4,6 @@ import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_interface.dart';
 
 class UserRepositoryImpl extends UserRepository implements UserInterface {
-
   UserRepositoryImpl(this._userInteface);
   final UserInterface _userInteface;
 

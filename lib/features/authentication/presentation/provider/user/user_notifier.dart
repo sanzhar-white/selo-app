@@ -9,7 +9,6 @@ import '../providers.dart';
 import 'user_state.dart';
 
 class UserNotifier extends StateNotifier<UserState> {
-
   UserNotifier(this.ref) : super(const UserState()) {
     final localUser = LocalStorageService.getUser();
     if (localUser != null) {
@@ -98,9 +97,7 @@ class UserNotifier extends StateNotifier<UserState> {
         return true;
       }
 
-      final result = await ref
-          .read(anonymousLogInUseCaseProvider)
-          .call();
+      final result = await ref.read(anonymousLogInUseCaseProvider).call();
       if (result is DataSuccess && result.data is bool) {
         final newLocalUser = LocalStorageService.getUser();
         if (newLocalUser != null) {

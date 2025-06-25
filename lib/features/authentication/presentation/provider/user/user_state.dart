@@ -1,7 +1,6 @@
 import 'package:selo/shared/models/user_model.dart';
 
 class UserState {
-
   const UserState({this.user, this.isLoading = false, this.error});
   final UserModel? user;
   final bool isLoading;

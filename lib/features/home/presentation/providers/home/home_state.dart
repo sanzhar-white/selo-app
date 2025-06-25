@@ -2,7 +2,6 @@ import 'package:selo/features/home/data/models/home_model.dart';
 import 'package:selo/shared/models/advert_model.dart';
 
 class HomeState {
-
   const HomeState({
     this.banners,
     this.allAdvertisements = const [],

@@ -12,7 +12,6 @@ import 'dart:io';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
-
   FirebaseDatasource(this._firestore, this._storage, this._talker);
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;

@@ -149,10 +149,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
     SearchModel? filter,
     bool refresh,
   ) async {
-    final appliedFilter =
-        filter?.copyWith(
-              category: filter.category,
-            );
+    final appliedFilter = filter?.copyWith(
+      category: filter.category,
+    );
     if (refresh || appliedFilter != state.currentFilter) {
       await clearFilteredCache();
     }

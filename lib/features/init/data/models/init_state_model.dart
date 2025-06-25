@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:selo/shared/models/user_model.dart';
 
 class InitStateModel extends Equatable {
-
   const InitStateModel({
     this.isInitialized = false,
     this.isLoading = false,

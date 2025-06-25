@@ -10,7 +10,6 @@ class GetFilteredAdvertisementsUseCase
           DataState<List<AdvertModel>>,
           ({SearchModel? searchModel, PaginationModel paginationModel})
         > {
-
   GetFilteredAdvertisementsUseCase(this._homeRepository);
   final HomeRepository _homeRepository;
 
