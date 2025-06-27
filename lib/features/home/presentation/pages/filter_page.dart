@@ -629,14 +629,22 @@ class FilterChipsBar extends StatelessWidget {
                     ? null
                     : () {
                       // Удалить только этот catId из фильтра
-                      final newCats = List<int>.from(
-                        currentFilters!.categories!,
-                      );
-                      newCats.remove(catId);
-                      // Обновить фильтр и перерисовать
-                      (context as Element).markNeedsBuild();
-                      // Обычно обновление фильтра делается через callback в родителе,
-                      // но если нужно, можно пробросить отдельный onRemoveCategory(int id)
+                      final state =
+                          context.findAncestorStateOfType<_FilterPageState>();
+                      if (state != null) {
+                        state.setState(() {
+                          final newCats = List<int>.from(
+                            state.currentFilters?.categories ?? [],
+                          );
+                          newCats.remove(catId);
+                          state.currentFilters = state.currentFilters?.copyWith(
+                            categories: newCats.isEmpty ? null : newCats,
+                          );
+                          if (state._isFilterEmpty(state.currentFilters))
+                            state.currentFilters = null;
+                        });
+                        state._refreshContent();
+                      }
                     },
           ),
         );

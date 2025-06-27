@@ -113,11 +113,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "failed_to_log_in_anonymously": MessageLookupByLibrary.simpleMessage(
             "Failed to log in anonymously"),
         "favourites_anonymous_window": MessageLookupByLibrary.simpleMessage(
-            "Please sign in to view your favorite ads"),
+            "Please sign in to view your favourite ads"),
         "favourites_empty": MessageLookupByLibrary.simpleMessage(
-            "You have no favorite ads yet"),
+            "You have no favourite ads yet"),
         "favourites_title":
-            MessageLookupByLibrary.simpleMessage("Your favorite ads"),
+            MessageLookupByLibrary.simpleMessage("Your favourite ads"),
         "fill_all_fields": MessageLookupByLibrary.simpleMessage(
             "Please fill in all required fields"),
         "filter": MessageLookupByLibrary.simpleMessage("Filter"),
@@ -173,7 +173,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "name": MessageLookupByLibrary.simpleMessage("Name"),
         "name_hint": MessageLookupByLibrary.simpleMessage("Enter your name"),
         "nav_create": MessageLookupByLibrary.simpleMessage("Create"),
-        "nav_favourites": MessageLookupByLibrary.simpleMessage("Favorites"),
+        "nav_favourites": MessageLookupByLibrary.simpleMessage("Favourites"),
         "nav_home": MessageLookupByLibrary.simpleMessage("Home"),
         "nav_profile": MessageLookupByLibrary.simpleMessage("Profile"),
         "negotiable": MessageLookupByLibrary.simpleMessage("Negotiable"),

@@ -17,7 +17,7 @@
   "withoutregistor": "Continue without registration",
   "error_verification": "Error during verification",
   "nav_create": "Create",
-  "nav_favourites": "Favorites",
+  "nav_favourites": "Favourites",
   "nav_home": "Home",
   "nav_profile": "Profile",
 
@@ -121,9 +121,9 @@
   "profile_title": "Profile",
   "profile_update_error": "Failed to update profile",
 
-  "favourites_anonymous_window": "Please sign in to view your favorite ads",
-  "favourites_empty": "You have no favorite ads yet",
-  "favourites_title": "Your favorite ads",
+  "favourites_anonymous_window": "Please sign in to view your favourite ads",
+  "favourites_empty": "You have no favourite ads yet",
+  "favourites_title": "Your favourite ads",
   "my_ads": "My ads",
   "my_ads_empty": "You have no ads yet",
   "my_ads_title": "Your ads",

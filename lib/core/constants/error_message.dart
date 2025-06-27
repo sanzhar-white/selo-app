@@ -158,6 +158,6 @@ class ErrorMessages {
   static const String exceptionInLoginPhonePage = 'Exception in login';
   static const String signupFailedPhonePage = 'Signup failed';
   static const String exceptionInSignupPhonePage = 'Exception in signup';
-  static const String advertAlreadyInFavorites = 'Advert already in favourites';
-  static const String advertNotInFavorites = 'Advert not in favourites';
+  static const String advertAlreadyInFavourites = 'Advert already in favourites';
+  static const String advertNotInFavourites = 'Advert not in favourites';
 }

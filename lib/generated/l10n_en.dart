@@ -54,7 +54,7 @@ class SEn extends S {
   String get nav_create => 'Create';
 
   @override
-  String get nav_favourites => 'Favorites';
+  String get nav_favourites => 'Favourites';
 
   @override
   String get nav_home => 'Home';
@@ -343,13 +343,13 @@ class SEn extends S {
 
   @override
   String get favourites_anonymous_window =>
-      'Please sign in to view your favorite ads';
+      'Please sign in to view your favourite ads';
 
   @override
-  String get favourites_empty => 'You have no favorite ads yet';
+  String get favourites_empty => 'You have no favourite ads yet';
 
   @override
-  String get favourites_title => 'Your favorite ads';
+  String get favourites_title => 'Your favourite ads';
 
   @override
   String get my_ads => 'My ads';
