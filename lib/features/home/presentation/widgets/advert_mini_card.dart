@@ -17,6 +17,7 @@ import 'package:selo/features/authentication/presentation/provider/index.dart';
 import 'package:selo/generated/l10n.dart';
 import 'package:selo/features/home/presentation/providers/index.dart';
 import 'package:selo/shared/widgets/phone_show_bottom.dart';
+import 'package:intl/intl.dart';
 
 class AdvertMiniCard extends ConsumerStatefulWidget {
   const AdvertMiniCard({
@@ -322,12 +323,13 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           if (widget.advert.maxPrice != null &&
                               widget.advert.maxPrice != 0) ...[
                             Text(
-                              '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
+                              '${S.of(context)!.to} '
+                              '${formatPriceWithSpaces(widget.advert.maxPrice!)} ₸',
                               style: contrastBoldM(context),
                             ),
                           ] else ...[
                             Text(
-                              '${widget.advert.price} ₸',
+                              '${formatPriceWithSpaces(widget.advert.price)} ₸',
                               style: contrastBoldM(context),
                             ),
                           ],

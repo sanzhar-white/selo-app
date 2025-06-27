@@ -89,10 +89,27 @@ class CategoryCard extends ConsumerWidget {
             ),
             Align(
               alignment: Alignment.topLeft,
-              child: Text(
-                getLocalizedDisplayNameOfCategory(category, context),
-                style: contrastBoldM(context),
-                textAlign: TextAlign.left,
+              child: Stack(
+                children: [
+                  // Обводка
+                  Text(
+                    getLocalizedDisplayNameOfCategory(category, context),
+                    style: contrastBoldM(context).copyWith(
+                      foreground:
+                          Paint()
+                            ..style = PaintingStyle.stroke
+                            ..strokeWidth = 4
+                            ..color = colorScheme.onSurface, // Цвет обводки
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                  // Основной текст
+                  Text(
+                    getLocalizedDisplayNameOfCategory(category, context),
+                    style: contrastBoldM(context),
+                    textAlign: TextAlign.left,
+                  ),
+                ],
               ),
             ),
           ],

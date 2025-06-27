@@ -294,12 +294,12 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           if (widget.advert.maxPrice != null &&
                               widget.advert.maxPrice != 0)
                             Text(
-                              '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
+                              '${S.of(context)!.to} ${formatPriceWithSpaces(widget.advert.maxPrice!)} ₸',
                               style: contrastBoldM(context),
                             )
                           else
                             Text(
-                              '${widget.advert.price} ₸',
+                              '${formatPriceWithSpaces(widget.advert.price)} ₸',
                               style: contrastBoldM(context),
                             )
                         else

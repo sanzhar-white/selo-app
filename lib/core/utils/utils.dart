@@ -3,6 +3,7 @@ import 'package:selo/generated/l10n.dart';
 import 'package:selo/core/models/category.dart';
 import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/core/constants/conditions.dart';
+import 'package:intl/intl.dart';
 
 String getLocalizedDisplayNameOfCategory(
   AdCategory category,
@@ -175,4 +176,9 @@ String formatPhoneNumber(String input) {
   }
 
   return buffer.toString().trim();
+}
+
+String formatPriceWithSpaces(num price) {
+  final numberFormat = NumberFormat('#,##0', 'ru_RU');
+  return numberFormat.format(price);
 }

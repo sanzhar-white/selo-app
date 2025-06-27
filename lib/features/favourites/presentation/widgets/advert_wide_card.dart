@@ -316,7 +316,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                         ),
                       ] else ...[
                         Text(
-                          '${widget.advert.price} ₸',
+                          '${formatPriceWithSpaces(widget.advert.price)} ₸',
                           style: contrastBoldM(context),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,

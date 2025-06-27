@@ -530,7 +530,7 @@ class _PriceCard extends StatelessWidget {
           children: [
             Text(
               S.of(context)!.price,
-              style: greenBoldM(context).copyWith(fontSize: 18),
+              style: greenBoldL(context).copyWith(fontSize: 18),
               semanticsLabel: S.of(context)!.price,
             ),
             const SizedBox(height: 8),
@@ -548,7 +548,7 @@ class _PriceCard extends StatelessWidget {
                 )
               else
                 Text(
-                  '${advert.price.toString()} Т',
+                  '${formatPriceWithSpaces(advert.price)} Т',
                   style: contrastBoldM(context),
                 ),
 
@@ -591,7 +591,7 @@ class _PriceRange extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '${S.of(context)!.from}: ${minPrice.toStringAsFixed(0)} ₸\n${S.of(context)!.to}: ${maxPrice.toStringAsFixed(0)} ₸',
+      '${S.of(context)!.from}: ${formatPriceWithSpaces(minPrice)} ₸\n${S.of(context)!.to}: ${formatPriceWithSpaces(maxPrice)} ₸',
       style: contrastBoldM(context),
     );
   }
