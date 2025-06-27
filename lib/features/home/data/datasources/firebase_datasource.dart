@@ -16,7 +16,7 @@ class FirebaseHomeScreenRemoteDataSource
   final Map<String, DocumentSnapshot?> _lastDocuments = {};
 
   String _filterKey({
-    int? category,
+    List<int>? categories,
     int? district,
     int? region,
     int? priceFrom,
@@ -27,7 +27,7 @@ class FirebaseHomeScreenRemoteDataSource
     String? searchQuery,
   }) {
     return [
-      'cat:${category ?? ''}',
+      'cat:${categories?.join(',') ?? ''}',
       'dist:${district ?? ''}',
       'reg:${region ?? ''}',
       'pf:${priceFrom ?? ''}',
@@ -121,14 +121,14 @@ class FirebaseHomeScreenRemoteDataSource
     _talker.info(
       '🔄 Fetching filtered advertisements with params:\n'
       '🔍 Search: ${searchModel.searchQuery}\n'
-      '📑 Category: ${searchModel.category}\n'
+      '📑 Categories: ${searchModel.categories}\n'
       '📍 District: ${searchModel.district}\n'
       '🌍 Region: ${searchModel.region}\n'
       '💰 Price: ${searchModel.priceFrom} - ${searchModel.priceTo}\n'
       '📊 Sort: ${searchModel.sortBy}',
     );
     final filterKey = _filterKey(
-      category: searchModel.category,
+      categories: searchModel.categories,
       district: searchModel.district,
       region: searchModel.region,
       priceFrom: searchModel.priceFrom,
@@ -141,7 +141,7 @@ class FirebaseHomeScreenRemoteDataSource
 
     try {
       final searchQuery = searchModel.searchQuery;
-      final category = searchModel.category;
+      final categories = searchModel.categories;
       final district = searchModel.district;
       final region = searchModel.region;
       final priceFrom = searchModel.priceFrom;
@@ -159,7 +159,7 @@ class FirebaseHomeScreenRemoteDataSource
 
       advertsRef = _applyFilters(
         advertsRef,
-        category: category,
+        categories: categories,
         district: district,
         region: region,
         priceFrom: priceFrom,
@@ -267,15 +267,15 @@ class FirebaseHomeScreenRemoteDataSource
 
   Query _applyFilters(
     Query query, {
-    int? category,
+    List<int>? categories,
     int? district,
     int? region,
     int? priceFrom,
     int? priceTo,
   }) {
-    if (category != null && category >= -1) {
-      query = query.where('category', isEqualTo: category);
-      _talker.debug('📑 Applied filter by category: $category');
+    if (categories != null && categories.isNotEmpty) {
+      query = query.where('category', whereIn: categories);
+      _talker.debug('📑 Applied filter by categories: $categories');
     }
     if (district != null) {
       query = query.where('district', isEqualTo: district);

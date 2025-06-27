@@ -182,7 +182,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "nav_favourites": MessageLookupByLibrary.simpleMessage("Избранное"),
         "nav_home": MessageLookupByLibrary.simpleMessage("Главная"),
         "nav_profile": MessageLookupByLibrary.simpleMessage("Профиль"),
-        "negotiable": MessageLookupByLibrary.simpleMessage("Торг возможен"),
+        "negotiable": MessageLookupByLibrary.simpleMessage("Договорная"),
         "newest_first": MessageLookupByLibrary.simpleMessage("Сначала новые"),
         "no_ads_found":
             MessageLookupByLibrary.simpleMessage("Объявления не найдены"),

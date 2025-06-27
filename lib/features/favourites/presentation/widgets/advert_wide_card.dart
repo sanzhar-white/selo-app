@@ -120,15 +120,19 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
         .contains(widget.advert.uid);
 
     final category = categories.firstWhere(
-      (category) => category.id == widget.advert.category,
+      (category) => category.ids.contains(widget.advert.category),
       orElse:
           () => AdCategory(
-            id: widget.advert.category,
-            nameEn: 'Unknown',
-            nameKk: 'Белгісіз',
-            nameRu: 'Неизвестно',
-            imageUrl: '',
-            settings: const {},
+            displayName: const LocalizedText(
+              en: 'Unknown',
+              kk: 'Белгісіз',
+              ru: 'Неизвестно',
+            ),
+            ids: [widget.advert.category],
+            images: [''],
+            displayImage: '',
+            names: const [],
+            settings: const [],
           ),
     );
 
@@ -233,29 +237,6 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                           ),
                         ),
                       ),
-                    if (isNewAdvert(widget.advert.createdAt.toDate()))
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: radius.topLeft.x,
-                            vertical:
-                                ResponsiveRadius.screenBased(
-                                  context,
-                                ).topLeft.y *
-                                0.2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            borderRadius: radius,
-                          ),
-                          child: Text(
-                            S.of(context)!.label_new_advert,
-                            style: overGreenBoldM(context),
-                          ),
-                        ),
-                      ),
                     Align(
                       alignment: Alignment.topLeft,
                       child: GestureDetector(
@@ -310,66 +291,59 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                 padding: const EdgeInsets.only(left: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Flexible(
-                      child: Text(
-                        widget.advert.title,
-                        style: contrastBoldM(context),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                      ),
+                    Text(
+                      widget.advert.title,
+                      style: contrastBoldM(context),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                    Flexible(
-                      child: Text(
-                        '${getRegionName(widget.advert.region ?? 0)}\n${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
-                        style: grayM(context),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                      ),
+                    Text(
+                      '${getRegionName(widget.advert.region ?? 0)}\n${getDistrictName(widget.advert.district ?? 0, widget.advert.region ?? 0)}',
+                      style: grayM(context),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                     ),
                     if (widget.advert.price != 0) ...[
                       if (widget.advert.maxPrice != null &&
                           widget.advert.maxPrice != 0) ...[
-                        Flexible(
-                          child: Text(
-                            '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
-                            style: contrastBoldM(context),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ] else ...[
-                        Flexible(
-                          child: Text(
-                            '${widget.advert.price} ₸',
-                            style: contrastBoldM(context),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ],
-                    ] else ...[
-                      Flexible(
-                        child: Text(
-                          S.of(context)!.negotiable,
+                        Text(
+                          '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
                           style: contrastBoldM(context),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                      ),
-                    ],
-                    Flexible(
-                      child: Text(
-                        getLocalizedCategory(category, context),
-                        style: grayM(context),
+                      ] else ...[
+                        Text(
+                          '${widget.advert.price} ₸',
+                          style: contrastBoldM(context),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ] else ...[
+                      Text(
+                        S.of(context)!.negotiable,
+                        style: contrastBoldM(context),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
+                    ],
+                    Text(
+                      getLocalizedNameOfCategory(
+                        category,
+                        context,
+                        widget.advert.category,
+                      ),
+                      style: grayM(context),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                    const Spacer(),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        Flexible(
+                        Expanded(
                           flex: 3,
                           child: GestureDetector(
                             onTap: () {
@@ -442,7 +416,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                 const ShimmerEffect(width: 120, height: 14, borderRadius: 4),
                 const SizedBox(height: 8),
                 const ShimmerEffect(width: 80, height: 16, borderRadius: 4),
-                const Spacer(),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Flexible(

@@ -54,7 +54,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
         stack,
       );
       return null;
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorUploadingSingleImage, e, stack);
       return null;
     }
@@ -108,7 +108,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
 
       _talker.info('✅ Successfully uploaded ${imageUrls.length} images');
       return imageUrls;
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorInUploadImages, e, stack);
       rethrow;
     }
@@ -135,7 +135,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
               StackTrace.current,
             );
           }
-        } catch (e, stack) {
+        } on Exception catch (e, stack) {
           _talker.error(ErrorMessages.errorUploadingImages, e, stack);
           return DataFailed(
             Exception('${ErrorMessages.errorUploadingImages}: $e'),
@@ -155,7 +155,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
       await docRef.set(newAdvert.toMap());
       _talker.info('✅ Successfully created advert: ${docRef.id}');
       return DataSuccess(newAdvert);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorInCreateAd, e, stack);
       return DataFailed(Exception(e.toString()), stack);
     }
@@ -178,7 +178,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
           snapshot.docs.map((doc) {
             try {
               return AdCategory.fromMap(doc.data());
-            } catch (e, stack) {
+            } on Exception catch (e, stack) {
               _talker.error(
                 '${ErrorMessages.errorParsingCategory} ${doc.id}',
                 e,
@@ -190,7 +190,7 @@ class FirebaseDatasource implements AdvertInteface, CategoriesInteface {
 
       _talker.info('✅ Successfully fetched ${categories.length} categories');
       return DataSuccess(categories);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorInGetCategories, e, stack);
       return DataFailed(Exception(e.toString()), stack);
     }

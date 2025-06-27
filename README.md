@@ -82,6 +82,14 @@ Selo.kz leverages a modern, robust tech stack to deliver a high-performance, sca
 
 ---
 
+## 📸 Screenshots
+
+| Home Page | Favourites | Search | Profile | Advert Detail Page | Create Page |
+|-----------|------------|--------|---------|--------------------|-------------|
+| ![Home Page 1](assets/images/screenshots/home_page1.png) <br> ![Home Page 2](assets/images/screenshots/home_page2.png) | ![Favourites 1](assets/images/screenshots/favourites_page1.png) <br> ![Favourites 2](assets/images/screenshots/favourites_page1.png) | ![Search 1](assets/images/screenshots/filter_page1.png) <br> ![Search 2](assets/images/screenshots/filter_show1.png) | ![Profile 1](assets/images/screenshots/profile_page1.png) <br> ![Profile 2](assets/images/screenshots/profile_page2.png) | ![Advert Detail 1](assets/images/screenshots/advert_detail_page1.png) <br> ![Advert Detail 2](assets/images/screenshots/advert_detail_page3.png) | ![Create Page 1](assets/images/screenshots/create_page1.png) <br> ![Create Page 2](assets/images/screenshots/create_page5.png) |
+
+---
+
 ## 🚀 Getting Started
 
 Follow these steps to set up and run Selo.kz locally:
@@ -97,7 +105,7 @@ Follow these steps to set up and run Selo.kz locally:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/sanzhar-white/selo.git
+   git clone https://github.com/your-username/selo.git
    ```
 
 2. **Navigate to the project directory**:
@@ -107,7 +115,7 @@ Follow these steps to set up and run Selo.kz locally:
 
 3. **Set up environment variables**:
    - Create a `.env` file in the root directory.
-   - Add Firebase configuration (e.g., API keys, services).
+   - Add Firebase configuration (e.g., API keys, project ID).
    - Run the environment setup script and select `stage`:
      ```bash
      bash setenv.sh
@@ -142,8 +150,8 @@ Follow these steps to set up and run Selo.kz locally:
 For questions, feedback, or support:
 
 - **Email**: [selokz.app@gmail.com](mailto:selokz.app@gmail.com)
-- **GitHub Issues**: [Open an issue](https://github.com/sanzhar-white/selo/issues)
-- **Privacy Policy**: [View here](https://sites.google.com/view/privacypolicyselo/%d0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0)
+- **GitHub Issues**: [Open an issue](https://github.com/your-username/selo/issues)
+- **Privacy Policy**: [View here](https://sites.google.com/view/privacypolicyselo/%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0)
 - **Download Selo.kz**:
   - [Google Play Store](https://play.google.com/store/apps/details?id=com.selo.app)
   - [App Store](https://apps.apple.com/kz/app/selo-kz/id6747386777)

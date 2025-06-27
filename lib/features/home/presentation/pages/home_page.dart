@@ -37,16 +37,25 @@ class HomePageController extends ChangeNotifier {
 
   Future<void> initializeData() async {
     final homeNotifier = ref.read(homeNotifierProvider.notifier);
+    final categoriesState = ref.read(categoriesNotifierProvider);
+    final categoriesFuture =
+        (categoriesState.valueOrNull == null ||
+                categoriesState.valueOrNull!.isEmpty)
+            ? ref.read(categoriesNotifierProvider.notifier).loadCategories()
+            : Future.value();
     await Future.wait([
       homeNotifier.loadAllAdvertisements(
         page: paginationModel.currentPage,
         pageSize: paginationModel.pageSize,
       ),
       homeNotifier.loadBanners(),
-      ref.read(categoriesNotifierProvider.notifier).loadCategories(),
+      categoriesFuture,
     ]);
     final user = ref.read(userNotifierProvider).user;
-    if (user != null) {
+    final favouritesState = ref.read(favouritesNotifierProvider);
+    if (user != null &&
+        (favouritesState.favouritesModel == null ||
+            favouritesState.favouritesModel!.isEmpty)) {
       await ref
           .read(favouritesNotifierProvider.notifier)
           .getFavourites(UserUidModel(uid: user.uid));
@@ -60,6 +69,12 @@ class HomePageController extends ChangeNotifier {
     final homeNotifier = ref.read(homeNotifierProvider.notifier);
     paginationModel = paginationModel.copyWith(refresh: true, currentPage: 1);
     notifyListeners();
+    final categoriesState = ref.read(categoriesNotifierProvider);
+    final categoriesFuture =
+        (categoriesState.valueOrNull == null ||
+                categoriesState.valueOrNull!.isEmpty)
+            ? ref.read(categoriesNotifierProvider.notifier).loadCategories()
+            : Future.value();
     await Future.wait([
       homeNotifier.loadAllAdvertisements(
         refresh: true,
@@ -67,10 +82,13 @@ class HomePageController extends ChangeNotifier {
         pageSize: paginationModel.pageSize,
       ),
       homeNotifier.loadBanners(),
-      ref.read(categoriesNotifierProvider.notifier).loadCategories(),
+      categoriesFuture,
     ]);
     final user = ref.read(userNotifierProvider).user;
-    if (user != null) {
+    final favouritesState = ref.read(favouritesNotifierProvider);
+    if (user != null &&
+        (favouritesState.favouritesModel == null ||
+            favouritesState.favouritesModel!.isEmpty)) {
       await ref
           .read(favouritesNotifierProvider.notifier)
           .getFavourites(UserUidModel(uid: user.uid));
@@ -217,13 +235,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                     child: CategoryCard(
                       category:
                           categories.valueOrNull?[index] ??
-                          const AdCategory(
-                            id: 0,
-                            nameEn: '',
-                            nameRu: '',
-                            nameKk: '',
-                            imageUrl: '',
-                            settings: {},
+                          AdCategory(
+                            displayName: const LocalizedText(
+                              en: '',
+                              ru: '',
+                              kk: '',
+                            ),
+                            ids: [index],
+                            images: [''],
+                            displayImage: '',
+                            names: const [],
+                            settings: const [],
                           ),
                     ),
                   ),

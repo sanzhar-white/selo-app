@@ -8,7 +8,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:selo/core/constants/routes.dart';
 import 'package:selo/features/init/presentation/provider/init_provider.dart';
 import 'package:selo/generated/l10n.dart';
+import 'package:talker/talker.dart';
 import 'package:video_player/video_player.dart';
+
+import '../../../../core/di/di.dart';
 
 class InitPage extends ConsumerStatefulWidget {
   const InitPage({super.key});
@@ -24,17 +27,20 @@ class _InitPageState extends ConsumerState<InitPage> {
   bool _videoFinished = false;
   final double _videoSizeFactor = 0.5;
 
+  final Talker talker = di<Talker>();
+
   @override
   void initState() {
     super.initState();
     _initializeVideo();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(initStateProvider.notifier).initialize();
+    });
   }
 
   Future<void> _initializeVideo() async {
     try {
       await Future.delayed(const Duration(seconds: 1));
-
-      print('Starting video initialization...');
 
       final tempDir = await getTemporaryDirectory();
       final tempFile = File(path.join(tempDir.path, 'splash_video.mp4'));
@@ -42,16 +48,8 @@ class _InitPageState extends ConsumerState<InitPage> {
         tempFile.writeAsBytesSync(data.buffer.asUint8List());
       });
 
-      print('Video file created at: ${tempFile.path}');
-      print('File exists: ${tempFile.existsSync()}');
-      print('File size: ${tempFile.lengthSync()} bytes');
-
       _controller = VideoPlayerController.file(tempFile);
       await _controller.initialize();
-
-      print('Video initialized successfully');
-      print('Video duration: ${_controller.value.duration}');
-      print('Video size: ${_controller.value.size}');
 
       _controller.addListener(() {
         if (_controller.value.position >= _controller.value.duration) {
@@ -65,10 +63,8 @@ class _InitPageState extends ConsumerState<InitPage> {
       setState(() {
         _videoInitialized = true;
       });
-
-      print('Video started playing');
     } catch (e) {
-      print('Error initializing video: $e');
+      talker.error('Error initializing video: $e');
       setState(() {
         _videoError = true;
       });

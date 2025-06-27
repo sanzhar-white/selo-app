@@ -4,16 +4,96 @@ import 'package:selo/core/models/category.dart';
 import 'package:selo/core/constants/regions_districts.dart';
 import 'package:selo/core/constants/conditions.dart';
 
-String getLocalizedCategory(AdCategory category, BuildContext context) {
+String getLocalizedDisplayNameOfCategory(
+  AdCategory category,
+  BuildContext context,
+) {
   final s = S.of(context)!;
   if (s.language_code == 'en') {
-    return category.nameEn;
+    return category.displayName.en;
   } else if (s.language_code == 'ru') {
-    return category.nameRu;
+    return category.displayName.ru;
   } else if (s.language_code == 'kk') {
-    return category.nameKk;
+    return category.displayName.kk;
   }
   throw Exception("Didn't add the localisation correctly");
+}
+
+String getLocalizedNameOfCategory(
+  AdCategory category,
+  BuildContext context,
+  int? categoryId,
+) {
+  final s = S.of(context)!;
+
+  // Если передан конкретный categoryId, ищем соответствующее имя
+  if (categoryId != null) {
+    final categoryIndex = category.ids.indexOf(categoryId);
+    if (categoryIndex >= 0 && categoryIndex < category.names.length) {
+      final localizedName = category.names[categoryIndex];
+      if (s.language_code == 'en') {
+        return localizedName.en;
+      } else if (s.language_code == 'ru') {
+        return localizedName.ru;
+      } else if (s.language_code == 'kk') {
+        return localizedName.kk;
+      }
+    }
+  }
+
+  // Если categoryId не найден или не передан, возвращаем displayName
+  if (s.language_code == 'en') {
+    return category.displayName.en;
+  } else if (s.language_code == 'ru') {
+    return category.displayName.ru;
+  } else if (s.language_code == 'kk') {
+    return category.displayName.kk;
+  }
+
+  throw Exception("Didn't add the localisation correctly");
+}
+
+String getLocalizedNameOfCategoryByIndex(
+  AdCategory category,
+  BuildContext context,
+  int index,
+) {
+  final s = S.of(context)!;
+
+  if (index >= 0 && index < category.names.length) {
+    final localizedName = category.names[index];
+    if (s.language_code == 'en') {
+      return localizedName.en;
+    } else if (s.language_code == 'ru') {
+      return localizedName.ru;
+    } else if (s.language_code == 'kk') {
+      return localizedName.kk;
+    }
+  }
+
+  // Fallback к displayName если индекс невалидный
+  if (s.language_code == 'en') {
+    return category.displayName.en;
+  } else if (s.language_code == 'ru') {
+    return category.displayName.ru;
+  } else if (s.language_code == 'kk') {
+    return category.displayName.kk;
+  }
+
+  throw Exception("Didn't add the localisation correctly");
+}
+
+String getLocalizedNameForCategoryId(
+  AdCategory category,
+  BuildContext context,
+  int categoryId,
+) {
+  final categoryIndex = category.ids.indexOf(categoryId);
+  if (categoryIndex >= 0) {
+    return getLocalizedNameOfCategoryByIndex(category, context, categoryIndex);
+  }
+  // Fallback к displayName если categoryId не найден
+  return getLocalizedDisplayNameOfCategory(category, context);
 }
 
 int getRegionID(String name) {
@@ -45,11 +125,11 @@ String getDistrictName(int id, int regionID) {
 String getConditionName(int id, BuildContext context) {
   final s = S.of(context)!;
   if (s.language_code == 'en') {
-    return conditions.firstWhere((element) => element.id == id).nameEn;
+    return conditions.firstWhere((element) => element.id == id).names.en;
   } else if (s.language_code == 'ru') {
-    return conditions.firstWhere((element) => element.id == id).nameRu;
+    return conditions.firstWhere((element) => element.id == id).names.ru;
   } else if (s.language_code == 'kk') {
-    return conditions.firstWhere((element) => element.id == id).nameKk;
+    return conditions.firstWhere((element) => element.id == id).names.kk;
   }
   throw Exception("Didn't add the localisation correctly");
 }

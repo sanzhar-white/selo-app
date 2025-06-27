@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class SearchModel extends Equatable {
   final String? searchQuery;
-  final int? category;
+  final List<int>? categories;
   final int? district;
   final int? region;
   final int? priceFrom;
@@ -14,7 +14,7 @@ class SearchModel extends Equatable {
 
   const SearchModel({
     this.searchQuery,
-    this.category,
+    this.categories,
     this.district,
     this.region,
     this.priceFrom,
@@ -22,9 +22,20 @@ class SearchModel extends Equatable {
     this.sortBy,
   });
 
+  // Конструктор для обратной совместимости с одной категорией
+  SearchModel.singleCategory({
+    this.searchQuery,
+    int? category, // Для обратной совместимости
+    this.district,
+    this.region,
+    this.priceFrom,
+    this.priceTo,
+    this.sortBy,
+  }) : categories = category != null ? [category] : null;
+
   SearchModel copyWith({
     Object? searchQuery = const _Unset(),
-    Object? category = const _Unset(),
+    Object? categories = const _Unset(),
     Object? district = const _Unset(),
     Object? region = const _Unset(),
     Object? priceFrom = const _Unset(),
@@ -34,7 +45,8 @@ class SearchModel extends Equatable {
     return SearchModel(
       searchQuery:
           searchQuery is _Unset ? this.searchQuery : searchQuery as String?,
-      category: category is _Unset ? this.category : category as int?,
+      categories:
+          categories is _Unset ? this.categories : categories as List<int>?,
       district: district is _Unset ? this.district : district as int?,
       region: region is _Unset ? this.region : region as int?,
       priceFrom: priceFrom is _Unset ? this.priceFrom : priceFrom as int?,
@@ -46,7 +58,7 @@ class SearchModel extends Equatable {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'searchQuery': searchQuery,
-      'category': category,
+      'categories': categories,
       'district': district,
       'region': region,
       'priceFrom': priceFrom,
@@ -59,7 +71,10 @@ class SearchModel extends Equatable {
     return SearchModel(
       searchQuery:
           map['searchQuery'] != null ? map['searchQuery'] as String : null,
-      category: map['category'] != null ? map['category'] as int : null,
+      categories:
+          map['categories'] != null
+              ? List<int>.from(map['categories'] as List)
+              : null,
       district: map['district'] != null ? map['district'] as int : null,
       region: map['region'] != null ? map['region'] as int : null,
       priceFrom: map['priceFrom'] != null ? map['priceFrom'] as int : null,
@@ -75,13 +90,13 @@ class SearchModel extends Equatable {
 
   @override
   String toString() {
-    return 'SearchModel(searchQuery: $searchQuery, category: $category, district: $district, region: $region, priceFrom: $priceFrom, priceTo: $priceTo, sortBy: $sortBy)';
+    return 'SearchModel(searchQuery: $searchQuery, categories: $categories, district: $district, region: $region, priceFrom: $priceFrom, priceTo: $priceTo, sortBy: $sortBy)';
   }
 
   @override
   List<Object?> get props => [
     searchQuery,
-    category,
+    categories,
     district,
     region,
     priceFrom,

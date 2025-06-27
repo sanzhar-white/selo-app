@@ -44,19 +44,22 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   String _uid = '';
   bool _isTradeable = false;
 
+  // Локальная переменная для текущей выбранной категории
+  late AdCategoryItemSettings _advertCategory;
+  late int _selectedCategoryId;
+  late int _selectedCategoryIndex;
+
   Map<String, bool> _validationState = {};
   bool _showValidation = false;
 
   final TextEditingController titleController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController(
-    text: '+77010122670',
-  );
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController maxPriceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController maxQuantityController = TextEditingController();
-  late final Map<String, TextEditingController> settingsControllers;
+  Map<String, TextEditingController> settingsControllers = {};
 
   final ImagePicker _picker = ImagePicker();
   final List<XFile?> _images = [];
@@ -67,14 +70,68 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
   void initState() {
     super.initState();
     _uid = ref.read(userNotifierProvider).user?.uid ?? '';
-    settingsControllers = {};
-    for (final key in widget.category.settings.keys) {
-      if (widget.category.settings[key] == true) {
-        settingsControllers[key] = TextEditingController();
-      }
+    final userPhone = ref.read(userNotifierProvider).user?.phoneNumber;
+    if (userPhone != null && userPhone.isNotEmpty) {
+      phoneController.text = userPhone;
     }
+
+    // Инициализация категории
+    _initializeCategory();
+
+    // Инициализация контроллеров
+    _initializeSettingsControllers();
     _validationState = {};
-    _talker.info('🔍 Category settings: ${widget.category.settings}');
+    _talker.info('🔍 Category settings: $_advertCategory');
+  }
+
+  void _initializeCategory() {
+    if (widget.category.ids.length == 1) {
+      // Если только одна категория, автоматически выбираем её
+      _selectedCategoryIndex = 0;
+      _selectedCategoryId = widget.category.ids[0];
+      _advertCategory = widget.category.settings[0];
+    } else {
+      // Если несколько категорий, выбираем первую по умолчанию
+      _selectedCategoryIndex = 0;
+      _selectedCategoryId = widget.category.ids[0];
+      _advertCategory = widget.category.settings[0];
+    }
+  }
+
+  void _initializeSettingsControllers() {
+    // Очищаем существующие контроллеры
+    settingsControllers.forEach((_, controller) => controller.dispose());
+    settingsControllers.clear();
+
+    if (_advertCategory.contactPerson) {
+      settingsControllers['contactPerson'] = TextEditingController();
+    }
+    if (_advertCategory.companyName) {
+      settingsControllers['companyName'] = TextEditingController();
+    }
+  }
+
+  void _onCategoryChanged(int index) {
+    setState(() {
+      _selectedCategoryIndex = index;
+      _selectedCategoryId = widget.category.ids[index];
+      _advertCategory = widget.category.settings[index];
+
+      // Переинициализируем контроллеры для новой категории
+      _initializeSettingsControllers();
+    });
+  }
+
+  String _getLocalizedName(LocalizedText localizedText) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (locale) {
+      case 'kk':
+        return localizedText.kk;
+      case 'ru':
+        return localizedText.ru;
+      default:
+        return localizedText.en;
+    }
   }
 
   @override
@@ -101,7 +158,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     final newValidationState = <String, bool>{};
     _showValidation = true;
 
-    _talker.info('🔧 Validating fields for category: ${widget.category.id}');
+    _talker.info('🔧 Validating fields for category: $_selectedCategoryId');
     _talker.debug(
       'Current field values: title=${titleController.text}, region=$_region, district=$_district, description=${descriptionController.text}, phone=${phoneController.text}',
     );
@@ -116,7 +173,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
     _talker.debug('🔍 Validating price fields');
     if (_isPriceFixed) {
       newValidationState['price'] = priceController.text.trim().isNotEmpty;
-      if (widget.category.settings['maxPrice'] == true) {
+      if (_advertCategory.maxPrice) {
         newValidationState['maxPrice'] =
             maxPriceController.text.trim().isNotEmpty;
       } else {
@@ -127,12 +184,12 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       newValidationState['maxPrice'] = true;
     }
 
-    if (widget.category.settings['quantity'] == true) {
+    if (_advertCategory.quantity) {
       _talker.debug('🔍 Validating quantity fields');
       if (_isQuantityFixed) {
         newValidationState['quantity'] =
             quantityController.text.trim().isNotEmpty;
-        if (widget.category.settings['maxQuantity'] == true) {
+        if (_advertCategory.maxQuantity) {
           newValidationState['maxQuantity'] =
               maxQuantityController.text.trim().isNotEmpty;
         } else {
@@ -148,15 +205,15 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       newValidationState['maxQuantity'] = true;
     }
 
-    if (widget.category.settings['companyName'] == true) {
-      newValidationState['companyName'] =
-          settingsControllers['companyName']?.text.trim().isNotEmpty ?? false;
-    }
-    if (widget.category.settings['contactPerson'] == true) {
+    if (settingsControllers.containsKey('contactPerson')) {
       newValidationState['contactPerson'] =
           settingsControllers['contactPerson']?.text.trim().isNotEmpty ?? false;
     }
-    if (widget.category.settings['year'] == true) {
+    if (settingsControllers.containsKey('companyName')) {
+      newValidationState['companyName'] =
+          settingsControllers['companyName']?.text.trim().isNotEmpty ?? false;
+    }
+    if (_advertCategory.year) {
       newValidationState['year'] = _year > 1900;
     }
 
@@ -195,9 +252,6 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       var maxPrice = 0;
       final priceUnit = _pricePerUnit;
       var tradeable = false;
-      if (widget.category.settings['tradeable'] == true) {
-        tradeable = _isTradeable;
-      }
 
       if (_isPriceFixed) {
         price =
@@ -205,7 +259,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
               priceController.text.replaceAll(RegExp('[^0-9]'), ''),
             ) ??
             0;
-        if (widget.category.settings['maxPrice'] == true) {
+        if (_advertCategory.maxPrice) {
           maxPrice =
               int.tryParse(
                 maxPriceController.text.replaceAll(RegExp('[^0-9]'), ''),
@@ -214,7 +268,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         }
       } else {
         price = 0;
-        if (widget.category.settings['maxPrice'] == true) {
+        if (_advertCategory.maxPrice) {
           maxPrice = 0;
         }
       }
@@ -223,19 +277,23 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       var maxQuantity = 0;
       final quantityUnit = _quantityUnit;
 
-      if (widget.category.settings['quantity'] == true && _isQuantityFixed) {
+      if (_advertCategory.quantity && _isQuantityFixed) {
         quantity =
             int.tryParse(
               quantityController.text.replaceAll(RegExp('[^0-9]'), ''),
             ) ??
             0;
-        if (widget.category.settings['maxQuantity'] == true) {
+        if (_advertCategory.maxQuantity) {
           maxQuantity =
               int.tryParse(
                 maxQuantityController.text.replaceAll(RegExp('[^0-9]'), ''),
               ) ??
               0;
         }
+      }
+
+      if (_advertCategory.tradeable) {
+        tradeable = _isTradeable;
       }
 
       final advert = AdvertModel(
@@ -245,7 +303,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         updatedAt: now,
         title: titleController.text,
         phoneNumber: phoneController.text,
-        category: widget.category.id,
+        category: _selectedCategoryId,
         images: _images.map((e) => e?.path ?? '').toList(),
         description: descriptionController.text,
         region: getRegionID(_region),
@@ -258,18 +316,15 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         unit: quantityUnit,
         tradeable: tradeable,
         companyName:
-            widget.category.settings['companyName'] == true
+            settingsControllers.containsKey('companyName')
                 ? settingsControllers['companyName']?.text ?? ''
                 : '',
         contactPerson:
-            widget.category.settings['contactPerson'] == true
+            settingsControllers.containsKey('contactPerson')
                 ? settingsControllers['contactPerson']?.text ?? ''
                 : '',
-        year: widget.category.settings['year'] == true ? _year : 0,
-        condition:
-            widget.category.settings['condition'] == true
-                ? (_isNew ? 0 : 1)
-                : 0,
+        year: _advertCategory.year ? _year : 0,
+        condition: _advertCategory.condition ? (_isNew ? 0 : 1) : 0,
       );
 
       _talker.debug('📦 Advert params: $advert');
@@ -426,6 +481,22 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                 expandedHeight: screenSize.height * 0.1,
                 toolbarHeight: screenSize.height * 0.1,
               ),
+              // Показываем выбор категории только если их несколько
+              if (widget.category.ids.length > 1)
+                SliverToBoxAdapter(
+                  child: FormSection(
+                    title: S.of(context)!.category,
+                    titleStyle: contrastBoldM(context),
+                    child: CustomToggleButtons(
+                      options:
+                          widget.category.names
+                              .map((name) => _getLocalizedName(name))
+                              .toList(),
+                      selectedIndex: _selectedCategoryIndex,
+                      onChanged: _onCategoryChanged,
+                    ),
+                  ),
+                ),
               SliverToBoxAdapter(
                 child: FormSection(
                   title: S.of(context)!.title_of_ad,
@@ -441,7 +512,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                   ),
                 ),
               ),
-              if (widget.category.settings['condition'] == true)
+              if (_advertCategory.condition)
                 SliverToBoxAdapter(
                   child: FormSection(
                     title: S.of(context)!.condition,
@@ -456,7 +527,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                     ),
                   ),
                 ),
-              if (widget.category.settings['year'] == true)
+              if (_advertCategory.year)
                 SliverToBoxAdapter(
                   child: FormSection(
                     title: S.of(context)!.year_of_release,
@@ -494,7 +565,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                   titleStyle: contrastBoldM(context),
                   child: Column(
                     children: [
-                      if (widget.category.settings['tradeable'] == true)
+                      if (_advertCategory.tradeable)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -511,11 +582,9 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                         ),
                       PriceSection(
                         isPriceFixed: _isPriceFixed,
-                        hasMaxPrice:
-                            widget.category.settings['maxPrice'] == true,
-                        hasPricePer:
-                            widget.category.settings['pricePer'] == true,
-                        isSalary: widget.category.settings['salary'] == true,
+                        hasMaxPrice: _advertCategory.maxPrice,
+                        hasPricePer: _advertCategory.pricePer,
+                        isSalary: _advertCategory.salary,
                         pricePerUnit: _pricePerUnit,
                         units: units,
                         priceController: priceController,
@@ -530,21 +599,19 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                         maxPriceError:
                             _showValidation &&
                             !(_validationState['maxPrice'] ?? true),
-                        showPricePerSelector:
-                            widget.category.settings['pricePer'] == true,
+                        showPricePerSelector: _advertCategory.pricePer,
                       ),
                     ],
                   ),
                 ),
               ),
-              if (widget.category.settings['quantity'] == true)
+              if (_advertCategory.quantity)
                 SliverToBoxAdapter(
                   child: FormSection(
                     titleStyle: contrastBoldM(context),
                     child: QuantitySection(
                       isQuantityFixed: _isQuantityFixed,
-                      hasMaxQuantity:
-                          widget.category.settings['maxQuantity'] == true,
+                      hasMaxQuantity: _advertCategory.maxQuantity,
                       quantityUnit: _quantityUnit,
                       units: units,
                       quantityController: quantityController,
@@ -561,8 +628,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                           !(_validationState['maxQuantity'] ?? true),
                       maxQuantityErrorText:
                           S.of(context)!.max_quantity_required,
-                      showUnitSelector:
-                          widget.category.settings['unitPer'] == true,
+                      showUnitSelector: _advertCategory.pricePer,
                     ),
                   ),
                 ),
@@ -607,24 +673,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                   ),
                 ),
               ),
-              if (widget.category.settings['companyName'] == true)
-                SliverToBoxAdapter(
-                  child: FormSection(
-                    title: S.of(context)!.company,
-                    titleStyle: contrastBoldM(context),
-                    child: CustomTextField(
-                      controller: settingsControllers['companyName']!,
-                      theme: colorScheme,
-                      style: contrastM(context),
-                      hintText: S.of(context)!.company_hint,
-                      error:
-                          _showValidation &&
-                          !(_validationState['companyName'] ?? true),
-                      errorText: S.of(context)!.company_required,
-                    ),
-                  ),
-                ),
-              if (widget.category.settings['contactPerson'] == true)
+              if (settingsControllers.containsKey('contactPerson'))
                 SliverToBoxAdapter(
                   child: FormSection(
                     title: S.of(context)!.contact_person,
@@ -638,6 +687,23 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                           _showValidation &&
                           !(_validationState['contactPerson'] ?? true),
                       errorText: S.of(context)!.contact_person_required,
+                    ),
+                  ),
+                ),
+              if (settingsControllers.containsKey('companyName'))
+                SliverToBoxAdapter(
+                  child: FormSection(
+                    title: S.of(context)!.company,
+                    titleStyle: contrastBoldM(context),
+                    child: CustomTextField(
+                      controller: settingsControllers['companyName']!,
+                      theme: colorScheme,
+                      style: contrastM(context),
+                      hintText: S.of(context)!.company_hint,
+                      error:
+                          _showValidation &&
+                          !(_validationState['companyName'] ?? true),
+                      errorText: S.of(context)!.company_required,
                     ),
                   ),
                 ),

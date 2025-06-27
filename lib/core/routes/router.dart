@@ -131,13 +131,13 @@ final router = GoRouter(
                               (state.extra!
                                       as Map<String, dynamic>)['searchQuery']
                                   as String,
-                          initialCategoryId:
+                          initialCategoryIds:
                               (state.extra!
                                       as Map<
                                         String,
                                         dynamic
-                                      >)['initialCategoryId']
-                                  as int?,
+                                      >)['initialCategoryIds']
+                                  as List<int>?,
                         ),
                         transitionsBuilder: defaultTransitionBuilder,
                       ),

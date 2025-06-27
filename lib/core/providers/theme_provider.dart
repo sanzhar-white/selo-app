@@ -9,7 +9,7 @@ class ThemeNotifier extends StateNotifier<ThemeData> {
   }
 
   Future<void> _loadTheme() async {
-    final isDark = LocalStorageService.getTheme();
+    final isDark = await LocalStorageService.getTheme();
     if (isDark != null) {
       state = isDark ? darkTheme : lightTheme;
     }

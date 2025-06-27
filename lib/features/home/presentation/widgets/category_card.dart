@@ -20,13 +20,18 @@ class CategoryCard extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         final homeNotifier = ref.read(homeNotifierProvider.notifier);
+
+        // Передаем все ID категорий для фильтрации
         homeNotifier.loadFilteredAdvertisements(
           refresh: true,
-          filter: SearchModel(category: category.id),
+          filter: SearchModel(categories: category.ids),
         );
         context.push(
           Routes.nestedFilterPage,
-          extra: {'searchQuery': '', 'initialCategoryId': category.id},
+          extra: {
+            'searchQuery': '',
+            'initialCategoryIds': category.ids, // Передаем все ID
+          },
         );
       },
       child: Container(
@@ -41,9 +46,9 @@ class CategoryCard extends ConsumerWidget {
             Align(
               alignment: Alignment.bottomRight,
               child:
-                  category.imageUrl != ''
+                  category.displayImage != ''
                       ? CachedNetworkImage(
-                        imageUrl: category.imageUrl,
+                        imageUrl: category.displayImage,
                         width: 100,
                         height: 60,
                         fit: BoxFit.contain,
@@ -85,7 +90,7 @@ class CategoryCard extends ConsumerWidget {
             Align(
               alignment: Alignment.topLeft,
               child: Text(
-                getLocalizedCategory(category, context),
+                getLocalizedDisplayNameOfCategory(category, context),
                 style: contrastBoldM(context),
                 textAlign: TextAlign.left,
               ),

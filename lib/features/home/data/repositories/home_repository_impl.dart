@@ -42,11 +42,13 @@ class HomeRepositoryImpl extends HomeRepository {
     PaginationModel paginationModel,
   ) async {
     try {
-      final cachedAds = await LocalStorageService.getCachedAdvertisements(
-        paginationModel.currentPage,
-      );
-      if (cachedAds != null && cachedAds.isNotEmpty) {
-        return DataSuccess(cachedAds);
+      if (!_cacheManager.shouldRefresh()) {
+        final cachedAds = await LocalStorageService.getCachedAdvertisements(
+          paginationModel.currentPage,
+        );
+        if (cachedAds != null && cachedAds.isNotEmpty) {
+          return DataSuccess(cachedAds);
+        }
       }
 
       final result = await _homeInterface.getAllAdvertisements(paginationModel);
@@ -55,6 +57,7 @@ class HomeRepositoryImpl extends HomeRepository {
           result.data!,
           paginationModel.currentPage,
         );
+        _cacheManager.updateLastFetchTime();
       }
       return result;
     } catch (e, stackTrace) {
@@ -69,7 +72,7 @@ class HomeRepositoryImpl extends HomeRepository {
   ) async {
     if (searchModel == null ||
         (searchModel.searchQuery == null &&
-            searchModel.category == null &&
+            searchModel.categories == null &&
             searchModel.district == null &&
             searchModel.region == null &&
             searchModel.priceFrom == null &&
@@ -82,22 +85,26 @@ class HomeRepositoryImpl extends HomeRepository {
       final filterParams = searchModel.toMap().map(
         (key, value) => MapEntry(key, value.toString()),
       );
-      final cachedFilteredAds = await LocalStorageService.getCachedFilteredAds(
-        filterParams,
-      );
-      if (cachedFilteredAds != null && cachedFilteredAds.isNotEmpty) {
-        return DataSuccess(cachedFilteredAds);
+      if (!_cacheManager.shouldRefresh()) {
+        final cachedFilteredAds =
+            await LocalStorageService.getCachedFilteredAds(
+              filterParams,
+            );
+        if (cachedFilteredAds != null && cachedFilteredAds.isNotEmpty) {
+          return DataSuccess(cachedFilteredAds);
+        }
       }
 
       final result = await _homeInterface.getFilteredAdvertisements(
         searchModel.copyWith(
-          category: searchModel.category,
+          categories: searchModel.categories,
         ),
         paginationModel,
       );
 
       if (result is DataSuccess) {
         await LocalStorageService.cacheFilteredAds(result.data!, filterParams);
+        _cacheManager.updateLastFetchTime();
       }
       return result;
     } catch (e, stackTrace) {

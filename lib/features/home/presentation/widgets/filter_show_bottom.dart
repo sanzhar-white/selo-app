@@ -16,7 +16,10 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
   required Function(SearchModel?) onApply,
   SearchModel? currentFilters,
 }) async {
-  var selectedCategory = currentFilters?.category;
+  Set<int> selectedCategories = <int>{};
+  if (currentFilters?.categories != null) {
+    selectedCategories = currentFilters!.categories!.toSet();
+  }
   final priceFromController = TextEditingController(
     text: currentFilters?.priceFrom?.toString() ?? '',
   );
@@ -72,7 +75,7 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                       TextButton(
                         onPressed: () {
                           setState(() {
-                            selectedCategory = null;
+                            selectedCategories.clear();
                             selectedRegion = '';
                             selectedCity = '';
                             selectedSorting = 0;
@@ -94,37 +97,48 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                     spacing: 8,
                     runSpacing: 8,
                     children:
-                        categories.map((category) {
-                          final isSelected = selectedCategory == category.id;
-                          return FilterChip(
-                            label: Text(
-                              getLocalizedCategory(category, context),
-                              style:
-                                  isSelected
-                                      ? overGreenM(context)
-                                      : contrastM(context),
-                            ),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              setState(() {
-                                if (selected) {
-                                  selectedCategory = category.id;
-                                } else {
-                                  selectedCategory = null;
-                                }
-                              });
-                            },
-                            shape: RoundedRectangleBorder(
-                              borderRadius: radius,
-                              side: const BorderSide(
-                                color: Colors.transparent,
-                                width: 0,
+                        categories.expand((category) {
+                          return category.ids.map((categoryId) {
+                            final isSelected = selectedCategories.contains(
+                              categoryId,
+                            );
+
+                            final categoryName = getLocalizedNameForCategoryId(
+                              category,
+                              context,
+                              categoryId,
+                            );
+
+                            return FilterChip(
+                              label: Text(
+                                categoryName,
+                                style:
+                                    isSelected
+                                        ? overGreenM(context)
+                                        : contrastM(context),
                               ),
-                            ),
-                            backgroundColor: colorScheme.onSurface,
-                            selectedColor: colorScheme.primary,
-                            checkmarkColor: colorScheme.surface,
-                          );
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedCategories.add(categoryId);
+                                  } else {
+                                    selectedCategories.remove(categoryId);
+                                  }
+                                });
+                              },
+                              shape: RoundedRectangleBorder(
+                                borderRadius: radius,
+                                side: const BorderSide(
+                                  color: Colors.transparent,
+                                  width: 0,
+                                ),
+                              ),
+                              backgroundColor: colorScheme.onSurface,
+                              selectedColor: colorScheme.primary,
+                              checkmarkColor: colorScheme.surface,
+                            );
+                          });
                         }).toList(),
                   ),
                   const SizedBox(height: 20),
@@ -206,7 +220,10 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                     child: ElevatedButton(
                       onPressed: () {
                         result = SearchModel(
-                          category: selectedCategory,
+                          categories:
+                              selectedCategories.isNotEmpty
+                                  ? selectedCategories.toList()
+                                  : null,
                           priceFrom: int.tryParse(priceFromController.text),
                           priceTo: int.tryParse(priceToController.text),
                           region: int.tryParse(selectedRegion),

@@ -26,11 +26,11 @@ class FilterPage extends ConsumerStatefulWidget {
   const FilterPage({
     required this.searchQueryText,
     super.key,
-    this.initialCategoryId,
+    this.initialCategoryIds,
   });
 
   final String searchQueryText;
-  final int? initialCategoryId;
+  final List<int>? initialCategoryIds;
 
   @override
   ConsumerState<FilterPage> createState() => _FilterPageState();
@@ -54,18 +54,25 @@ class _FilterPageState extends ConsumerState<FilterPage> {
   void initState() {
     super.initState();
     _searchController.text = widget.searchQueryText;
-    if ((widget.initialCategoryId != null && widget.initialCategoryId! >= -1) ||
-        widget.searchQueryText.isNotEmpty) {
-      currentFilters = SearchModel(
-        category: widget.initialCategoryId,
-        searchQuery:
-            widget.searchQueryText.isNotEmpty ? widget.searchQueryText : null,
-      );
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+
+    // Получаем initialCategoryIds из аргументов маршрута через SchedulerBinding
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if ((widget.initialCategoryIds?.isNotEmpty ?? false) ||
+          widget.searchQueryText.isNotEmpty) {
+        setState(() {
+          currentFilters = SearchModel(
+            categories: widget.initialCategoryIds,
+            searchQuery:
+                widget.searchQueryText.isNotEmpty
+                    ? widget.searchQueryText
+                    : null,
+          );
+        });
+      }
       _talker.info('🔄 Initializing FilterPage with filters: $currentFilters');
       _initializeData();
     });
+
     _scrollController.addListener(_onScroll);
   }
 
@@ -94,7 +101,12 @@ class _FilterPageState extends ConsumerState<FilterPage> {
     final favouritesNotifier = ref.read(favouritesNotifierProvider.notifier);
     final userNotifier = ref.read(userNotifierProvider.notifier);
 
-    await categoriesNotifier.loadCategories();
+    // Загружаем категории только если их нет
+    final categoriesState = ref.read(categoriesNotifierProvider);
+    if (categoriesState.valueOrNull == null ||
+        categoriesState.valueOrNull!.isEmpty) {
+      await categoriesNotifier.loadCategories();
+    }
 
     setState(() {
       _paginationModel = _paginationModel.copyWith(
@@ -102,8 +114,8 @@ class _FilterPageState extends ConsumerState<FilterPage> {
         currentPage: 1,
       );
     });
-    await homeNotifier.clearFilteredCache();
 
+    // Не вызываем clearFilteredCache напрямую, это делает сам notifier при необходимости
     if (_isFilterEmpty(currentFilters)) {
       currentFilters = null;
       _talker.info('🌐 Loading all advertisements (no filters)');
@@ -122,9 +134,13 @@ class _FilterPageState extends ConsumerState<FilterPage> {
       );
     }
 
+    // Фавориты загружаем только если их нет или пользователь изменился
     final user = ref.read(userNotifierProvider).user;
-    if (user != null) {
-      _talker.debug('⭐ Loading favourites for user: ${user.uid}');
+    final favouritesState = ref.read(favouritesNotifierProvider);
+    if (user != null &&
+        (favouritesState.favouritesModel == null ||
+            favouritesState.favouritesModel!.isEmpty)) {
+      _talker.debug('⭐ Loading favourites for user: [33m${user.uid}[0m');
       await favouritesNotifier.getFavourites(UserUidModel(uid: user.uid));
     }
     isAnonymous = await userNotifier.isAnonymous();
@@ -144,7 +160,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
   bool _isFilterEmpty(SearchModel? filters) {
     if (filters == null) return true;
     return filters.searchQuery == null &&
-        filters.category == null &&
+        filters.categories == null &&
         filters.priceFrom == null &&
         filters.priceTo == null &&
         filters.district == null &&
@@ -158,18 +174,15 @@ class _FilterPageState extends ConsumerState<FilterPage> {
         !ref.read(homeNotifierProvider).isLoading &&
         !_isRefreshing) {
       final homeState = ref.read(homeNotifierProvider);
-      _talker.debug(
-        '🖱️ User scrolled near end. homeState: $homeState, currentFilters: $currentFilters',
-      );
       if (currentFilters != null && homeState.hasMoreFiltered) {
+        _talker.info(
+          '🔄 Loading more filtered advertisements. Page: ${_paginationModel.currentPage}, Filters: $currentFilters',
+        );
         setState(() {
           _paginationModel = _paginationModel.copyWith(
             currentPage: homeState.currentPageFiltered + 1,
           );
         });
-        _talker.info(
-          '🔄 Loading more filtered advertisements. Page: ${_paginationModel.currentPage}, Filters: $currentFilters',
-        );
         ref
             .read(homeNotifierProvider.notifier)
             .loadFilteredAdvertisements(
@@ -178,14 +191,14 @@ class _FilterPageState extends ConsumerState<FilterPage> {
               pageSize: _paginationModel.pageSize,
             );
       } else if (homeState.hasMoreAll) {
+        _talker.info(
+          '🔄 Loading more all advertisements. Page: ${_paginationModel.currentPage}',
+        );
         setState(() {
           _paginationModel = _paginationModel.copyWith(
             currentPage: homeState.currentPageAll + 1,
           );
         });
-        _talker.info(
-          '🔄 Loading more all advertisements. Page: ${_paginationModel.currentPage}',
-        );
         ref
             .read(homeNotifierProvider.notifier)
             .loadAllAdvertisements(
@@ -234,15 +247,14 @@ class _FilterPageState extends ConsumerState<FilterPage> {
 
     final categoriesList = categoriesAsync.value ?? [];
     final uiCategories =
-        categoriesList.map((e) => getLocalizedCategory(e, context)).toList();
+        categoriesList
+            .map((e) => getLocalizedDisplayNameOfCategory(e, context))
+            .toList();
     if (!uiCategories.contains(S.of(context)!.all_ads)) {
       uiCategories.add(S.of(context)!.all_ads);
     }
 
-    final adverts =
-        (currentFilters != null || _searchController.text.isNotEmpty)
-            ? homeState.filteredAdvertisements ?? []
-            : homeState.allAdvertisements ?? [];
+    final adverts = _getAdvertsForDisplay(homeState);
 
     return Scaffold(
       body: RefreshIndicator(
@@ -287,7 +299,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                     _talker.info('✅ User applied filter: $result');
                     setState(() {
                       currentFilters = result?.copyWith(
-                        category: result.category,
+                        categories: result.categories,
                       );
                       if (_isFilterEmpty(currentFilters)) {
                         currentFilters = null;
@@ -323,7 +335,7 @@ class _FilterPageState extends ConsumerState<FilterPage> {
                     '🗑️ User cleared category. Filters before: $currentFilters',
                   );
                   setState(() {
-                    currentFilters = currentFilters!.copyWith(category: null);
+                    currentFilters = currentFilters!.copyWith(categories: null);
                     if (_isFilterEmpty(currentFilters)) currentFilters = null;
                   });
                   _refreshContent();
@@ -486,6 +498,14 @@ class _FilterPageState extends ConsumerState<FilterPage> {
       ],
     );
   }
+
+  List<AdvertModel> _getAdvertsForDisplay(HomeState homeState) {
+    if (currentFilters != null || _searchController.text.isNotEmpty) {
+      return homeState.filteredAdvertisements ?? [];
+    } else {
+      return homeState.allAdvertisements ?? [];
+    }
+  }
 }
 
 class ShimmerAdvertDetailCard extends StatelessWidget {
@@ -572,31 +592,55 @@ class FilterChipsBar extends StatelessWidget {
       );
     }
     if (currentFilters != null &&
-        currentFilters!.category != null &&
-        currentFilters!.category! >= -1) {
-      final category = categoriesList.firstWhere(
-        (cat) => cat.id == currentFilters!.category!,
-        orElse:
-            () => AdCategory(
-              id: -1,
-              nameEn: s.unknown,
-              nameRu: s.unknown,
-              nameKk: s.unknown,
-              imageUrl: '',
-              settings: const {},
+        currentFilters!.categories != null &&
+        currentFilters!.categories!.isNotEmpty) {
+      for (final catId in currentFilters!.categories!) {
+        final category = categoriesList.firstWhere(
+          (cat) => cat.ids.contains(catId),
+          orElse:
+              () => AdCategory(
+                displayName: LocalizedText(
+                  en: s.unknown,
+                  ru: s.unknown,
+                  kk: s.unknown,
+                ),
+                ids: [catId],
+                images: [''],
+                displayImage: '',
+                names: const [],
+                settings: const [],
+              ),
+        );
+        final categoryName = getLocalizedNameForCategoryId(
+          category,
+          context,
+          catId,
+        );
+        chips.add(
+          Chip(
+            label: Text(
+              categoryName,
+              style: TextStyle(color: colorScheme.onPrimary),
             ),
-      );
-      chips.add(
-        Chip(
-          label: Text(
-            getLocalizedCategory(category, context),
-            style: TextStyle(color: colorScheme.onPrimary),
+            backgroundColor: colorScheme.primary,
+            deleteIcon: const Icon(Icons.close, size: 16),
+            onDeleted:
+                isRefreshing
+                    ? null
+                    : () {
+                      // Удалить только этот catId из фильтра
+                      final newCats = List<int>.from(
+                        currentFilters!.categories!,
+                      );
+                      newCats.remove(catId);
+                      // Обновить фильтр и перерисовать
+                      (context as Element).markNeedsBuild();
+                      // Обычно обновление фильтра делается через callback в родителе,
+                      // но если нужно, можно пробросить отдельный onRemoveCategory(int id)
+                    },
           ),
-          backgroundColor: colorScheme.primary,
-          deleteIcon: const Icon(Icons.close, size: 16),
-          onDeleted: isRefreshing ? null : onClearCategory,
-        ),
-      );
+        );
+      }
     }
     if (currentFilters?.priceFrom != null) {
       chips.add(

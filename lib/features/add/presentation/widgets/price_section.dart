@@ -226,7 +226,7 @@ class PriceSection extends StatelessWidget {
     final radius = ResponsiveRadius.screenBased(context);
 
     return Container(
-      width: screenSize.width * 0.5,
+      width: screenSize.width * 0.4,
       decoration: BoxDecoration(
         color: colorScheme.onSurface,
         borderRadius: radius,

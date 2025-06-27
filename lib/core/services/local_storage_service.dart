@@ -36,7 +36,9 @@ class LocalStorageService {
 
       _userBox = await Hive.openBox<LocalUserModel>(_userBoxName);
       _adsBox = await Hive.openBox<List<dynamic>>(_adsBoxName);
-      await Hive.openBox(_settingsBoxName);
+      if (!Hive.isBoxOpen(_settingsBoxName)) {
+        await Hive.openBox(_settingsBoxName);
+      }
 
       _talker.info('LocalStorageService initialized successfully');
     } catch (e, stackTrace) {
@@ -49,7 +51,7 @@ class LocalStorageService {
     try {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.put(_userKey, user);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorSavingUser, e, stack);
       rethrow;
     }
@@ -59,7 +61,7 @@ class LocalStorageService {
     try {
       final box = _userBox ?? Hive.box<LocalUserModel>(_userBoxName);
       return box.get(_userKey);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorGettingUser, e, stack);
       return null;
     }
@@ -69,7 +71,7 @@ class LocalStorageService {
     try {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.delete(_userKey);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorDeletingUser, e, stack);
       rethrow;
     }
@@ -78,7 +80,7 @@ class LocalStorageService {
   static bool isUserLoggedIn() {
     try {
       return getUser() != null;
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorCheckingUserLoginStatus, e, stack);
       return false;
     }
@@ -88,7 +90,7 @@ class LocalStorageService {
     try {
       final box = _userBox ?? await Hive.openBox<LocalUserModel>(_userBoxName);
       await box.clear();
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorClearingAllData, e, stack);
       rethrow;
     }
@@ -99,9 +101,12 @@ class LocalStorageService {
     await box.put(_themeKey, isDark);
   }
 
-  static bool? getTheme() {
-    final box = Hive.box<bool>(_settingsBoxName);
-    return box.get(_themeKey);
+  static Future<bool?> getTheme() async {
+    final box =
+        Hive.isBoxOpen(_settingsBoxName)
+            ? Hive.box(_settingsBoxName)
+            : await Hive.openBox(_settingsBoxName);
+    return box.get(_themeKey) as bool?;
   }
 
   static Future<void> saveLocale(String languageCode) async {
@@ -109,9 +114,12 @@ class LocalStorageService {
     await box.put(_localeKey, languageCode);
   }
 
-  static String? getLocale() {
-    final box = Hive.box<String>(_settingsBoxName);
-    return box.get(_localeKey);
+  static Future<String?> getLocale() async {
+    final box =
+        Hive.isBoxOpen(_settingsBoxName)
+            ? Hive.box(_settingsBoxName)
+            : await Hive.openBox(_settingsBoxName);
+    return box.get(_localeKey) as String?;
   }
 
   static Future<void> cacheBanners(List<BannerModel> banners) async {
@@ -121,7 +129,7 @@ class LocalStorageService {
         banners.map(LocalBannerModel.fromBannerModel).toList(),
       );
       _talker.info('Cached [32m${banners.length}[0m banners');
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorCachingBanners, e, stack);
       rethrow;
     }
@@ -138,7 +146,7 @@ class LocalStorageService {
           cached.cast<LocalBannerModel>().map((e) => e.banner).toList();
       _talker.info('Retrieved ${banners.length} cached banners');
       return banners;
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorGettingCachedBanners, e, stack);
       return null;
     }
@@ -154,7 +162,7 @@ class LocalStorageService {
         ads.map(LocalAdvertModel.fromAdvertModel).toList(),
       );
       _talker.info('Cached ${ads.length} advertisements for page $page');
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorCachingAdvertisements, e, stack);
       rethrow;
     }
@@ -183,7 +191,7 @@ class LocalStorageService {
               .toList();
       _talker.info('Retrieved ${ads.length} cached ads for page $page');
       return ads.isEmpty ? null : ads;
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorGettingCachedAds, e, stack);
       return null;
     }
@@ -199,7 +207,7 @@ class LocalStorageService {
     try {
       await _adsBox?.clear();
       _talker.info('Cleared ads cache');
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorClearingAdsCache, e, stack);
       rethrow;
     }
@@ -216,7 +224,7 @@ class LocalStorageService {
         ads.map(LocalAdvertModel.fromAdvertModel).toList(),
       );
       _talker.info('Cached ${ads.length} filtered ads for key $filterKey');
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorCachingFilteredAds, e, stack);
       rethrow;
     }
@@ -253,7 +261,7 @@ class LocalStorageService {
         'Retrieved ${ads.length} cached filtered ads for key $filterKey',
       );
       return ads.isEmpty ? null : ads;
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorGettingCachedFilteredAds, e, stack);
       return null;
     }
@@ -300,7 +308,7 @@ class LocalStorageService {
         _talker.info('🧹 Deleted filtered ads cache for key $key');
       }
       _talker.info('Cleared all filtered ads cache');
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorClearingCacheFilteredAds, e, stack);
       rethrow;
     }

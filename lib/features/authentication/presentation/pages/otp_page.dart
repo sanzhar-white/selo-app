@@ -27,15 +27,12 @@ class _OTPPageState extends ConsumerState<OTPPage> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController codeController = TextEditingController();
   String? _capturedCode;
-
   late Timer timer;
   int _start = 45;
-
   bool isActive = false;
   bool isLoading = false;
-
   late AuthStatusModel? _authStatus;
-
+  bool _isDisposed = false;
   Talker get _talker => di<Talker>();
 
   @override
@@ -43,16 +40,24 @@ class _OTPPageState extends ConsumerState<OTPPage> {
     super.initState();
     _authStatus = widget.authStatus;
     startTimer();
+    // Listen to controller changes to update _capturedCode
+    codeController.addListener(() {
+      if (!_isDisposed) {
+        _capturedCode = codeController.text;
+      }
+    });
   }
 
   void startTimer() {
     _start = 45;
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_isDisposed) {
+        timer.cancel();
+        return;
+      }
       if (_start == 0) {
         timer.cancel();
-        if (mounted) {
-          setState(() {});
-        }
+        if (mounted) setState(() {});
       } else {
         if (mounted) {
           setState(() {
@@ -65,15 +70,14 @@ class _OTPPageState extends ConsumerState<OTPPage> {
 
   @override
   void dispose() {
-    if (timer.isActive) {
-      timer.cancel();
-    }
+    _isDisposed = true;
+    timer.cancel();
     codeController.dispose();
     super.dispose();
   }
 
   Future<void> resendCode() async {
-    if (isLoading || _authStatus == null) return;
+    if (isLoading || _authStatus == null || _isDisposed) return;
     setState(() => isLoading = true);
     try {
       final phoneNumber = _authStatus!.user.phoneNumber;
@@ -81,7 +85,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
       final result = await ref
           .read(logInUseCaseProvider)
           .call(params: PhoneNumberModel(phoneNumber: phoneNumber));
-      if (!mounted) return;
+      if (!mounted || _isDisposed) return;
       if (result is DataSuccess<AuthStatusModel>) {
         _talker.info('✅ Resend code success: ${result.data}');
         setState(() {
@@ -110,9 +114,9 @@ class _OTPPageState extends ConsumerState<OTPPage> {
           ),
         );
       }
-    } catch (e, st) {
+    } on Object catch (e, st) {
       _talker.error('❌ Exception in resendCode', e, st);
-      if (mounted) {
+      if (mounted && !_isDisposed) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -124,12 +128,12 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         );
       }
     } finally {
-      if (mounted) setState(() => isLoading = false);
+      if (mounted && !_isDisposed) setState(() => isLoading = false);
     }
   }
 
   Future<void> verifyOTP() async {
-    if (!mounted || !isActive || _authStatus == null) {
+    if (!mounted || !isActive || _authStatus == null || _isDisposed) {
       _talker.error(
         '${ErrorMessages.cannotVerifyOTP}: ${!isActive
             ? 'inactive'
@@ -137,34 +141,36 @@ class _OTPPageState extends ConsumerState<OTPPage> {
             ? 'disposed'
             : 'no auth status'}',
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.otp_empty_error,
-            style: contrastBoldM(context),
+      if (mounted && !_isDisposed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              S.of(context)!.otp_empty_error,
+              style: contrastBoldM(context),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+        );
+      }
       return;
     }
 
-    _capturedCode = codeController.text;
     if (_capturedCode == null || _capturedCode!.isEmpty) {
       _talker.error(ErrorMessages.noVerificationCodeEntered);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.otp_empty_error,
-            style: contrastBoldM(context),
+      if (mounted && !_isDisposed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              S.of(context)!.otp_empty_error,
+              style: contrastBoldM(context),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+        );
+      }
       return;
     }
 
-    if (!mounted) return;
     setState(() => isLoading = true);
 
     try {
@@ -172,7 +178,6 @@ class _OTPPageState extends ConsumerState<OTPPage> {
       _talker.debug('📝 Verification ID: ${_authStatus!.value}');
       _talker.debug('📱 SMS Code: $_capturedCode');
 
-      if (!mounted) return;
       final result = await ref
           .read(signInWithCredentialUseCaseProvider)
           .call(
@@ -183,24 +188,22 @@ class _OTPPageState extends ConsumerState<OTPPage> {
             ),
           );
 
-      if (!mounted) return;
+      if (!mounted || _isDisposed) return;
 
       if (result is DataSuccess<bool>) {
-        final success = result.data;
-        _talker.info('✅ OTP verification result: $success');
-        if (success! && mounted) {
+        if (result.data! && mounted && !_isDisposed) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 S.of(context)!.otp_verification_success,
-                style: contrastBoldM(context),
+                style: overGreenM(context),
               ),
               backgroundColor: Colors.green,
             ),
           );
           context.go(Routes.homePage);
         } else {
-          if (mounted) {
+          if (mounted && !_isDisposed) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -218,7 +221,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         _talker.error(
           '${ErrorMessages.otpVerificationFailedWithError}: $error',
         );
-        if (mounted) {
+        if (mounted && !_isDisposed) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -231,9 +234,9 @@ class _OTPPageState extends ConsumerState<OTPPage> {
           );
         }
       }
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.exceptionInOtpVerification, e, stack);
-      if (mounted) {
+      if (mounted && !_isDisposed) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -246,8 +249,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
         );
       }
     } finally {
-      _capturedCode = null;
-      if (mounted) {
+      if (mounted && !_isDisposed) {
         setState(() => isLoading = false);
       }
     }
@@ -314,13 +316,17 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                           FilteringTextInputFormatter.digitsOnly,
                         ],
                         onCompleted: (v) {
-                          setState(() => isActive = true);
+                          if (!_isDisposed) {
+                            setState(() => isActive = true);
+                          }
                         },
                         onChanged: (value) {
-                          setState(() => isActive = value.length == 6);
+                          if (!_isDisposed) {
+                            setState(() => isActive = value.length == 6);
+                          }
                         },
                         beforeTextPaste: (text) {
-                          return true;
+                          return !_isDisposed;
                         },
                       ),
                     ),

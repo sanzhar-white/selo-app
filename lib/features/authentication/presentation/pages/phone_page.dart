@@ -202,7 +202,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
       } else {
         _talker.error('${ErrorMessages.errorInCheckUserPhonePage}: $result');
       }
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.exceptionInCheckUserPhonePage, e, stack);
     }
   }
@@ -228,7 +228,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
       } else {
         _talker.error('${ErrorMessages.loginFailedPhonePage}: $result');
       }
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.exceptionInLoginPhonePage, e, stack);
     }
   }
@@ -273,7 +273,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
         );
         // TODO: Show error to user
       }
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.exceptionInSignupPhonePage, e, stack);
       // TODO: Show error to user
     }

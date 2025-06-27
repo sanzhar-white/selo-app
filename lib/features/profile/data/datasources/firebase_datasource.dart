@@ -48,7 +48,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
           snapshot.docs.map((doc) => AdvertModel.fromJson(doc.data())).toList();
       _talker.info('Successfully fetched ${adverts.length} adverts');
       return DataSuccess(adverts);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.failedToFetchAdverts, e, stack);
       return DataFailed(
         Exception('${ErrorMessages.failedToFetchAdverts}: $e'),
@@ -67,8 +67,13 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
           .update({'active': false})
           .timeout(FirebaseConstants.operationTimeout);
       _talker.info('Successfully deleted advert');
+      await _firestore
+          .collection(FirebaseCollections.adverts)
+          .doc(uid)
+          .update({'deletedAt': Timestamp})
+          .timeout(FirebaseConstants.operationTimeout);
       return const DataSuccess(true);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.failedToDeleteAdvert, e, stack);
       return DataFailed(
         Exception('${ErrorMessages.failedToDeleteAdvert}: $e'),
@@ -91,7 +96,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
           .timeout(FirebaseConstants.operationTimeout);
       _talker.info('Successfully deleted user');
       return const DataSuccess(true);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.failedToDeleteUser, e, stack);
       return DataFailed(
         Exception('${ErrorMessages.failedToDeleteUser}: $e'),
@@ -109,7 +114,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
       final ref = _storage.refFromURL(oldImageUrl);
       await ref.delete();
       _talker.debug('Deleted old image: $oldImageUrl');
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error('Failed to delete old image', e, stack);
     }
   }
@@ -187,7 +192,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
 
       _talker.info('Successfully uploaded profile image');
       return downloadUrl;
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.failedToUploadImage, e, stack);
       throw Exception('${ErrorMessages.failedToUploadImage}: $e');
     }
@@ -263,7 +268,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
 
       _talker.info('Successfully updated user profile');
       return const DataSuccess(true);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.failedToUpdateUser, e, stack);
       return DataFailed(
         Exception('${ErrorMessages.failedToUpdateUser}: $e'),
@@ -279,7 +284,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
         LocalUserModel.fromUserModel(updatedUser),
       );
       _talker.debug('Updated local storage');
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error('Failed to update local storage', e, stack);
     }
   }

@@ -1,20 +1,12 @@
 import 'package:selo/core/models/category.dart';
 
-final List<AdCategory> conditions = [
-  const AdCategory(
+final List<ConditionType> conditions = [
+  const ConditionType(
     id: 0,
-    nameRu: 'Новое',
-    nameEn: 'New',
-    nameKk: 'Жаңа',
-    imageUrl: '',
-    settings: {},
+    names: LocalizedText(en: 'New', kk: 'Жаңа', ru: 'Новый'),
   ),
-  const AdCategory(
+  const ConditionType(
     id: 1,
-    nameRu: 'Б/у',
-    nameEn: 'Used',
-    nameKk: 'Қолданылған',
-    imageUrl: '',
-    settings: {},
+    names: LocalizedText(en: 'Used', kk: 'Қолданылған', ru: 'Б/у'),
   ),
 ];

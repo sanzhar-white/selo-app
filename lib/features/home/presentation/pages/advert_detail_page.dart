@@ -116,17 +116,39 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
         .watch(favouriteStatusProvider)
         .contains(widget.advert.uid);
     final category = categories.firstWhere(
-      (cat) => cat.id == widget.advert.category,
+      (cat) => cat.ids.contains(widget.advert.category),
       orElse:
-          () => const AdCategory(
-            id: -1,
-            nameEn: '',
-            nameRu: '',
-            nameKk: '',
-            imageUrl: '',
-            settings: {},
+          () => AdCategory(
+            displayName: const LocalizedText(
+              en: '',
+              ru: '',
+              kk: '',
+            ),
+            ids: [widget.advert.category],
+            images: [''],
+            displayImage: '',
+            names: const [],
+            settings: const [],
           ),
     );
+
+    // Находим конкретную подкатегорию для получения настроек
+    final categoryIndex = category.ids.indexOf(widget.advert.category);
+    final advertCategory =
+        categoryIndex >= 0 && categoryIndex < category.settings.length
+            ? category.settings[categoryIndex]
+            : const AdCategoryItemSettings(
+              maxPrice: false,
+              quantity: false,
+              maxQuantity: false,
+              salary: false,
+              pricePer: false,
+              contactPerson: false,
+              condition: false,
+              year: false,
+              tradeable: false,
+              companyName: false,
+            );
 
     return Scaffold(
       body: CustomScrollView(
@@ -295,13 +317,14 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                     ),
                     const SizedBox(height: 12),
                     // Price section
-                    if (category.settings['pricePer'] == true ||
-                        category.settings['salary'] == true ||
+                    if (advertCategory.pricePer == true ||
+                        advertCategory.salary == true ||
                         widget.advert.price != 0 ||
                         widget.advert.maxPrice != null) ...[
                       _PriceCard(
                         advert: widget.advert,
                         category: category,
+                        advertCategory: advertCategory,
                         colorScheme: colorScheme,
                       ),
                       const SizedBox(height: 12),
@@ -310,25 +333,28 @@ class _AdvertDetailsPageState extends ConsumerState<AdvertDetailsPage>
                     _DetailsCard(
                       advert: widget.advert,
                       category: category,
+                      advertCategory: advertCategory,
                       colorScheme: colorScheme,
                     ),
                     const SizedBox(height: 12),
                     // Quantity
-                    if (category.settings['quantity'] == true ||
-                        category.settings['maxQuantity'] == true) ...[
+                    if (advertCategory.quantity == true ||
+                        advertCategory.maxQuantity == true) ...[
                       _QuantityCard(
                         advert: widget.advert,
                         category: category,
+                        advertCategory: advertCategory,
                         colorScheme: colorScheme,
                       ),
                       const SizedBox(height: 12),
                     ],
                     // Item details
-                    if (category.settings['condition'] == true ||
-                        category.settings['year'] == true) ...[
+                    if (advertCategory.condition == true ||
+                        advertCategory.year == true) ...[
                       _ItemDetailsCard(
                         advert: widget.advert,
                         category: category,
+                        advertCategory: advertCategory,
                         colorScheme: colorScheme,
                       ),
                       const SizedBox(height: 12),
@@ -481,10 +507,12 @@ class _PriceCard extends StatelessWidget {
   const _PriceCard({
     required this.advert,
     required this.category,
+    required this.advertCategory,
     required this.colorScheme,
   });
   final AdvertModel advert;
   final AdCategory category;
+  final AdCategoryItemSettings advertCategory;
   final ColorScheme colorScheme;
 
   @override
@@ -512,18 +540,33 @@ class _PriceCard extends StatelessWidget {
                 style: grayM(context).copyWith(fontSize: 16),
               )
             else ...[
-              _PriceRange(
-                minPrice: advert.price.toDouble(),
-                maxPrice: (advert.maxPrice ?? advert.price).toDouble(),
-                colorScheme: colorScheme,
-              ),
-              if (advert.tradeable &&
-                  category.settings['tradeable'] == true) ...[
-                const SizedBox(height: 8),
+              if (advert.maxPrice != 0 && advert.maxPrice != null)
+                _PriceRange(
+                  minPrice: advert.price.toDouble(),
+                  maxPrice: (advert.maxPrice ?? advert.price).toDouble(),
+                  colorScheme: colorScheme,
+                )
+              else
                 Text(
-                  S.of(context)!.trade_possible,
-                  style: grayS(context).copyWith(color: colorScheme.secondary),
-                  semanticsLabel: S.of(context)!.trade_possible,
+                  '${advert.price.toString()} Т',
+                  style: contrastBoldM(context),
+                ),
+
+              if (advert.tradeable && advertCategory.tradeable) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    S.of(context)!.trade_possible,
+                    style: greenM(context).copyWith(fontSize: 14),
+                  ),
                 ),
               ],
             ],
@@ -559,10 +602,12 @@ class _DetailsCard extends StatelessWidget {
   const _DetailsCard({
     required this.advert,
     required this.category,
+    required this.advertCategory,
     required this.colorScheme,
   });
   final AdvertModel advert;
   final AdCategory category;
+  final AdCategoryItemSettings advertCategory;
   final ColorScheme colorScheme;
 
   @override
@@ -598,8 +643,16 @@ class _DetailsCard extends StatelessWidget {
             _InfoRow(
               title: S.of(context)!.category,
               value:
-                  getLocalizedCategory(category, context).isNotEmpty
-                      ? getLocalizedCategory(category, context)
+                  getLocalizedNameOfCategory(
+                        category,
+                        context,
+                        advert.category,
+                      ).isNotEmpty
+                      ? getLocalizedNameOfCategory(
+                        category,
+                        context,
+                        advert.category,
+                      )
                       : S.of(context)!.unknown,
               isVisible: true,
               icon: Icons.category,
@@ -612,7 +665,7 @@ class _DetailsCard extends StatelessWidget {
                   advert.contactPerson?.isNotEmpty == true
                       ? advert.contactPerson!
                       : S.of(context)!.unknown,
-              isVisible: category.settings['contactPerson'] == true,
+              isVisible: advertCategory.contactPerson,
               icon: Icons.person,
               colorScheme: colorScheme,
               semanticsLabel: S.of(context)!.contact_person,
@@ -623,7 +676,7 @@ class _DetailsCard extends StatelessWidget {
                   advert.companyName?.isNotEmpty == true
                       ? advert.companyName!
                       : S.of(context)!.unknown,
-              isVisible: category.settings['companyName'] == true,
+              isVisible: advertCategory.companyName,
               icon: Icons.business,
               colorScheme: colorScheme,
               semanticsLabel: S.of(context)!.company,
@@ -640,10 +693,12 @@ class _QuantityCard extends StatelessWidget {
   const _QuantityCard({
     required this.advert,
     required this.category,
+    required this.advertCategory,
     required this.colorScheme,
   });
   final AdvertModel advert;
   final AdCategory category;
+  final AdCategoryItemSettings advertCategory;
   final ColorScheme colorScheme;
 
   @override
@@ -666,10 +721,10 @@ class _QuantityCard extends StatelessWidget {
               semanticsLabel: S.of(context)!.quantity,
             ),
             const SizedBox(height: 12),
-            if (category.settings['quantity'] == true &&
+            if (advertCategory.quantity &&
                 advert.quantity != null &&
                 advert.quantity! > 0 &&
-                category.settings['maxQuantity'] == true &&
+                advertCategory.maxQuantity &&
                 advert.maxQuantity != null &&
                 advert.maxQuantity! > 0)
               _QuantityTag(
@@ -677,14 +732,14 @@ class _QuantityCard extends StatelessWidget {
                     '${S.of(context)!.from} ${advert.quantity} $unit \n${S.of(context)!.to} ${advert.maxQuantity} $unit',
                 colorScheme: colorScheme,
               )
-            else if (category.settings['quantity'] == true &&
+            else if (advertCategory.quantity &&
                 advert.quantity != null &&
                 advert.quantity! > 0)
               _QuantityTag(
                 value: '${advert.quantity} $unit',
                 colorScheme: colorScheme,
               )
-            else if (category.settings['maxQuantity'] == true &&
+            else if (advertCategory.maxQuantity &&
                 advert.maxQuantity != null &&
                 advert.maxQuantity! > 0)
               _QuantityTag(
@@ -724,10 +779,12 @@ class _ItemDetailsCard extends StatelessWidget {
   const _ItemDetailsCard({
     required this.advert,
     required this.category,
+    required this.advertCategory,
     required this.colorScheme,
   });
   final AdvertModel advert;
   final AdCategory category;
+  final AdCategoryItemSettings advertCategory;
   final ColorScheme colorScheme;
 
   @override
@@ -755,7 +812,7 @@ class _ItemDetailsCard extends StatelessWidget {
                   advert.condition != null && advert.condition != 0
                       ? getConditionName(advert.condition!, context)
                       : S.of(context)!.unknown,
-              isVisible: category.settings['condition'] == true,
+              isVisible: advertCategory.condition,
               icon: Icons.build,
               colorScheme: colorScheme,
               semanticsLabel: S.of(context)!.condition,
@@ -766,7 +823,7 @@ class _ItemDetailsCard extends StatelessWidget {
                   advert.year != null && advert.year! > 0
                       ? advert.year.toString()
                       : S.of(context)!.unknown,
-              isVisible: category.settings['year'] == true,
+              isVisible: advertCategory.year,
               icon: Icons.calendar_today,
               colorScheme: colorScheme,
               semanticsLabel: S.of(context)!.year_of_release,

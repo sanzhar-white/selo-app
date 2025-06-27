@@ -18,13 +18,13 @@ class LocaleNotifier extends StateNotifier<Locale> {
 
   Future<void> _loadLocale() async {
     try {
-      final languageCode = LocalStorageService.getLocale();
+      final languageCode = await LocalStorageService.getLocale();
       if (languageCode != null && ['en', 'ru', 'kk'].contains(languageCode)) {
         state = Locale(languageCode);
       } else {
         _talker.warning(ErrorMessages.invalidOrNoSavedLocale);
       }
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorLoadingLocale, e, stack);
     }
   }
@@ -40,7 +40,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
       state = locale;
       await LocalStorageService.saveLocale(locale.languageCode);
       _talker.info('🌐 Locale set to ${locale.languageCode}');
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorSavingLocale, e, stack);
     }
   }

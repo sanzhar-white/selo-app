@@ -79,7 +79,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
     if (state.isLoading || (!refresh && !state.hasMoreFiltered && page > 1)) {
       return;
     }
-    final appliedFilter = await _applyFilterAndClearCache(filter, refresh);
+    final appliedFilter = filter?.copyWith(categories: filter.categories);
+    if (!refresh &&
+        appliedFilter == state.currentFilter &&
+        page == state.currentPageFiltered) {
+      talker.debug('Фильтр не изменился, запрос не требуется');
+      return;
+    }
+    if (refresh || appliedFilter != state.currentFilter) {
+      await clearFilteredCache();
+    }
     await _executeUseCase(
       () => ref
           .read(getFilteredAdvertisementsUseCaseProvider)
@@ -104,7 +113,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
           currentFilter: appliedFilter,
           isLoading: false,
         );
-        talker.info('Loaded ${ads.length} filtered ads for page $page');
+        talker.info(
+          'Loaded [32m${ads.length}[0m filtered ads for page $page',
+        );
       },
       errorMessage: ErrorMessages.failedToLoadFilteredAds,
     );
@@ -150,7 +161,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool refresh,
   ) async {
     final appliedFilter = filter?.copyWith(
-      category: filter.category,
+      categories: filter.categories,
     );
     if (refresh || appliedFilter != state.currentFilter) {
       await clearFilteredCache();
@@ -162,7 +173,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   Map<String, String> _createFilterParams(SearchModel filter) {
     return {
       'searchQuery': filter.searchQuery ?? '',
-      'category': filter.category?.toString() ?? '',
+      'categories': filter.categories?.join(',') ?? '',
       'district': filter.district?.toString() ?? '',
       'region': filter.region?.toString() ?? '',
       'priceFrom': filter.priceFrom?.toString() ?? '',

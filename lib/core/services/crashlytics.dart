@@ -21,5 +21,3 @@ class CrashlyticsObserver extends TalkerObserver {
     );
   }
 }
-
-final Talker talker = TalkerFlutter.init(observer: CrashlyticsObserver());

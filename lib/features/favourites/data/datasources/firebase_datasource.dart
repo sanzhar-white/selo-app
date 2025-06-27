@@ -71,7 +71,7 @@ class FirebaseDatasource implements FavouritesInterface {
 
       _talker.info('✅ Successfully retrieved ${adverts.length} favourites');
       return DataSuccess(adverts);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorInGetFavourites, e, stack);
       return DataFailed(Exception(e), stack);
     }
@@ -138,7 +138,7 @@ class FirebaseDatasource implements FavouritesInterface {
 
       _talker.info('✅ Successfully added to favourites');
       return const DataSuccess(true);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorInAddToFavourites, e, stack);
       return DataFailed(Exception(e), stack);
     }
@@ -205,7 +205,7 @@ class FirebaseDatasource implements FavouritesInterface {
 
       _talker.info('✅ Successfully removed from favourites');
       return const DataSuccess(true);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorInRemoveFromFavourites, e, stack);
       return DataFailed(Exception(e), stack);
     }
@@ -268,7 +268,7 @@ class FirebaseDatasource implements FavouritesInterface {
       await userRef.update({'likes': likes});
       _talker.info('✅ Successfully toggled favourite status');
       return const DataSuccess(true);
-    } catch (e, stack) {
+    } on Exception catch (e, stack) {
       _talker.error(ErrorMessages.errorInToggleFavourite, e, stack);
       return DataFailed(Exception(e), stack);
     }

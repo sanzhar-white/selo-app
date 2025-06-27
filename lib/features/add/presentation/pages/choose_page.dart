@@ -45,6 +45,7 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
 
     final colorScheme = Theme.of(context).colorScheme;
     final radius = ResponsiveRadius.screenBased(context);
+    final user = ref.watch(userNotifierProvider).user;
 
     return Scaffold(
       body: categoriesState.when(
@@ -86,7 +87,6 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                   ),
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final category = categories[index];
-                    final user = ref.watch(userNotifierProvider).user;
                     return GestureDetector(
                       onTap: () {
                         if (user != null &&
@@ -98,8 +98,8 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                           );
                         } else {
                           PopupWindow(
-                            message: 'Please login to create an advert',
-                            buttonText: 'Login',
+                            message: S.of(context)!.add_anonymous_window,
+                            buttonText: S.of(context)!.signin,
                             onButtonPressed: () {
                               ref.read(userNotifierProvider.notifier).logOut();
                               context.push(Routes.authenticationPage);
@@ -125,10 +125,10 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                           children: [
                             Row(
                               children: [
-                                if (category.imageUrl != '') ...[
+                                if (category.displayImage != '') ...[
                                   Center(
                                     child: CachedNetworkImage(
-                                      imageUrl: category.imageUrl,
+                                      imageUrl: category.displayImage,
                                       width: 60,
                                       height: 60,
                                       fit: BoxFit.fill,
@@ -181,7 +181,10 @@ class _ChoosePageState extends ConsumerState<ChoosePage> {
                                 ],
                                 SizedBox(width: screenSize.width * 0.03),
                                 Text(
-                                  getLocalizedCategory(category, context),
+                                  getLocalizedDisplayNameOfCategory(
+                                    category,
+                                    context,
+                                  ),
                                   style: contrastM(context),
                                 ),
                               ],

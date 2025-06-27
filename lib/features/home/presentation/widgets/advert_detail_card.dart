@@ -119,17 +119,39 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
     final screenSize = MediaQuery.of(context).size;
 
     final category = categories.firstWhere(
-      (category) => category.id == widget.advert.category,
+      (category) => category.ids.contains(widget.advert.category),
       orElse:
           () => AdCategory(
-            id: widget.advert.category,
-            nameEn: 'Unknown',
-            nameKk: 'Белгісіз',
-            nameRu: 'Неизвестно',
-            imageUrl: '',
-            settings: const {},
+            displayName: const LocalizedText(
+              en: 'Unknown',
+              kk: 'Белгісіз',
+              ru: 'Неизвестно',
+            ),
+            ids: [widget.advert.category],
+            images: [''],
+            displayImage: '',
+            names: const [],
+            settings: const [],
           ),
     );
+
+    // Находим конкретную подкатегорию для получения настроек
+    final categoryIndex = category.ids.indexOf(widget.advert.category);
+    final advertCategory =
+        categoryIndex >= 0 && categoryIndex < category.settings.length
+            ? category.settings[categoryIndex]
+            : const AdCategoryItemSettings(
+              maxPrice: false,
+              quantity: false,
+              maxQuantity: false,
+              salary: false,
+              pricePer: false,
+              contactPerson: false,
+              condition: false,
+              year: false,
+              tradeable: false,
+              companyName: false,
+            );
 
     return GestureDetector(
       key: const Key('advert_detail_card'),
@@ -269,7 +291,8 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (widget.advert.price != 0)
-                          if (widget.advert.maxPrice != null)
+                          if (widget.advert.maxPrice != null &&
+                              widget.advert.maxPrice != 0)
                             Text(
                               '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
@@ -285,13 +308,16 @@ class _AdvertDetailCardState extends ConsumerState<AdvertDetailCard>
                             style: contrastBoldM(context),
                           ),
                         Text(
-                          getLocalizedCategory(category, context),
+                          getLocalizedNameOfCategory(
+                            category,
+                            context,
+                            widget.advert.category,
+                          ),
                           style: contrastM(context),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
                         ),
-                        if (widget.advert.tradeable &&
-                            category.settings['tradeable'] == true)
+                        if (widget.advert.tradeable && advertCategory.tradeable)
                           Text(
                             S.of(context)!.trade_possible,
                             style: contrastM(context),

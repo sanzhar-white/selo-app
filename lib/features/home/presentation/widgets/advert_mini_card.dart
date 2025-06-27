@@ -127,15 +127,19 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
     final user = ref.watch(userNotifierProvider).user;
 
     final category = categories.firstWhere(
-      (category) => category.id == widget.advert.category,
+      (category) => category.ids.contains(widget.advert.category),
       orElse:
           () => AdCategory(
-            id: widget.advert.category,
-            nameEn: 'Unknown',
-            nameKk: 'Белгісіз',
-            nameRu: 'Неизвестно',
-            imageUrl: '',
-            settings: const {},
+            displayName: const LocalizedText(
+              en: 'Unknown',
+              kk: 'Белгісіз',
+              ru: 'Неизвестно',
+            ),
+            ids: [widget.advert.category],
+            images: [''],
+            displayImage: '',
+            names: const [],
+            settings: const [],
           ),
     );
 
@@ -315,7 +319,8 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (widget.advert.price != 0) ...[
-                          if (widget.advert.maxPrice != null) ...[
+                          if (widget.advert.maxPrice != null &&
+                              widget.advert.maxPrice != 0) ...[
                             Text(
                               '${S.of(context)!.to} ${widget.advert.maxPrice} ₸',
                               style: contrastBoldM(context),
@@ -333,7 +338,11 @@ class _AdvertMiniCardState extends ConsumerState<AdvertMiniCard>
                           ),
                         ],
                         Text(
-                          getLocalizedCategory(category, context),
+                          getLocalizedNameOfCategory(
+                            category,
+                            context,
+                            widget.advert.category,
+                          ),
                           style: contrastM(context),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,

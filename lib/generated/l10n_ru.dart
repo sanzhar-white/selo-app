@@ -121,7 +121,7 @@ class SRu extends S {
   String get max_price_required => 'Максимальная цена обязательна';
 
   @override
-  String get negotiable => 'Торг возможен';
+  String get negotiable => 'Договорная';
 
   @override
   String get price => 'Цена';
