@@ -397,11 +397,15 @@ void main() {
       'anonymousLogIn returns true and sets anonymous user state on success',
       () async {
         // Arrange
-        final localUser = LocalUserModel(
+        // Clear any existing user from local storage
+        await Hive.box<LocalUserModel>('userBox').clear();
+
+        // Create a mock user that will be returned after the use case is called
+        final mockUser = LocalUserModel(
           userJson: jsonEncode({
             'uid': 'anon_user',
             'phoneNumber': '',
-            'name': '',
+            'name': 'Anonymous',
             'lastName': '',
             'likes': [],
             'region': 0,
@@ -409,13 +413,17 @@ void main() {
             'profileImage': '',
             'createdAt': DateTime.now().toIso8601String(),
             'updatedAt': DateTime.now().toIso8601String(),
-            'isAnonymous': true,
           }),
         );
-        await Hive.box<LocalUserModel>('userBox').put('user', localUser);
+
         when(
           () => mockAnonymousLogInUseCase.call(),
-        ).thenAnswer((_) async => DataSuccess(true));
+        ).thenAnswer((_) async {
+          // Save the mock user to local storage when the use case is called
+          await Hive.box<LocalUserModel>('userBox').put('user', mockUser);
+          return DataSuccess(true);
+        });
+
         final notifier = container.read(userNotifierProvider.notifier);
 
         // Act
@@ -425,6 +433,7 @@ void main() {
         expect(result, isTrue);
         expect(container.read(userNotifierProvider).user, isNotNull);
         expect(container.read(userNotifierProvider).user?.phoneNumber, '');
+        verify(() => mockAnonymousLogInUseCase.call()).called(1);
       },
     );
 
@@ -583,9 +592,10 @@ void main() {
         final filter = SearchModel(searchQuery: 'test');
         when(
           () => mockGetFilteredAdsUseCase.call(
-            params: any<
-              ({SearchModel? searchModel, PaginationModel paginationModel})
-            >(named: 'params'),
+            params:
+                any<
+                  ({SearchModel? searchModel, PaginationModel paginationModel})
+                >(named: 'params'),
           ),
         ).thenAnswer((_) async => DataSuccess(adverts));
         final container = ProviderContainer(

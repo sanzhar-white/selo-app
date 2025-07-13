@@ -76,11 +76,20 @@ jobs:
       - name: Build APK
         run: flutter build apk --debug --dart-define=FLUTTER_WEB_USE_SKIA=true
         
+      - name: Build iOS (simulator)
+        run: flutter build ios --debug --no-codesign
+        
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: build/app/outputs/flutter-apk/app-debug.apk
+          
+      - name: Upload iOS build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-debug
+          path: build/ios/
           
   security:
     name: Security Check

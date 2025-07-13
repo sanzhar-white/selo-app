@@ -62,7 +62,7 @@ void main() {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: S.delegate.supportedLocales,
+          supportedLocales: S.supportedLocales,
           home: Scaffold(
             body: Center(
               child: SizedBox(
