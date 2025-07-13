@@ -1,4 +1,4 @@
-# 🏡 Selo.kz - Современный АгроМаркет
+# 🏡 Selo.kz - Modern AgroMarket
 
 **Selo.kz** is a commercial mobile agro-marketplace built with **Flutter** and **Dart**, designed to transform Kazakhstan’s agricultural sector. With a development budget exceeding **$8000**, this high-quality application connects farmers, businesses, and individuals to buy, sell, or browse agricultural products and services. Crafted with industry-leading practices, Selo.kz delivers a robust, scalable, and highly optimized platform, tailored for Kazakhstan’s agricultural community.
 
@@ -30,9 +30,9 @@ Selo.kz was developed with a focus on quality, performance, and scalability, lev
   - The rendering pipeline is **maximally optimized**, delivering a fluid user experience across diverse hardware.
 - **Testing**:
   - **Unit Tests**: Implemented with **Mockito** and **flutter_test** to validate business logic.
-  - **Widget Tests**: Use `find.byKey` and `find.byType` to ensure UI reliability, achieving high test coverage.
+  - **Widget Tests**: Basic widget testing.
 - **Multi-Platform Support**:
-  - Adaptive UI for iOS, Android, and future Web/Desktop platforms using **Platform**, **LayoutBuilder**, **MediaQuery**, and **flutter_adaptive_scaffold**.
+  - Adaptive UI for iOS, Android, and future Web/Desktop platforms using **Platform**, **MediaQuery**, and **flutter_adaptive_scaffold**.
   - Consistent experience across screen sizes and operating systems.
 - **Code Analysis & Linting**:
   - Configured with `analysis_options.yaml`, enforcing **pedantic**, **effective_dart**, and **very_good_analysis** rules.
@@ -105,7 +105,7 @@ Follow these steps to set up and run Selo.kz locally:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/selo.git
+   git clone https://github.com/sanzhar-white/selo-app.git
    ```
 
 2. **Navigate to the project directory**:
@@ -149,8 +149,8 @@ Follow these steps to set up and run Selo.kz locally:
 
 For questions, feedback, or support:
 
-- **Email**: [selokz.app@gmail.com](mailto:selokz.app@gmail.com)
-- **GitHub Issues**: [Open an issue](https://github.com/your-username/selo/issues)
+- **Email**: [sanzzzsanzhar@gmail.com](mailto:sanzzzsanzhar@gmail.com)
+- **GitHub Issues**: [Open an issue](https://github.com/sanzhar-white/selo-app/issues)
 - **Privacy Policy**: [View here](https://sites.google.com/view/privacypolicyselo/%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0)
 - **Download Selo.kz**:
   - [Google Play Store](https://play.google.com/store/apps/details?id=com.selo.app)
