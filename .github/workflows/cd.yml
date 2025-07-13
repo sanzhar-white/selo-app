@@ -49,49 +49,23 @@ jobs:
           name: app-bundle
           path: build/app/outputs/bundle/release/app-release.aab
           
-  deploy-ios:
-    name: Deploy iOS
-    runs-on: macos-latest
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.32.2'
-          channel: 'stable'
-          
-      - name: Install dependencies
-        run: flutter pub get
-        
-      - name: Build iOS release
-        run: flutter build ios --release --no-codesign
-        
-      - name: Upload iOS build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-release
-          path: build/ios/
+
           
   notify:
     name: Notify Team
     runs-on: ubuntu-latest
-    needs: [deploy-android, deploy-ios]
+    needs: [deploy-android]
     if: always()
     
     steps:
       - name: Notify on success
-        if: needs.deploy-android.result == 'success' && needs.deploy-ios.result == 'success'
+        if: needs.deploy-android.result == 'success'
         run: |
           echo "✅ Deployment successful!"
           echo "Android APK and App Bundle built successfully"
-          echo "iOS build completed successfully"
           
       - name: Notify on failure
-        if: needs.deploy-android.result == 'failure' || needs.deploy-ios.result == 'failure'
+        if: needs.deploy-android.result == 'failure'
         run: |
           echo "❌ Deployment failed!"
           echo "Check the logs for more details"
