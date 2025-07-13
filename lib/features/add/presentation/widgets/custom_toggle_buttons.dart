@@ -3,9 +3,11 @@ import 'package:selo/core/theme/responsive_radius.dart';
 import 'package:selo/core/theme/text_styles.dart';
 
 class CustomToggleButtons extends StatelessWidget {
-
   const CustomToggleButtons({
-    required this.options, required this.selectedIndex, required this.onChanged, super.key,
+    required this.options,
+    required this.selectedIndex,
+    required this.onChanged,
+    super.key,
     this.height,
     this.selectedColor,
     this.unselectedColor,

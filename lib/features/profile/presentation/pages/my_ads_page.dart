@@ -9,6 +9,8 @@ import 'package:selo/features/favourites/presentation/widgets/advert_wide_card.d
 import 'package:selo/generated/l10n.dart';
 import 'package:selo/core/utils/auth_navigation_handler.dart';
 
+import '../widgets/my_advert_wide_card.dart';
+
 class MyAdsPage extends ConsumerStatefulWidget {
   const MyAdsPage({super.key});
 
@@ -145,7 +147,10 @@ class _MyAdsPageState extends ConsumerState<MyAdsPage> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: RepaintBoundary(
-              child: AdvertWideCard(key: ValueKey(advert.uid), advert: advert),
+              child: MyAdvertWideCard(
+                key: ValueKey(advert.uid),
+                advert: advert,
+              ),
             ),
           );
         }, childCount: adverts.length),

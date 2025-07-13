@@ -633,7 +633,7 @@ class _DetailsCard extends StatelessWidget {
               title: S.of(context)!.phone_number,
               value:
                   advert.phoneNumber.isNotEmpty
-                      ? advert.phoneNumber
+                      ? formatPhoneNumber(advert.phoneNumber)
                       : S.of(context)!.unknown,
               isVisible: true,
               icon: Icons.phone,

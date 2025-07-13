@@ -176,6 +176,7 @@
   "resend_code": "Resend Code",
   "verify": "Verify",
   "share_functionality_coming_soon": "Share functionality coming soon!",
+  "edit_functionality_coming_soon": "Edit functionality coming soon!",
   "show_less": "Show less",
   "show_more": "Show more",
   "code_resent_success": "Verification code resent successfully",
@@ -183,5 +184,9 @@
   "otp_empty_error": "Please enter the verification code",
   "otp_verification_success": "Verification successful!",
   "otp_verification_failed": "Verification failed. Please try again.",
-  "resend_code_error": "Error resending code"
+  "resend_code_error": "Error resending code",
+  "edit": "Edit",
+  "advert_deleted_successfully": "Advert deleted successfully",
+  "error_deleting_advert":"Error deleting advert",
+  "are_you_sure_delete_advert": "Are you sure you want to delete the advert?"
 }

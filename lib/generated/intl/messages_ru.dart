@@ -34,12 +34,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "address": MessageLookupByLibrary.simpleMessage("Адрес"),
         "address_hint":
             MessageLookupByLibrary.simpleMessage("Введите ваш адрес"),
+        "advert_deleted_successfully":
+            MessageLookupByLibrary.simpleMessage("Объявление успешно удалено"),
         "advertisement_created":
             MessageLookupByLibrary.simpleMessage("Объявление успешно создано"),
         "all_ads": MessageLookupByLibrary.simpleMessage("Все объявления"),
         "all_categories": MessageLookupByLibrary.simpleMessage("Все категории"),
         "anonymous_user": MessageLookupByLibrary.simpleMessage("Гость"),
         "apply": MessageLookupByLibrary.simpleMessage("Применить"),
+        "are_you_sure_delete_advert": MessageLookupByLibrary.simpleMessage(
+            "Вы уверены, что хотите удалить объявление?"),
         "call": MessageLookupByLibrary.simpleMessage("Позвонить"),
         "camera": MessageLookupByLibrary.simpleMessage("Камера"),
         "cancel": MessageLookupByLibrary.simpleMessage("Отмена"),
@@ -94,8 +98,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Район обязателен"),
         "district_select":
             MessageLookupByLibrary.simpleMessage("Выберите район"),
+        "edit": MessageLookupByLibrary.simpleMessage("Редактировать"),
         "edit_anonymous_window": MessageLookupByLibrary.simpleMessage(
             "Пожалуйста, войдите, чтобы редактировать профиль"),
+        "edit_functionality_coming_soon": MessageLookupByLibrary.simpleMessage(
+            "Функция редактирования скоро появится!"),
         "edit_profile":
             MessageLookupByLibrary.simpleMessage("Редактировать профиль"),
         "enter_code_sent_to_your_phone": MessageLookupByLibrary.simpleMessage(
@@ -105,6 +112,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "error": MessageLookupByLibrary.simpleMessage("Ошибка"),
         "error_creating_advert": MessageLookupByLibrary.simpleMessage(
             "Ошибка при создании объявления"),
+        "error_deleting_advert": MessageLookupByLibrary.simpleMessage(
+            "Ошибка при удалении объявления"),
         "error_during_verification":
             MessageLookupByLibrary.simpleMessage("Ошибка во время верификации"),
         "error_selecting_image": MessageLookupByLibrary.simpleMessage(

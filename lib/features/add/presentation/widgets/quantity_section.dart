@@ -116,9 +116,10 @@ class QuantitySection extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
 
     return SizedBox(
-      height: screenSize.height * 0.06,
+      height: screenSize.height * 0.08,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: CustomTextField(
@@ -167,9 +168,10 @@ class QuantitySection extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
 
     return SizedBox(
-      height: screenSize.height * 0.06,
+      height: screenSize.height * 0.08,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: CustomTextField(
@@ -212,6 +214,7 @@ class QuantitySection extends StatelessWidget {
       },
       child: Container(
         width: screenSize.width * 0.15,
+        height: screenSize.height * 0.06,
         decoration: BoxDecoration(
           color: colorScheme.primary,
           borderRadius: radius,

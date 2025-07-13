@@ -503,6 +503,10 @@ class SKk extends S {
       'Бөлісу функциясы жақын арада пайда болады!';
 
   @override
+  String get edit_functionality_coming_soon =>
+      'Өңдеу функциясы жақын арада пайда болады!';
+
+  @override
   String get show_less => 'Азырақ көрсету';
 
   @override
@@ -526,4 +530,18 @@ class SKk extends S {
 
   @override
   String get resend_code_error => 'Кодты қайта жіберу қатесі';
+
+  @override
+  String get advert_deleted_successfully => 'Хабарландыру сәтті жойылды';
+
+  @override
+  String get error_deleting_advert =>
+      'Хабарландыруды жою кезінде қате пайда болды';
+
+  @override
+  String get edit => 'Өңдеу';
+
+  @override
+  String get are_you_sure_delete_advert =>
+      'Хабарландыруды жоюға сенімдісіз бе?';
 }

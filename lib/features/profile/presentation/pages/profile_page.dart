@@ -14,6 +14,8 @@ import 'package:selo/shared/widgets/popup_window.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:selo/core/constants/images.dart';
 
+import '../../../../core/utils/utils.dart';
+
 const _headerHeightFactor = 0.07;
 const _profileSectionHeightFactor = 0.35;
 const _avatarRadius = 60.0;
@@ -212,7 +214,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             const SizedBox(height: 8),
                             Text(
                               userState.user!.phoneNumber.isNotEmpty
-                                  ? userState.user!.phoneNumber
+                                  ? formatPhoneNumber(
+                                    userState.user!.phoneNumber,
+                                  )
                                   : S.of(context)!.no_phone_number,
                               style: contrastM(context),
                             ),

@@ -176,6 +176,7 @@
   "resend_code": "Кодты қайта жіберу",
   "verify": "Тексеру",
   "share_functionality_coming_soon": "Бөлісу функциясы жақын арада пайда болады!",
+  "edit_functionality_coming_soon": "Өңдеу функциясы жақын арада пайда болады!",
   "show_less": "Азырақ көрсету",
   "show_more": "Көбірек көрсету",
   "code_resent_success": "Растау коды сәтті қайта жіберілді",
@@ -183,5 +184,9 @@
   "otp_empty_error": "Растау кодын енгізіңіз",
   "otp_verification_success": "Растау сәтті өтті!",
   "otp_verification_failed": "Растау сәтсіз аяқталды. Қайталап көріңіз.",
-  "resend_code_error": "Кодты қайта жіберу қатесі"
+  "resend_code_error": "Кодты қайта жіберу қатесі",
+  "edit": "Өңдеу",
+  "advert_deleted_successfully": "Хабарландыру сәтті жойылды",
+  "error_deleting_advert": "Хабарландыруды жою кезінде қате пайда болды",
+  "are_you_sure_delete_advert": "Хабарландыруды жоюға сенімдісіз бе?"
 }

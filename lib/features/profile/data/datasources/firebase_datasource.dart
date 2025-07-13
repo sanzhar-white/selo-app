@@ -34,6 +34,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
     try {
       var query = _firestore
           .collection(FirebaseCollections.adverts)
+          .where('active', isEqualTo: true)
           .where('ownerUid', isEqualTo: uid)
           .limit(limit);
 
@@ -70,7 +71,7 @@ class FirebaseProfileRemoteDataSource implements ProfileInterface {
       await _firestore
           .collection(FirebaseCollections.adverts)
           .doc(uid)
-          .update({'deletedAt': Timestamp})
+          .update({'deletedAt': Timestamp.now()})
           .timeout(FirebaseConstants.operationTimeout);
       return const DataSuccess(true);
     } on Exception catch (e, stack) {

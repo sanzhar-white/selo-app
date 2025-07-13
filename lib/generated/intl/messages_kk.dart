@@ -34,6 +34,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "address": MessageLookupByLibrary.simpleMessage("Мекенжай"),
         "address_hint":
             MessageLookupByLibrary.simpleMessage("Мекенжайыңызды енгізіңіз"),
+        "advert_deleted_successfully":
+            MessageLookupByLibrary.simpleMessage("Хабарландыру сәтті жойылды"),
         "advertisement_created":
             MessageLookupByLibrary.simpleMessage("Хабарландыру сәтті құрылды"),
         "all_ads":
@@ -42,6 +44,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Барлық санаттар"),
         "anonymous_user": MessageLookupByLibrary.simpleMessage("Қонақ"),
         "apply": MessageLookupByLibrary.simpleMessage("Қолдану"),
+        "are_you_sure_delete_advert": MessageLookupByLibrary.simpleMessage(
+            "Хабарландыруды жоюға сенімдісіз бе?"),
         "call": MessageLookupByLibrary.simpleMessage("Қоңырау шалу"),
         "camera": MessageLookupByLibrary.simpleMessage("Камера"),
         "cancel": MessageLookupByLibrary.simpleMessage("Болдырмау"),
@@ -95,8 +99,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Аудан міндетті"),
         "district_select":
             MessageLookupByLibrary.simpleMessage("Ауданды таңдаңыз"),
+        "edit": MessageLookupByLibrary.simpleMessage("Өңдеу"),
         "edit_anonymous_window": MessageLookupByLibrary.simpleMessage(
             "Профильді өңдеу үшін кіріңіз"),
+        "edit_functionality_coming_soon": MessageLookupByLibrary.simpleMessage(
+            "Өңдеу функциясы жақын арада пайда болады!"),
         "edit_profile": MessageLookupByLibrary.simpleMessage("Профильді өңдеу"),
         "enter_code_sent_to_your_phone": MessageLookupByLibrary.simpleMessage(
             "Телефоныңызға жіберілген 6 таңбалы кодты енгізіңіз"),
@@ -105,6 +112,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "error": MessageLookupByLibrary.simpleMessage("Қате"),
         "error_creating_advert":
             MessageLookupByLibrary.simpleMessage("Хабарландыру құрудағы қате"),
+        "error_deleting_advert": MessageLookupByLibrary.simpleMessage(
+            "Хабарландыруды жою кезінде қате пайда болды"),
         "error_during_verification":
             MessageLookupByLibrary.simpleMessage("Тексеру кезіндегі қате"),
         "error_selecting_image":

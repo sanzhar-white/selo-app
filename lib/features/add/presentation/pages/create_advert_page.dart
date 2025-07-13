@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:selo/core/di/di.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:selo/core/constants/error_message.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class CreateAdvertPage extends ConsumerStatefulWidget {
   const CreateAdvertPage({required this.category, super.key});
@@ -66,13 +67,20 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
 
   Talker get _talker => di<Talker>();
 
+  // Masked phone formatter
+  final phoneMaskFormatter = MaskTextInputFormatter(
+    mask: '+7 (###) ### ####',
+    filter: {"#": RegExp(r'\d')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
   @override
   void initState() {
     super.initState();
     _uid = ref.read(userNotifierProvider).user?.uid ?? '';
     final userPhone = ref.read(userNotifierProvider).user?.phoneNumber;
     if (userPhone != null && userPhone.isNotEmpty) {
-      phoneController.text = userPhone;
+      phoneController.text = phoneMaskFormatter.maskText(userPhone);
     }
 
     // Инициализация категории
@@ -302,7 +310,7 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
         createdAt: now,
         updatedAt: now,
         title: titleController.text,
-        phoneNumber: phoneController.text,
+        phoneNumber: toRawPhone(phoneController.text),
         category: _selectedCategoryId,
         images: _images.map((e) => e?.path ?? '').toList(),
         description: descriptionController.text,
@@ -452,6 +460,11 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
       _talker.info('🗑️ User removed image: ${_images[index]?.path}');
       setState(() => _images.removeAt(index));
     }
+  }
+
+  bool _isPhoneValid() {
+    final digits = phoneController.text.replaceAll(RegExp(r'\D'), '');
+    return digits.length == 11;
   }
 
   @override
@@ -716,12 +729,10 @@ class _CreateAdvertPageState extends ConsumerState<CreateAdvertPage> {
                     theme: colorScheme,
                     style: contrastM(context),
                     hintText: S.of(context)!.phone_number_hint,
-                    formatters: [PhoneNumberFormatter()],
+                    formatters: [phoneMaskFormatter],
                     keyboardType: TextInputType.phone,
-                    error:
-                        _showValidation &&
-                        !(_validationState['phoneNumber'] ?? true),
-                    errorText: S.of(context)!.phone_number_required,
+                    error: _showValidation && !_isPhoneValid(),
+                    errorText: S.of(context)!.phone_number_invalid,
                   ),
                 ),
               ),

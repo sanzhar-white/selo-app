@@ -17,6 +17,7 @@ import 'package:selo/generated/l10n.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
 import 'package:selo/shared/widgets/location_picker.dart';
 import 'package:selo/core/utils/utils.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({super.key});
@@ -33,6 +34,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   String? _region;
   String? _district;
 
+  // Masked phone formatter
+  final phoneMaskFormatter = MaskTextInputFormatter(
+    mask: '+7 (###) ### ####',
+    filter: {"#": RegExp(r'\d')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +49,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     _lastNameController = TextEditingController(text: user?.lastName ?? '');
     _phoneController = TextEditingController(
       text:
-          user?.phoneNumber != null ? formatPhoneNumber(user!.phoneNumber) : '',
+          user?.phoneNumber != null
+              ? phoneMaskFormatter.maskText(user!.phoneNumber)
+              : '',
     );
     _region = user?.region != null ? getRegionName(user!.region) : null;
     _district =
@@ -98,7 +108,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       uid: uid,
       name: _nameController.text.trim(),
       lastName: _lastNameController.text.trim(),
-      phoneNumber: _phoneController.text.replaceAll(RegExp(r'\D'), ''),
+      phoneNumber: toRawPhone(_phoneController.text),
       region: _region != null ? getRegionID(_region!) : null,
       district:
           _district != null && _region != null
@@ -290,7 +300,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             ),
           ),
           keyboardType: TextInputType.phone,
-          inputFormatters: [PhoneNumberFormatter()],
+          inputFormatters: [phoneMaskFormatter],
           validator: (value) {
             if (value == null ||
                 value.replaceAll(RegExp(r'\D'), '').length < 11) {

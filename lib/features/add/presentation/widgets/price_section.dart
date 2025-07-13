@@ -100,9 +100,10 @@ class PriceSection extends StatelessWidget {
     final radius = ResponsiveRadius.screenBased(context);
 
     return SizedBox(
-      height: screenSize.height * 0.06,
+      height: screenSize.height * 0.08,
 
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Flexible(
             flex: 3,
@@ -122,6 +123,8 @@ class PriceSection extends StatelessWidget {
               borderRadius: BorderRadius.only(
                 topLeft: radius.topLeft,
                 bottomLeft: radius.bottomLeft,
+                topRight: Radius.zero,
+                bottomRight: Radius.zero,
               ),
             ),
           ),
@@ -145,6 +148,8 @@ class PriceSection extends StatelessWidget {
               borderRadius: BorderRadius.only(
                 topLeft: radius.topLeft,
                 bottomLeft: radius.bottomLeft,
+                topRight: Radius.zero,
+                bottomRight: Radius.zero,
               ),
             ),
           ),
@@ -185,11 +190,13 @@ class PriceSection extends StatelessWidget {
   Widget _buildSinglePriceWithUnit(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final screenSize = MediaQuery.of(context).size;
+    final radius = ResponsiveRadius.screenBased(context);
 
     return SizedBox(
-      height: screenSize.height * 0.06,
+      height: screenSize.height * 0.08,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: CustomTextField(
@@ -205,6 +212,12 @@ class PriceSection extends StatelessWidget {
                 ThousandsSeparatorInputFormatter(),
               ],
               keyboardType: TextInputType.number,
+              borderRadius: BorderRadius.only(
+                topLeft: radius.topLeft,
+                bottomLeft: radius.bottomLeft,
+                topRight: Radius.zero,
+                bottomRight: Radius.zero,
+              ),
             ),
           ),
           _buildCurrencyContainer(context, priceError),
@@ -232,6 +245,7 @@ class PriceSection extends StatelessWidget {
         borderRadius: radius,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: CustomTextField(
@@ -246,6 +260,12 @@ class PriceSection extends StatelessWidget {
                 ThousandsSeparatorInputFormatter(),
               ],
               keyboardType: TextInputType.number,
+              borderRadius: BorderRadius.only(
+                topLeft: radius.topLeft,
+                bottomLeft: radius.bottomLeft,
+                topRight: Radius.zero,
+                bottomRight: Radius.zero,
+              ),
             ),
           ),
           _buildCurrencyContainer(context, error),
@@ -261,6 +281,7 @@ class PriceSection extends StatelessWidget {
 
     return Container(
       width: screenSize.width * 0.15,
+      height: screenSize.height * 0.06,
       decoration: BoxDecoration(
         color: colorScheme.onSurface,
         borderRadius: BorderRadius.only(
@@ -297,6 +318,7 @@ class PriceSection extends StatelessWidget {
       },
       child: Container(
         width: screenSize.width * 0.15,
+        height: screenSize.height * 0.06,
         decoration: BoxDecoration(
           color: colorScheme.primary,
           borderRadius: radius,

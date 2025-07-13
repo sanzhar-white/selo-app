@@ -5,7 +5,11 @@ import 'package:selo/core/theme/text_styles.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
-    required this.controller, required this.theme, required this.style, required this.hintText, super.key,
+    required this.controller,
+    required this.theme,
+    required this.style,
+    required this.hintText,
+    super.key,
     this.borderRadius,
     this.border = true,
     this.minLines,

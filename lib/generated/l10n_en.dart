@@ -502,6 +502,10 @@ class SEn extends S {
       'Share functionality coming soon!';
 
   @override
+  String get edit_functionality_coming_soon =>
+      'Edit functionality coming soon!';
+
+  @override
   String get show_less => 'Show less';
 
   @override
@@ -525,4 +529,17 @@ class SEn extends S {
 
   @override
   String get resend_code_error => 'Error resending code';
+
+  @override
+  String get advert_deleted_successfully => 'Advert deleted successfully';
+
+  @override
+  String get error_deleting_advert => 'Error deleting advert';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get are_you_sure_delete_advert =>
+      'Are you sure you want to delete the advert?';
 }

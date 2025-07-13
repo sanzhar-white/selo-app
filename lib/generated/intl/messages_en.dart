@@ -34,6 +34,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "address": MessageLookupByLibrary.simpleMessage("Address"),
         "address_hint":
             MessageLookupByLibrary.simpleMessage("Enter your address"),
+        "advert_deleted_successfully":
+            MessageLookupByLibrary.simpleMessage("Advert deleted successfully"),
         "advertisement_created": MessageLookupByLibrary.simpleMessage(
             "Advertisement created successfully"),
         "all_ads": MessageLookupByLibrary.simpleMessage("All ads"),
@@ -41,6 +43,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("All categories"),
         "anonymous_user": MessageLookupByLibrary.simpleMessage("Guest"),
         "apply": MessageLookupByLibrary.simpleMessage("Apply"),
+        "are_you_sure_delete_advert": MessageLookupByLibrary.simpleMessage(
+            "Are you sure you want to delete the advert?"),
         "call": MessageLookupByLibrary.simpleMessage("Call"),
         "camera": MessageLookupByLibrary.simpleMessage("Camera"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
@@ -92,8 +96,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("District is required"),
         "district_select":
             MessageLookupByLibrary.simpleMessage("Select district"),
+        "edit": MessageLookupByLibrary.simpleMessage("Edit"),
         "edit_anonymous_window": MessageLookupByLibrary.simpleMessage(
             "Please sign in to edit your profile"),
+        "edit_functionality_coming_soon": MessageLookupByLibrary.simpleMessage(
+            "Edit functionality coming soon!"),
         "edit_profile": MessageLookupByLibrary.simpleMessage("Edit profile"),
         "enter_code_sent_to_your_phone": MessageLookupByLibrary.simpleMessage(
             "Enter the 6-digit code sent to your phone"),
@@ -102,6 +109,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "error": MessageLookupByLibrary.simpleMessage("Error"),
         "error_creating_advert":
             MessageLookupByLibrary.simpleMessage("Error creating advert"),
+        "error_deleting_advert":
+            MessageLookupByLibrary.simpleMessage("Error deleting advert"),
         "error_during_verification":
             MessageLookupByLibrary.simpleMessage("Error during verification"),
         "error_selecting_image":

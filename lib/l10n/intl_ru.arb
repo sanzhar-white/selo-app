@@ -176,6 +176,7 @@
   "resend_code": "Отправить код повторно",
   "verify": "Подтвердить",
   "share_functionality_coming_soon": "Функция поделиться скоро появится!",
+  "edit_functionality_coming_soon": "Функция редактирования скоро появится!",
   "show_less": "Показать меньше",
   "show_more": "Показать больше",
   "code_resent_success": "Код подтверждения успешно отправлен повторно",
@@ -183,5 +184,9 @@
   "otp_empty_error": "Пожалуйста, введите код подтверждения",
   "otp_verification_success": "Верификация успешна!",
   "otp_verification_failed": "Верификация не удалась. Попробуйте еще раз.",
-  "resend_code_error": "Ошибка при повторной отправке кода"
+  "resend_code_error": "Ошибка при повторной отправке кода",
+  "advert_deleted_successfully": "Объявление успешно удалено",
+  "error_deleting_advert": "Ошибка при удалении объявления",
+  "edit": "Редактировать",
+  "are_you_sure_delete_advert": "Вы уверены, что хотите удалить объявление?"
 }

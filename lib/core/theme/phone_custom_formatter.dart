@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PhoneNumberFormatter extends TextInputFormatter {
   @override
@@ -8,36 +9,51 @@ class PhoneNumberFormatter extends TextInputFormatter {
   ) {
     final digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
 
-    final buffer = StringBuffer();
-    final selectionIndex = newValue.selection.end;
-
     if (digitsOnly.isEmpty) {
-      return newValue.copyWith(
+      return TextEditingValue(
         text: '',
         selection: const TextSelection.collapsed(offset: 0),
       );
     }
 
-    buffer.write('+7');
+    var selectionIndex = newValue.selection.end;
+    final buffer = StringBuffer();
+    int usedDigits = 0;
 
-    if (digitsOnly.isNotEmpty) {
+    buffer.write('+7');
+    if (digitsOnly.length > 1) {
       buffer.write(' (');
-      buffer.write(digitsOnly.substring(1, digitsOnly.length.clamp(4, 4)));
+      final end = digitsOnly.length >= 4 ? 4 : digitsOnly.length;
+      buffer.write(digitsOnly.substring(1, end));
+      usedDigits = end;
     }
 
     if (digitsOnly.length >= 4) {
       buffer.write(') ');
-      buffer.write(digitsOnly.substring(4, digitsOnly.length.clamp(7, 7)));
+      final end = digitsOnly.length >= 7 ? 7 : digitsOnly.length;
+      buffer.write(digitsOnly.substring(4, end));
+      usedDigits = end;
     }
 
     if (digitsOnly.length >= 7) {
       buffer.write(' ');
-      buffer.write(digitsOnly.substring(7, digitsOnly.length.clamp(11, 11)));
+      final end = digitsOnly.length > 11 ? 11 : digitsOnly.length;
+      buffer.write(digitsOnly.substring(7, end));
+      usedDigits = end;
     }
+
+    // Корректируем позицию курсора
+    int nonDigitCount = buffer.toString().replaceAll(RegExp(r'\d'), '').length;
+    selectionIndex = buffer.length;
 
     return TextEditingValue(
       text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
+      selection: TextSelection.collapsed(offset: selectionIndex),
     );
   }
 }
+
+final phoneMaskFormatter = MaskTextInputFormatter(
+  mask: '+7 (###) ### ####',
+  filter: {"#": RegExp(r'\\d')},
+);

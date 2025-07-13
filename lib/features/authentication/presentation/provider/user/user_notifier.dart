@@ -29,7 +29,11 @@ class UserNotifier extends StateNotifier<UserState> {
         state = state.copyWith(
           user:
               userOverride ??
-              (result.data is UserModel ? result.data! as UserModel : null),
+              (result.data is UserModel
+                  ? result.data! as UserModel
+                  : result.data is AuthStatusModel
+                  ? (result.data as AuthStatusModel).user
+                  : null),
           isLoading: false,
         );
         return true;
@@ -123,7 +127,9 @@ class UserNotifier extends StateNotifier<UserState> {
   Future<void> logoutAndClearData() async {
     state = state.copyWith(isLoading: true);
     final result = await ref.read(logOutUseCaseProvider).call();
-    await LocalStorageService.deleteUser();
+    try {
+      await LocalStorageService.deleteUser();
+    } catch (e) {}
     if (result is DataSuccess) {
       state = const UserState();
     } else if (result is DataFailed) {

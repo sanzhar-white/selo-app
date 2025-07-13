@@ -9,6 +9,7 @@ import 'package:selo/core/utils/utils.dart';
 import 'package:selo/shared/widgets/custom_text_field.dart';
 import 'package:selo/shared/widgets/location_picker.dart';
 import 'package:selo/generated/l10n.dart';
+import 'package:selo/shared/widgets/show_bottom_picker.dart';
 
 Future<SearchModel?> showCategoryFilterBottomSheet({
   required BuildContext context,
@@ -202,29 +203,48 @@ Future<SearchModel?> showCategoryFilterBottomSheet({
                       const SizedBox(height: 20),
                       Text(S.of(context)!.sort, style: contrastBoldM(context)),
                       const SizedBox(height: 10),
-                      DropdownButtonFormField<int>(
-                        value: selectedSorting,
-                        items:
-                            sortingOptions.entries.map((entry) {
-                              return DropdownMenuItem(
-                                value: entry.key,
-                                child: Text(
-                                  entry.value,
+                      GestureDetector(
+                        onTap: () async {
+                          final selected = await showBottomPicker<int>(
+                            context: context,
+                            items: sortingOptions.keys.toList(),
+                            itemBuilder:
+                                (ctx, key) => Text(
+                                  sortingOptions[key]!,
                                   style: contrastM(context),
                                 ),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedSorting = value!;
-                          });
+                            onItemSelected: (value) {
+                              setState(() {
+                                selectedSorting = value;
+                              });
+                            },
+                            title: S.of(context)!.sort,
+                          );
+                          if (selected != null) {
+                            setState(() {
+                              selectedSorting = selected;
+                            });
+                          }
                         },
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: colorScheme.onSurface,
-                          border: OutlineInputBorder(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.onSurface,
                             borderRadius: radius,
-                            borderSide: BorderSide.none,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                sortingOptions[selectedSorting]!,
+                                style: contrastM(context),
+                              ),
+                              const Icon(Icons.arrow_drop_down),
+                            ],
                           ),
                         ),
                       ),

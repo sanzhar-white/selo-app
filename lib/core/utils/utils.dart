@@ -182,3 +182,29 @@ String formatPriceWithSpaces(num price) {
   final numberFormat = NumberFormat('#,##0', 'ru_RU');
   return numberFormat.format(price);
 }
+
+String toRawPhone(String input) {
+  final digits = input.replaceAll(RegExp(r'\\D'), '');
+  if (digits.startsWith('8')) {
+    return '+7${digits.substring(1)}';
+  } else if (digits.startsWith('7')) {
+    return '+7${digits.substring(1)}';
+  } else if (digits.startsWith('9') && digits.length == 10) {
+    return '+7$digits';
+  } else if (digits.length == 11 && digits.startsWith('7')) {
+    return '+7${digits.substring(1)}';
+  }
+  return '+$digits';
+}
+
+String formatPhoneNumberForUI(String input) {
+  final digits = input.replaceAll(RegExp(r'\\D'), '');
+  if (digits.length != 11) return input;
+  final buffer = StringBuffer('+7 (');
+  buffer.write(digits.substring(1, 4));
+  buffer.write(') ');
+  buffer.write(digits.substring(4, 7));
+  buffer.write(' ');
+  buffer.write(digits.substring(7, 11));
+  return buffer.toString();
+}

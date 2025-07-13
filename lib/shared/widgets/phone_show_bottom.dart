@@ -27,8 +27,8 @@ void showPhoneBottomSheet(BuildContext context, String phoneNumber) {
             boxShadow: [
               BoxShadow(
                 color: colorScheme.inversePrimary,
-                blurRadius: 30,
-                offset: const Offset(0, -4),
+                blurRadius: 10,
+                offset: const Offset(0, 0),
               ),
             ],
           ),

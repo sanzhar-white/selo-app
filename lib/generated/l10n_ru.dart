@@ -506,6 +506,10 @@ class SRu extends S {
       'Функция поделиться скоро появится!';
 
   @override
+  String get edit_functionality_coming_soon =>
+      'Функция редактирования скоро появится!';
+
+  @override
   String get show_less => 'Показать меньше';
 
   @override
@@ -531,4 +535,17 @@ class SRu extends S {
 
   @override
   String get resend_code_error => 'Ошибка при повторной отправке кода';
+
+  @override
+  String get advert_deleted_successfully => 'Объявление успешно удалено';
+
+  @override
+  String get error_deleting_advert => 'Ошибка при удалении объявления';
+
+  @override
+  String get edit => 'Редактировать';
+
+  @override
+  String get are_you_sure_delete_advert =>
+      'Вы уверены, что хотите удалить объявление?';
 }

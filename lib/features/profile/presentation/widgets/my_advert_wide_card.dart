@@ -16,9 +16,12 @@ import 'package:selo/generated/l10n.dart';
 import 'package:selo/features/home/presentation/providers/index.dart';
 import 'package:selo/shared/widgets/phone_show_bottom.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:selo/shared/widgets/popup_window.dart';
 
-class AdvertWideCard extends ConsumerStatefulWidget {
-  const AdvertWideCard({
+import '../providers/providers.dart';
+
+class MyAdvertWideCard extends ConsumerStatefulWidget {
+  const MyAdvertWideCard({
     required this.advert,
     super.key,
     this.isLoading = false,
@@ -28,10 +31,10 @@ class AdvertWideCard extends ConsumerStatefulWidget {
   final bool isLoading;
 
   @override
-  ConsumerState<AdvertWideCard> createState() => _AdvertWideCardState();
+  ConsumerState<MyAdvertWideCard> createState() => _MyAdvertWideCardState();
 }
 
-class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
+class _MyAdvertWideCardState extends ConsumerState<MyAdvertWideCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
@@ -103,6 +106,33 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
       } else {
         _animationController.forward();
       }
+    }
+  }
+
+  Future<void> _deleteAdvert(String uid) async {
+    final notifier = ref.read(profileNotifierProvider.notifier);
+
+    try {
+      await notifier.deleteAdvert(uid);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.advert_deleted_successfully,
+            style: contrastBoldM(context),
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.error_deleting_advert,
+            style: contrastBoldM(context),
+          ),
+        ),
+      );
     }
   }
 
@@ -216,8 +246,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                                 : _buildPlaceholder(context, colorScheme),
                       ),
                     ),
-                    if (widget.advert.images.isNotEmpty &&
-                        widget.advert.images.length > 1)
+                    if (widget.advert.images.isNotEmpty)
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
@@ -241,43 +270,35 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                     Align(
                       alignment: Alignment.topLeft,
                       child: GestureDetector(
-                        onTap: user == null ? null : _toggleFavourite,
+                        onTap: () {
+                          PopupWindow(
+                            message: S.of(context)!.are_you_sure_delete_advert,
+                            buttonText: S.of(context)!.delete,
+                            onButtonPressed: () async {
+                              await _deleteAdvert(widget.advert.uid);
+                            },
+                          ).show(context);
+                        },
                         child: Container(
-                          height: 48,
-                          width: 48,
-                          margin: const EdgeInsets.all(4),
+                          height: screenSize.width * 0.1,
+                          width: screenSize.width * 0.12,
+                          margin: EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: colorScheme.surface,
+                            color: colorScheme.error,
                             borderRadius: radius,
+                            boxShadow: [
+                              BoxShadow(
+                                color: colorScheme.inversePrimary.withOpacity(
+                                  0.2,
+                                ),
+                                blurRadius: 4,
+                              ),
+                            ],
                           ),
                           child: Center(
-                            child: AnimatedBuilder(
-                              animation: _animationController,
-                              builder: (context, child) {
-                                return Transform.scale(
-                                  scale: _scaleAnimation.value,
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Icon(
-                                        CupertinoIcons.heart_fill,
-                                        color: colorScheme.error,
-                                        size: 24,
-                                      ),
-                                      ClipRect(
-                                        child: Align(
-                                          widthFactor: _fillAnimation.value,
-                                          child: Icon(
-                                            CupertinoIcons.heart_fill,
-                                            color: colorScheme.error,
-                                            size: 24,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                            child: Icon(
+                              CupertinoIcons.delete,
+                              color: colorScheme.onPrimary,
                             ),
                           ),
                         ),
@@ -345,12 +366,18 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                     Row(
                       children: [
                         Expanded(
-                          flex: 3,
+                          flex: 2,
                           child: GestureDetector(
                             onTap: () {
-                              showPhoneBottomSheet(
-                                context,
-                                widget.advert.phoneNumber,
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    S
+                                        .of(context)!
+                                        .edit_functionality_coming_soon,
+                                    style: contrastBoldM(context),
+                                  ),
+                                ),
                               );
                             },
                             child: Container(
@@ -368,7 +395,7 @@ class _AdvertWideCardState extends ConsumerState<AdvertWideCard>
                               ),
                               child: Center(
                                 child: Text(
-                                  S.of(context)!.call,
+                                  S.of(context)!.edit,
                                   style: overGreenBoldM(context),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
