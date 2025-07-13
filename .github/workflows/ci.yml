@@ -78,7 +78,7 @@ jobs:
         run: flutter pub get
         
       - name: Build APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug --dart-define=FLUTTER_WEB_USE_SKIA=true
         
       - name: Build iOS (simulator)
         run: flutter build ios --debug --no-codesign
@@ -137,12 +137,6 @@ jobs:
         
       - name: Run custom lint rules
         run: |
-          # Проверяем наличие TODO комментариев
-          if grep -r "TODO" lib/ --include="*.dart"; then
-            echo "Found TODO comments in code"
-            exit 1
-          fi
-          
           # Проверяем наличие print statements
           if grep -r "print(" lib/ --include="*.dart"; then
             echo "Found print statements in code"

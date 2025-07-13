@@ -32,10 +32,10 @@ jobs:
         run: flutter pub get
         
       - name: Build release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define=FLUTTER_WEB_USE_SKIA=true
         
       - name: Build app bundle
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --dart-define=FLUTTER_WEB_USE_SKIA=true
         
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
