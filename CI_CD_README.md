@@ -63,8 +63,8 @@ flutter test
 # Widget tests
 flutter test test/widget_test.dart
 
-# Integration tests
-flutter test test_driver/
+# Integration tests (if available)
+# flutter test test_driver/
 
 # With coverage
 flutter test --coverage

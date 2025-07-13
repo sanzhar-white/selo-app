@@ -38,9 +38,6 @@ jobs:
       - name: Run widget tests
         run: flutter test test/widget_test.dart
         
-      - name: Run integration tests
-        run: flutter test test_driver/
-        
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:

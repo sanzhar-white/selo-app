@@ -48,3 +48,6 @@ post_install do |installer|
     end
   end
 end
+
+# Suppress warning about unused master specs repo
+install! 'cocoapods', :warn_for_unused_master_specs_repo => false
