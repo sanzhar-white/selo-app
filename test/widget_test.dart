@@ -13,6 +13,7 @@ import 'package:selo/shared/models/advert_model.dart';
 import 'package:selo/shared/models/local_user_model.dart';
 import 'package:selo/features/home/data/models/local_banner_model.dart';
 import 'package:talker/talker.dart';
+import 'package:selo/features/favourites/data/model/favourites_model.dart';
 
 class MockTalker extends Mock implements Talker {}
 
@@ -27,9 +28,14 @@ void main() {
     await Hive.openBox<List<dynamic>>('adsCacheBox');
     await Hive.openBox<dynamic>('settingsBox');
     final mockTalker = MockTalker();
-    when(() => mockTalker.info(any())).thenAnswer((_) {});
+    when(() => mockTalker.info(any<dynamic>())).thenAnswer((_) {});
     when(() => mockTalker.error(any(), any(), any())).thenAnswer((_) {});
-    GetIt.I.registerSingleton<Talker>(mockTalker);
+    if (!GetIt.I.isRegistered<Talker>()) {
+      GetIt.I.registerSingleton<Talker>(mockTalker);
+    }
+    // Регистрируем fallbackValue для mocktail
+    registerFallbackValue(UserUidModel(uid: 'fallback'));
+    registerFallbackValue(AdvertUidModel(uid: 'fallback'));
   });
 
   tearDown(() async {
@@ -57,21 +63,25 @@ void main() {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: S.delegate.supportedLocales,
-          home: SizedBox(
-            height: 200,
-            width: 100,
-            child: AdvertMiniCard(
-              advert: AdvertModel(
-                uid: "0",
-                ownerUid: "9",
-                createdAt: Timestamp.now(),
-                updatedAt: Timestamp.now(),
-                title: "Test Name",
-                price: 1000,
-                phoneNumber: "77010122670",
-                category: 0,
-                images: [],
-                description: "",
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                height: 300, // увеличено для избежания overflow
+                width: 180, // увеличено для избежания overflow
+                child: AdvertMiniCard(
+                  advert: AdvertModel(
+                    uid: "0",
+                    ownerUid: "9",
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now(),
+                    title: "Test Name",
+                    price: 1000,
+                    phoneNumber: "77010122670",
+                    category: 0,
+                    images: [],
+                    description: "",
+                  ),
+                ),
               ),
             ),
           ),
@@ -81,6 +91,4 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AdvertMiniCard), findsOneWidget);
   });
-
-  testWidgets("description", (tester) async {});
 }

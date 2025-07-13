@@ -1,0 +1,151 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Flutter Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+        
+      - name: Analyze project source
+        run: flutter analyze
+        
+      - name: Run unit tests
+        run: flutter test --coverage
+        
+      - name: Run widget tests
+        run: flutter test test/widget_test.dart
+        
+      - name: Run integration tests
+        run: flutter test test_driver/
+        
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          
+  build:
+    name: Build Apps
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Build APK
+        run: flutter build apk --debug
+        
+      - name: Build iOS (simulator)
+        run: flutter build ios --debug --no-codesign
+        
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          
+      - name: Upload iOS build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-debug
+          path: build/ios/
+          
+  security:
+    name: Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Check for outdated dependencies
+        run: flutter pub outdated
+        
+      - name: Verify pubspec.lock
+        run: flutter pub deps --style=tree
+        
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Run custom lint rules
+        run: |
+          # Проверяем наличие TODO комментариев
+          if grep -r "TODO" lib/ --include="*.dart"; then
+            echo "Found TODO comments in code"
+            exit 1
+          fi
+          
+          # Проверяем наличие print statements
+          if grep -r "print(" lib/ --include="*.dart"; then
+            echo "Found print statements in code"
+            exit 1
+          fi
+        
