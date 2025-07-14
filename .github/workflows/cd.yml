@@ -67,6 +67,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
         
+      - name: Clean CocoaPods cache
+        run: |
+          rm -rf ios/Pods
+          rm -rf ios/Podfile.lock
+          pod cache clean --all
+
+      - name: Install latest CocoaPods
+        run: |
+          cd ios
+          pod install --repo-update
+          
       - name: Build iOS release
         run: flutter build ios --release --no-codesign
         
